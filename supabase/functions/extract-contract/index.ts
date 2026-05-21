@@ -25,9 +25,15 @@ Felder:
 }
 Fehlende Felder als null. monthlyCost immer als Monatsbetrag (Jahresbetrag ÷ 12).`;
 
-async function getScanCount(supabaseUrl: string, serviceKey: string, userId: string): Promise<number> {
+// Aktueller Scan-Zaehler des Users fuer den angegebenen Monat ('YYYY-MM').
+async function getScanCount(
+  supabaseUrl: string,
+  serviceKey: string,
+  userId: string,
+  month: string,
+): Promise<number> {
   const res = await fetch(
-    `${supabaseUrl}/rest/v1/scan_counts?user_id=eq.${userId}&select=count`,
+    `${supabaseUrl}/rest/v1/scan_counts?user_id=eq.${userId}&month=eq.${month}&select=count`,
     {
       headers: {
         'apikey': serviceKey,
@@ -40,20 +46,24 @@ async function getScanCount(supabaseUrl: string, serviceKey: string, userId: str
   return data[0]?.count ?? 0;
 }
 
-async function incrementScanCount(supabaseUrl: string, serviceKey: string, userId: string): Promise<void> {
-  await fetch(`${supabaseUrl}/rest/v1/scan_counts`, {
+// Schreibt den neuen Zaehlerstand. Upsert ueber den Primaerschluessel
+// (user_id, month) — vorhandene Zeilen werden aktualisiert statt dupliziert.
+async function setScanCount(
+  supabaseUrl: string,
+  serviceKey: string,
+  userId: string,
+  month: string,
+  count: number,
+): Promise<void> {
+  await fetch(`${supabaseUrl}/rest/v1/scan_counts?on_conflict=user_id,month`, {
     method: 'POST',
     headers: {
       'apikey': serviceKey,
       'Authorization': `Bearer ${serviceKey}`,
       'Content-Type': 'application/json',
-      'Prefer': 'resolution=merge-duplicates',
+      'Prefer': 'resolution=merge-duplicates,return=minimal',
     },
-    body: JSON.stringify({
-      user_id: userId,
-      count: 1,
-      month: new Date().toISOString().substring(0, 7),
-    }),
+    body: JSON.stringify({ user_id: userId, month, count }),
   });
 }
 
@@ -89,7 +99,8 @@ Deno.serve(async (req: Request) => {
     const userId = user.id;
 
     // Rate limit: max 100 scans per user per month
-    const scanCount = await getScanCount(supabaseUrl, serviceKey, userId);
+    const month = new Date().toISOString().substring(0, 7);
+    const scanCount = await getScanCount(supabaseUrl, serviceKey, userId, month);
     if (scanCount >= 100) {
       return new Response(
         JSON.stringify({ error: 'Monatliches Scan-Limit (100) erreicht' }),
@@ -138,7 +149,7 @@ Deno.serve(async (req: Request) => {
       extractedData = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
     }
 
-    await incrementScanCount(supabaseUrl, serviceKey, userId);
+    await setScanCount(supabaseUrl, serviceKey, userId, month, scanCount + 1);
 
     return new Response(
       JSON.stringify(extractedData),
