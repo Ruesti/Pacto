@@ -4,6 +4,7 @@ import '../../data/database/database.dart';
 import '../../data/database/daos/contracts_dao.dart';
 import '../../data/providers/database_provider.dart';
 import '../provider_library/provider_library_data.dart';
+import '../scan/extraction_result.dart';
 
 class AddContractState {
   final String name;
@@ -119,6 +120,24 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
       contactPhone: t.contactPhone,
       contactEmail: t.contactEmail,
       contactUrl: t.contactUrl,
+    );
+  }
+
+  void prefillFromExtractionResult(ExtractionResult r) {
+    state = state.copyWith(
+      name: r.name,
+      provider: r.provider,
+      category: r.category,
+      monthlyCost: r.monthlyCost,
+      billingCycle: r.billingCycle,
+      cancellationMethod: r.cancellationMethod,
+      cancellationInstructions: r.cancellationInstructions,
+      noticePeriod: r.noticePeriod,
+      contactPhone: r.contactPhone,
+      contactEmail: r.contactEmail,
+      contactUrl: r.contactUrl,
+      notes: r.notes,
+      nextRenewal: r.nextRenewal,
     );
   }
 

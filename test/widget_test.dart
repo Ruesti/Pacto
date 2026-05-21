@@ -1,7 +1,9 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pacto/data/database/database.dart';
+import 'package:pacto/data/sync/crypto_service.dart';
 import 'package:drift/drift.dart' show Value;
+import 'package:shared_preferences/shared_preferences.dart';
 
 AppDatabase openTestDatabase() => AppDatabase(NativeDatabase.memory());
 
@@ -60,6 +62,26 @@ void main() {
 
     final total = await dao.getTotalMonthlyCost();
     expect(total, closeTo(31.97, 0.01));
+  });
+
+  test('Phase 9 – AES-256 encrypt/decrypt round-trip', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    final crypto = CryptoService();
+    final payload = {
+      'contracts': [
+        {'name': 'Netflix', 'cost': 12.99},
+        {'name': 'Spotify', 'cost': 9.99},
+      ],
+      'heirs': [
+        {'name': 'Max'},
+      ],
+    };
+    final blob = await crypto.encryptJson(payload);
+    expect(blob, isNot(contains('Netflix')));
+    final decoded = await crypto.decryptJson(blob);
+    expect(decoded['contracts'], payload['contracts']);
+    expect(decoded['heirs'], payload['heirs']);
   });
 
   test('Phase 1 – Erbe anlegen und lesen', () async {

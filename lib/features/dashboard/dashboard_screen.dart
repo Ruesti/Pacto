@@ -6,6 +6,9 @@ import '../add_contract/add_contract_screen.dart';
 import '../add_contract/widgets/entry_method_sheet.dart';
 import '../contract_detail/contract_detail_screen.dart';
 import '../heirs/heirs_screen.dart';
+import '../premium/premium_service.dart';
+import '../scan/extraction_result.dart';
+import '../scan/scan_controller.dart';
 import '../settings/settings_screen.dart';
 import 'widgets/contract_list_tile.dart';
 import 'widgets/cost_summary_card.dart';
@@ -163,7 +166,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
+  Future<bool> _ensureCanAdd() async {
+    final purchased = ref.read(premiumProvider);
+    if (purchased) return true;
+    final contracts = ref.read(contractsStreamProvider).value ?? const [];
+    if (contracts.length < freeTierLimit) return true;
+    if (!mounted) return false;
+    final unlocked = await showPurchaseDialog(context);
+    if (unlocked) {
+      await ref.read(premiumProvider.notifier).setPurchased(true);
+    }
+    return unlocked;
+  }
+
   Future<void> _addContract() async {
+    if (!await _ensureCanAdd()) return;
+    if (!mounted) return;
     final method = await EntryMethodSheet.show(context);
     if (method == null || !mounted) return;
 
@@ -177,8 +195,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             builder: (_) => const AddContractScreen()));
         break;
       case EntryMethod.scan:
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => const AddContractScreen()));
+        final result = await Navigator.of(context).push<ExtractionResult>(
+            MaterialPageRoute(builder: (_) => const ScanScreen()));
+        if (result != null && mounted) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) =>
+                  AddContractScreen(initialExtraction: result)));
+        }
         break;
     }
   }

@@ -90,7 +90,7 @@ Jede Phase endet mit einem lauffähigen, testbaren Zwischenstand.
 
 ---
 
-## Phase 6 — KI-Extraktion ✅ (Code fertig, Supabase ausstehend)
+## Phase 6 — KI-Extraktion ✅ (Code fertig, Supabase-Deploy ausstehend)
 
 **Ziel:** Foto oder PDF scannen → Formular automatisch vorausfüllen.
 
@@ -101,9 +101,13 @@ Jede Phase endet mit einem lauffähigen, testbaren Zwischenstand.
 - [x] `extraction_service.dart` — API-Call an Edge Function
 - [x] `extraction_result.dart` — Modell + `ExtractionConfidence` enum
 - [x] `scan_controller.dart` — FilePicker (Galerie + Datei)
-- [x] Confidence-Handling: HIGH/MEDIUM/LOW → Toast-Feedback
+- [x] `prefillFromExtractionResult` im AddContractNotifier
+- [x] Confidence-Banner im Formular (grün/gelb/rot)
+- [x] Dashboard-Flow: Scan → Result → AddContractScreen mit Prefill
+- [x] `scan_config_screen.dart` — URL + Anon Key in SharedPreferences, Setup-Anleitung
+- [x] `main.dart` ruft `applyStoredScanConfig()` beim Start
 
-**Abnahme:** Supabase-Projekt erstellen, Edge Function deployen, Dokument scannen.
+**Abnahme:** Supabase-Projekt erstellen, Edge Function deployen, URL+Key in App eintragen, Dokument scannen.
 
 ---
 
@@ -135,36 +139,40 @@ Jede Phase endet mit einem lauffähigen, testbaren Zwischenstand.
 
 ---
 
-## Phase 9 — Supabase-Sync ⬜ (Code-Gerüst fertig)
+## Phase 9 — Supabase-Sync ✅ (Code fertig, Supabase-Projekt ausstehend)
 
 **Ziel:** Verschlüsseltes Cloud-Backup, Basis für Tresor-Modus.
 
 **Aufgaben:**
-- [x] `supabase_sync_screen.dart` — Sync aktivieren/deaktivieren (UI)
-- [ ] Supabase-Projekt erstellen, URL + Anon-Key konfigurieren
-- [ ] AES-256-Verschlüsselung der Felder vor Upload
-- [ ] Sync-Logik: lokal → Supabase bei Änderung
-- [ ] Lebenszeichen-Tresor: `confirmed_at` in Supabase schreiben
+- [x] `supabase_sync_screen.dart` — URL/Key-Eingabe, Sync-Now, Last-Sync
+- [x] `crypto_service.dart` — AES-256-GCM via pointycastle, Schlüssel in SharedPreferences
+- [x] `cloud_sync_service.dart` — Contracts + Heirs als verschlüsseltes Blob hochladen
+- [x] `vault_screen.dart` — Lebenszeichen-Tresor mit Intervall, Bestätigungs-Button, Heartbeat
+- [x] Unit-Test: AES-Round-Trip
+- [ ] Supabase-Projekt erstellen, `sync_data` und `heartbeats` Tabellen anlegen
+- [ ] Schlüssel zu zweitem Gerät übertragen (Pull-Sync — v1.1)
 
-**Abnahme:** Daten verschlüsselt in Supabase sehen.
+**Abnahme:** Daten verschlüsselt in Supabase-Tabelle `sync_data` sichtbar.
 
 ---
 
-## Phase 10 — Onboarding + Store-Release ⬜
+## Phase 10 — Onboarding + Store-Release 🔶 (Code fertig, Store-Schritte offen)
 
 **Ziel:** App ist store-ready.
 
 **Aufgaben:**
-- [ ] Onboarding-Flow (3 Screens): Was ist Pacto? / Erben-Feature / Scan-Feature
-- [ ] Freemium-Gate: ab dem 6. Eintrag → Kauf-Dialog
-- [ ] In-App-Purchase (einmaliger Kauf ~2,99 €)
-- [ ] App-Icon, Splash-Screen
-- [ ] `settings_screen.dart` — Sync, Tresor-Modus, Kauf wiederherstellen
-- [ ] Android: App Bundle, Signing
+- [x] Onboarding-Flow (3 Screens): Verträge / KI-Scan / Erben-Feature
+- [x] First-Run-Detection in `app.dart` via SharedPreferences
+- [x] Freemium-Gate: ab dem 6. Eintrag → Kauf-Dialog
+- [x] Premium-Provider (Riverpod) — lokaler Test-Unlock
+- [x] `settings_screen.dart` — KI-Scan, Sync, Tresor, Onboarding wiederholen, Kauf-Status
+- [ ] In-App-Purchase echte Integration (Google Play Billing / StoreKit)
+- [ ] App-Icon, Splash-Screen (PNG-Assets erzeugen lassen)
+- [ ] Android: App Bundle, Signing-Key
 - [ ] iOS: Xcode Archive, App Store Connect
 - [ ] Store-Listings: Screenshots, Beschreibung (DE), Keywords
 
-**Abnahme:** Interne Testversion auf echtem Gerät lauffähig, Kauf testbar.
+**Abnahme:** Interne Testversion auf echtem Gerät lauffähig, Onboarding + Freemium-Gate testbar.
 
 ---
 
@@ -180,17 +188,25 @@ Jede Phase endet mit einem lauffähigen, testbaren Zwischenstand.
 | 6 | KI-Extraktion | ✅ Code fertig — Supabase ausstehend |
 | 7 | Share-Extension | ✅ Code fertig — Gerätetest ausstehend |
 | 8 | Erben & Teilen | ✅ fertig |
-| 9 | Supabase-Sync | 🔶 Gerüst fertig — Supabase-Konfiguration ausstehend |
-| 10 | Onboarding + Release | ⬜ offen |
+| 9 | Supabase-Sync | ✅ Code fertig — Supabase-Tabellen ausstehend |
+| 10 | Onboarding + Release | 🔶 Code fertig — Store-Release ausstehend |
 
 ## Nächste Schritte
 
 **Sofort machbar (lokal):**
-- Auf einem Android/iOS-Gerät starten: `flutter run`
-- Phase 10: Onboarding-Screens und Freemium-Gate implementieren
+- Auf Android/iOS starten: `flutter run` und Onboarding + Freemium-Gate testen
+- App-Icon und Splash-Screen-Assets erzeugen
 
 **Benötigt externe Konfiguration:**
 - Supabase-Projekt anlegen (kostenlos auf supabase.com)
 - Edge Function deployen (`supabase functions deploy extract-contract`)
-- Anthropic API-Key in Supabase-Secrets hinterlegen (`ANTHROPIC_API_KEY`)
-- App-URL und Anon-Key in `extraction_service.dart` konfigurieren
+- `ANTHROPIC_API_KEY` in Supabase-Secrets hinterlegen
+- Tabellen `sync_data (device_id uuid pk, encrypted_payload text, updated_at timestamptz)` und
+  `heartbeats (device_id uuid pk, confirmed_at timestamptz)` anlegen
+- URL + Anon-Key in den Pacto-Einstellungen (KI-Scan + Cloud-Sync) eintragen
+
+**Für Store-Release:**
+- In-App-Purchase echte Integration (Google Play Billing / StoreKit)
+- Android Signing-Key + App Bundle
+- iOS Xcode Archive + App Store Connect
+- Store-Listings (Screenshots, Texte DE)

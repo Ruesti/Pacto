@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../database/database.dart';
 import '../database/daos/contracts_dao.dart';
 import '../database/daos/heirs_dao.dart';
+import '../sync/cloud_sync_service.dart';
+import '../sync/crypto_service.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -23,4 +25,13 @@ final contractsStreamProvider = StreamProvider((ref) {
 
 final heirsStreamProvider = StreamProvider((ref) {
   return ref.watch(heirsDaoProvider).watchAll();
+});
+
+final cryptoServiceProvider = Provider<CryptoService>((ref) => CryptoService());
+
+final cloudSyncServiceProvider = Provider<CloudSyncService>((ref) {
+  return CloudSyncService(
+    ref.watch(databaseProvider),
+    ref.watch(cryptoServiceProvider),
+  );
 });

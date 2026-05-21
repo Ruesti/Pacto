@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/database.dart';
 import '../provider_library/provider_library_screen.dart';
+import '../scan/extraction_result.dart';
 import '../scan/scan_controller.dart';
 import 'add_contract_provider.dart';
 
 class AddContractScreen extends ConsumerStatefulWidget {
   final Contract? existing;
+  final ExtractionResult? initialExtraction;
 
-  const AddContractScreen({super.key, this.existing});
+  const AddContractScreen({super.key, this.existing, this.initialExtraction});
 
   @override
   ConsumerState<AddContractScreen> createState() => _AddContractScreenState();
@@ -25,6 +27,7 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
   late final TextEditingController _urlCtrl;
   late final TextEditingController _notesCtrl;
   final _formKey = GlobalKey<FormState>();
+  ExtractionConfidence? _extractionConfidence;
 
   @override
   void initState() {
@@ -41,6 +44,12 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     _emailCtrl = TextEditingController(text: e?.contactEmail ?? '');
     _urlCtrl = TextEditingController(text: e?.contactUrl ?? '');
     _notesCtrl = TextEditingController(text: e?.notes ?? '');
+
+    if (widget.initialExtraction != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _applyExtractionResult(widget.initialExtraction!);
+      });
+    }
   }
 
   @override
@@ -88,26 +97,27 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
   }
 
   Future<void> _openScan() async {
-    final result = await Navigator.of(context)
-        .push<dynamic>(MaterialPageRoute(builder: (_) => const ScanScreen()));
+    final result = await Navigator.of(context).push<ExtractionResult>(
+        MaterialPageRoute(builder: (_) => const ScanScreen()));
     if (result == null) return;
-    _notifier.prefillFromTemplate(
-      _extractionResultAsTemplate(result),
-    );
+    _applyExtractionResult(result);
+  }
+
+  void _applyExtractionResult(ExtractionResult result) {
+    _notifier.prefillFromExtractionResult(result);
     final state = ref.read(addContractProvider(widget.existing));
     _nameCtrl.text = state.name;
     _providerCtrl.text = state.provider;
-    _costCtrl.text = state.monthlyCost.toStringAsFixed(2);
+    _costCtrl.text =
+        state.monthlyCost > 0 ? state.monthlyCost.toStringAsFixed(2) : '';
     _cancInstructCtrl.text = state.cancellationInstructions;
     _noticePeriodCtrl.text = state.noticePeriod;
     _phoneCtrl.text = state.contactPhone ?? '';
     _emailCtrl.text = state.contactEmail ?? '';
     _urlCtrl.text = state.contactUrl ?? '';
     _notesCtrl.text = state.notes;
-    setState(() {});
+    setState(() => _extractionConfidence = result.confidence);
   }
-
-  dynamic _extractionResultAsTemplate(dynamic result) => result;
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
@@ -150,6 +160,8 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (_extractionConfidence != null)
+              _confidenceBanner(_extractionConfidence!),
             _sectionHeader('Basisdaten'),
             TextFormField(
               controller: _nameCtrl,
@@ -306,6 +318,53 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
             const SizedBox(height: 32),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _confidenceBanner(ExtractionConfidence confidence) {
+    final scheme = Theme.of(context).colorScheme;
+    final (bg, fg, icon, message) = switch (confidence) {
+      ExtractionConfidence.high => (
+          Colors.green.shade50,
+          Colors.green.shade800,
+          Icons.check_circle_outline,
+          'KI-Extraktion erfolgreich. Bitte prüfe die übernommenen Angaben.'
+        ),
+      ExtractionConfidence.medium => (
+          Colors.amber.shade50,
+          Colors.amber.shade900,
+          Icons.warning_amber_outlined,
+          'Einige Felder sind unsicher. Bitte sorgfältig prüfen.'
+        ),
+      ExtractionConfidence.low => (
+          scheme.errorContainer,
+          scheme.onErrorContainer,
+          Icons.error_outline,
+          'Nur wenige Felder erkannt. Bitte alle Angaben prüfen oder erneut scannen.'
+        ),
+    };
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: fg),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(message, style: TextStyle(fontSize: 13, color: fg)),
+          ),
+          IconButton(
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            icon: Icon(Icons.close, size: 18, color: fg),
+            onPressed: () => setState(() => _extractionConfidence = null),
+          ),
+        ],
       ),
     );
   }
