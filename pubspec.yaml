@@ -35,7 +35,6 @@ dependencies:
   url_launcher: ^6.3.0
 
   # Cloud & AI (phases 6+)
-  supabase_flutter: ^2.8.0
   receive_sharing_intent: ^1.8.1
   workmanager: ^0.9.0+3
 
