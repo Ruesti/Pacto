@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../data/providers/database_provider.dart';
+import '../../data/sync/cloud_sync_service.dart';
 
 const _keyVaultEnabled = 'pacto.vault.enabled';
 const _keyVaultIntervalDays = 'pacto.vault.interval_days';
@@ -59,7 +59,7 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_keyVaultConfirmedAt, now.millisecondsSinceEpoch);
     try {
-      await ref.read(cloudSyncServiceProvider).sendHeartbeat();
+      await CloudSyncService.sendHeartbeat();
     } catch (_) {
       // Lokales Lebenszeichen reicht, auch wenn Sync nicht erreichbar ist.
     }

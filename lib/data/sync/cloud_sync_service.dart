@@ -2,12 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import '../../config/supabase_config.dart';
 import '../database/database.dart';
 import 'crypto_service.dart';
 
 const _keyDeviceId = 'pacto.sync.device_id';
-const _keySupabaseUrl = 'pacto.sync.supabase_url';
-const _keyAnonKey = 'pacto.sync.anon_key';
 const _keyLastSync = 'pacto.sync.last_sync';
 
 class SyncConfig {
@@ -24,7 +23,7 @@ class CloudSyncService {
 
   CloudSyncService(this._db, this._crypto);
 
-  Future<String> _deviceId() async {
+  static Future<String> _deviceId() async {
     final prefs = await SharedPreferences.getInstance();
     var id = prefs.getString(_keyDeviceId);
     if (id == null) {
@@ -34,19 +33,12 @@ class CloudSyncService {
     return id;
   }
 
-  static Future<SyncConfig> loadConfig() async {
-    final prefs = await SharedPreferences.getInstance();
-    return SyncConfig(
-      supabaseUrl: prefs.getString(_keySupabaseUrl) ?? '',
-      anonKey: prefs.getString(_keyAnonKey) ?? '',
-    );
-  }
-
-  static Future<void> saveConfig(SyncConfig cfg) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keySupabaseUrl, cfg.supabaseUrl);
-    await prefs.setString(_keyAnonKey, cfg.anonKey);
-  }
+  // Fest eingebaute Projekt-Konfiguration — KI-Scan und Cloud-Sync laufen
+  // ohne jede Einrichtung durch den Nutzer ueber das Pacto-Supabase-Projekt.
+  static Future<SyncConfig> loadConfig() async => const SyncConfig(
+        supabaseUrl: SupabaseConfig.projectUrl,
+        anonKey: SupabaseConfig.anonKey,
+      );
 
   static Future<DateTime?> lastSyncAt() async {
     final prefs = await SharedPreferences.getInstance();
@@ -128,7 +120,10 @@ class CloudSyncService {
     await prefs.setInt(_keyLastSync, DateTime.now().millisecondsSinceEpoch);
   }
 
-  Future<void> sendHeartbeat() async {
+  /// Sendet ein Lebenszeichen fuer den Inaktivitaets-Tresor.
+  /// Statisch, damit der Hintergrund-Heartbeat (workmanager) die Methode aus
+  /// einem eigenen Isolate ohne Datenbank-/CryptoService-Instanz aufrufen kann.
+  static Future<void> sendHeartbeat() async {
     final cfg = await loadConfig();
     if (!cfg.isComplete) return;
     final deviceId = await _deviceId();

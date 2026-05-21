@@ -23,12 +23,16 @@ class ScanController {
       BuildContext context, ScanSource source) async {
     final file = await pickImage(source);
     if (file == null) return null;
+    return extractFromFile(file);
+  }
 
+  /// Extrahiert Vertragsdaten aus einer bereits vorliegenden Datei
+  /// (z.B. ueber die Teilen-Funktion einer anderen App).
+  Future<ExtractionResult> extractFromFile(File file) async {
     final isPdf = file.path.toLowerCase().endsWith('.pdf');
     final bytes = await file.readAsBytes();
     final base64Image = base64Encode(bytes);
     final mediaType = isPdf ? 'application/pdf' : 'image/jpeg';
-
     return _service.extractFromBase64Image(base64Image, mediaType);
   }
 }

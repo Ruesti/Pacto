@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
+import 'features/scan/share_import_screen.dart';
 import 'shared/theme/app_theme.dart';
 
 class PactoApp extends ConsumerWidget {
@@ -27,6 +31,7 @@ class _Root extends StatefulWidget {
 
 class _RootState extends State<_Root> {
   bool? _onboardingDone;
+  StreamSubscription<List<SharedMediaFile>>? _shareSub;
 
   @override
   void initState() {
@@ -34,6 +39,43 @@ class _RootState extends State<_Root> {
     isOnboardingDone().then((v) {
       if (mounted) setState(() => _onboardingDone = v);
     });
+    _initShareHandler();
+  }
+
+  @override
+  void dispose() {
+    _shareSub?.cancel();
+    super.dispose();
+  }
+
+  // Empfaengt Bilder/PDFs, die aus anderen Apps an Pacto geteilt werden.
+  void _initShareHandler() {
+    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    // Teilen waehrend die App laeuft.
+    _shareSub = ReceiveSharingIntent.instance
+        .getMediaStream()
+        .listen(_handleShared, onError: (_) {});
+    // Teilen, das die App gestartet hat (Kaltstart).
+    ReceiveSharingIntent.instance.getInitialMedia().then((files) {
+      _handleShared(files);
+      ReceiveSharingIntent.instance.reset();
+    });
+  }
+
+  void _handleShared(List<SharedMediaFile> files) {
+    if (!mounted || files.isEmpty) return;
+    final shared = files.firstWhere(
+      (f) =>
+          f.type == SharedMediaType.image || f.type == SharedMediaType.file,
+      orElse: () => files.first,
+    );
+    if (shared.type != SharedMediaType.image &&
+        shared.type != SharedMediaType.file) {
+      return;
+    }
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => ShareImportScreen(filePath: shared.path),
+    ));
   }
 
   @override

@@ -14,8 +14,6 @@ class SupabaseSyncScreen extends ConsumerStatefulWidget {
 }
 
 class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
-  final _urlCtrl = TextEditingController();
-  final _keyCtrl = TextEditingController();
   bool _syncEnabled = false;
   bool _loading = true;
   bool _busy = false;
@@ -29,35 +27,13 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
     _load();
   }
 
-  @override
-  void dispose() {
-    _urlCtrl.dispose();
-    _keyCtrl.dispose();
-    super.dispose();
-  }
-
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
-    final cfg = await CloudSyncService.loadConfig();
     final last = await CloudSyncService.lastSyncAt();
-    _urlCtrl.text = cfg.supabaseUrl;
-    _keyCtrl.text = cfg.anonKey;
     setState(() {
       _syncEnabled = prefs.getBool(_keySyncEnabled) ?? false;
       _lastSync = last;
       _loading = false;
-    });
-  }
-
-  Future<void> _saveConfig() async {
-    await CloudSyncService.saveConfig(SyncConfig(
-      supabaseUrl: _urlCtrl.text.trim(),
-      anonKey: _keyCtrl.text.trim(),
-    ));
-    if (!mounted) return;
-    setState(() {
-      _statusMessage = 'Konfiguration gespeichert';
-      _statusIsError = false;
     });
   }
 
@@ -127,7 +103,8 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                         const SizedBox(height: 8),
                         const Text(
                           'Deine Daten werden vor dem Upload mit AES-256-GCM verschlüsselt. '
-                          'Der Schlüssel bleibt lokal auf deinem Gerät.',
+                          'Der Schlüssel bleibt lokal auf deinem Gerät — in der Pacto-Cloud '
+                          'liegen nur unlesbare Daten.',
                           style: TextStyle(fontSize: 13),
                         ),
                       ],
@@ -135,37 +112,11 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _sectionHeader('Supabase'),
-                TextField(
-                  controller: _urlCtrl,
-                  keyboardType: TextInputType.url,
-                  decoration: const InputDecoration(
-                    labelText: 'Supabase Projekt-URL',
-                    hintText: 'https://<projekt>.supabase.co',
-                    prefixIcon: Icon(Icons.link_outlined),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _keyCtrl,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Supabase Anon Key',
-                    prefixIcon: Icon(Icons.key_outlined),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                FilledButton.tonalIcon(
-                  onPressed: _busy ? null : _saveConfig,
-                  icon: const Icon(Icons.save_outlined),
-                  label: const Text('Konfiguration speichern'),
-                ),
-                const SizedBox(height: 24),
                 SwitchListTile(
                   value: _syncEnabled,
                   onChanged: _toggle,
                   title: const Text('Sync aktivieren'),
-                  subtitle: const Text('Manuell oder automatisch beim Speichern'),
+                  subtitle: const Text('Verschlüsseltes Backup in der Pacto-Cloud'),
                   secondary: const Icon(Icons.cloud_outlined),
                 ),
                 ListTile(
@@ -224,22 +175,17 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Supabase-Schema',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 8),
-                        Text(
-                          'Folgende Tabelle muss im Supabase-Projekt existieren:\n\n'
-                          'create table sync_data (\n'
-                          '  device_id uuid primary key,\n'
-                          '  encrypted_payload text not null,\n'
-                          '  updated_at timestamptz default now()\n'
-                          ');\n\n'
-                          'RLS so konfigurieren, dass jeder Inhaber des Anon-Keys '
-                          'lesen/schreiben darf — die Daten sind ohnehin verschlüsselt.',
-                          style: TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                    child: Row(
+                      children: [
+                        Icon(Icons.verified_outlined,
+                            color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'Cloud-Backup ist startklar konfiguriert — keine '
+                            'Einrichtung nötig. Du musst Sync nur aktivieren.',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ],
                     ),
@@ -247,21 +193,6 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                 ),
               ],
             ),
-    );
-  }
-
-  Widget _sectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.primary,
-          letterSpacing: 0.5,
-        ),
-      ),
     );
   }
 }

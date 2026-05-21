@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../premium/premium_service.dart';
-import 'scan_config_screen.dart';
 import 'supabase_sync_screen.dart';
 import 'vault_screen.dart';
 
@@ -17,14 +16,6 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           _section('Daten & Sync'),
-          ListTile(
-            leading: const Icon(Icons.document_scanner_outlined),
-            title: const Text('KI-Scan'),
-            subtitle: const Text('Supabase Edge Function konfigurieren'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const ScanConfigScreen())),
-          ),
           ListTile(
             leading: const Icon(Icons.cloud_outlined),
             title: const Text('Cloud-Sync (Supabase)'),
