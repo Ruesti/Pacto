@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/database.dart';
+import '../../data/providers/database_provider.dart';
+import '../premium/premium_service.dart';
 import '../provider_library/provider_library_screen.dart';
 import '../scan/extraction_result.dart';
 import '../scan/scan_controller.dart';
@@ -119,8 +121,25 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     setState(() => _extractionConfidence = result.confidence);
   }
 
+  // Freemium-Sperre — greift fuer jeden NEUEN Vertrag unabhaengig vom
+  // Einstiegspunkt (Dashboard, Bibliothek, Scan, Teilen-Import). Liefert
+  // false, wenn der Nutzer am Limit ist und den Kauf abbricht.
+  Future<bool> _passesFreemiumGate() async {
+    if (widget.existing != null) return true; // Bearbeiten zaehlt nicht.
+    if (ref.read(premiumProvider)) return true;
+    final count = (await ref.read(contractsDaoProvider).getAll()).length;
+    if (count < freeTierLimit) return true;
+    if (!mounted) return false;
+    final unlocked = await showPurchaseDialog(context);
+    if (unlocked) {
+      await ref.read(premiumProvider.notifier).setPurchased(true);
+    }
+    return unlocked;
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!await _passesFreemiumGate()) return;
     _syncControllersToState();
     final state = ref.read(addContractProvider(widget.existing));
     _notifier.setMonthlyCostFromInput(_costCtrl.text, state.billingCycle);
