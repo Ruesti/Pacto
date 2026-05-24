@@ -209,34 +209,38 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void _showSortMenu() {
     showModalBottomSheet(
       context: context,
-      builder: (_) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const ListTile(
-              title: Text('Sortieren nach',
-                  style: TextStyle(fontWeight: FontWeight.bold))),
-          for (final order in _SortOrder.values)
-            ListTile(
-              leading: Radio<_SortOrder>(
-                value: order,
-                groupValue: _sortOrder,
-                onChanged: (v) {
-                  setState(() => _sortOrder = v!);
+      builder: (_) => RadioGroup<_SortOrder>(
+        groupValue: _sortOrder,
+        onChanged: (v) {
+          if (v != null) {
+            setState(() => _sortOrder = v);
+            Navigator.pop(context);
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ListTile(
+                title: Text('Sortieren nach',
+                    style: TextStyle(fontWeight: FontWeight.bold))),
+            for (final order in _SortOrder.values)
+              ListTile(
+                leading: Radio<_SortOrder>(
+                  value: order,
+                ),
+                title: Text(switch (order) {
+                  _SortOrder.cost => 'Kosten (höchste zuerst)',
+                  _SortOrder.name => 'Name (A-Z)',
+                  _SortOrder.category => 'Kategorie',
+                  _SortOrder.renewal => 'Nächste Verlängerung',
+                }),
+                onTap: () {
+                  setState(() => _sortOrder = order);
                   Navigator.pop(context);
                 },
               ),
-              title: Text(switch (order) {
-                _SortOrder.cost => 'Kosten (höchste zuerst)',
-                _SortOrder.name => 'Name (A-Z)',
-                _SortOrder.category => 'Kategorie',
-                _SortOrder.renewal => 'Nächste Verlängerung',
-              }),
-              onTap: () {
-                setState(() => _sortOrder = order);
-                Navigator.pop(context);
-              },
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

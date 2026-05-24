@@ -126,7 +126,7 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<HeirAccess>(
-              value: _access,
+              initialValue: _access,
               decoration: const InputDecoration(
                   labelText: 'Zugangsstufe',
                   prefixIcon: Icon(Icons.visibility_outlined)),

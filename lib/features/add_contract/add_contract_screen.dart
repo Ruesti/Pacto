@@ -199,7 +199,7 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<ContractCategory>(
-              value: state.category,
+              initialValue: state.category,
               decoration: const InputDecoration(labelText: 'Kategorie'),
               items: ContractCategory.values
                   .map((c) => DropdownMenuItem(
@@ -225,7 +225,7 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<BillingCycle>(
-                    value: state.billingCycle,
+                    initialValue: state.billingCycle,
                     decoration:
                         const InputDecoration(labelText: 'Zyklus'),
                     items: BillingCycle.values
@@ -240,7 +240,7 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
             const SizedBox(height: 24),
             _sectionHeader('Kündigung'),
             DropdownButtonFormField<CancellationMethod>(
-              value: state.cancellationMethod,
+              initialValue: state.cancellationMethod,
               decoration: const InputDecoration(labelText: 'Methode'),
               items: CancellationMethod.values
                   .map((m) => DropdownMenuItem(
