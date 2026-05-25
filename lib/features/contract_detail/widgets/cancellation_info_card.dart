@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/database/database.dart';
+import '../../../shared/l10n/enum_labels.dart';
+import '../../../shared/l10n/l10n_extension.dart';
 import '../../../shared/utils/date_formatter.dart';
 
 class CancellationInfoCard extends StatelessWidget {
@@ -10,6 +12,7 @@ class CancellationInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = context.l10n;
     return Card(
       color: cs.errorContainer.withValues(alpha: 0.3),
       child: Padding(
@@ -21,7 +24,7 @@ class CancellationInfoCard extends StatelessWidget {
               children: [
                 Icon(Icons.cancel_outlined, color: cs.error, size: 20),
                 const SizedBox(width: 8),
-                Text('Kündigung',
+                Text(l.cancellationCardTitle,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: cs.error,
@@ -29,16 +32,20 @@ class CancellationInfoCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            _row('Methode', contract.cancellationMethod.label),
+            _row(l.cancellationMethodLabel,
+                contract.cancellationMethod.localizedLabel(l)),
             if (contract.noticePeriod.isNotEmpty)
-              _row('Frist', contract.noticePeriod),
+              _row(l.cancellationPeriodLabel, contract.noticePeriod),
             if (contract.nextRenewal != null)
-              _row('Nächste Verlängerung',
-                  '${formatDate(contract.nextRenewal)} (${daysUntil(contract.nextRenewal)})'),
+              _row(
+                l.cancellationRenewalLabel,
+                '${formatDate(contract.nextRenewal)} (${daysUntilL10n(contract.nextRenewal, l)})',
+              ),
             if (contract.cancellationInstructions.isNotEmpty) ...[
               const SizedBox(height: 12),
-              const Text('Anleitung:',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              Text(l.cancellationInstructionsLabel,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 13)),
               const SizedBox(height: 4),
               Text(contract.cancellationInstructions,
                   style: const TextStyle(fontSize: 13, height: 1.4)),
@@ -64,8 +71,7 @@ class CancellationInfoCard extends StatelessWidget {
                     fontWeight: FontWeight.w500)),
           ),
           Expanded(
-            child: Text(value,
-                style: const TextStyle(fontSize: 13)),
+            child: Text(value, style: const TextStyle(fontSize: 13)),
           ),
         ],
       ),

@@ -152,6 +152,46 @@ Fehlende Felder als null. monthlyCost immer als Monatsbetrag (Jahresbetrag ÷ 12
     );
   }
 
+  Future<http.Response> _callFunctionWithUrl(
+    String functionUrl,
+    String pageUrl,
+  ) async {
+    final sessionToken = await _ensureSessionToken();
+    return http.post(
+      Uri.parse(functionUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': _supabaseAnonKey!,
+        'Authorization': 'Bearer $sessionToken',
+      },
+      body: jsonEncode({'url': pageUrl}),
+    );
+  }
+
+  Future<ExtractionResult> extractFromUrl(String pageUrl) async {
+    final functionUrl = _edgeFunctionUrl;
+    if (functionUrl == null || (_supabaseAnonKey ?? '').isEmpty) {
+      throw Exception('ExtractionService not configured');
+    }
+
+    var response = await _callFunctionWithUrl(functionUrl, pageUrl);
+
+    if (response.statusCode == 401) {
+      await _clearSession();
+      response = await _callFunctionWithUrl(functionUrl, pageUrl);
+    }
+
+    if (response.statusCode == 429) {
+      throw Exception('Scan-Limit erreicht (max. 100/Monat)');
+    }
+    if (response.statusCode != 200) {
+      throw Exception('Extraktionsfehler: ${response.statusCode}');
+    }
+
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    return ExtractionResult.fromJson(json);
+  }
+
   Future<ExtractionResult> extractFromBase64Image(
       String base64Image, String mediaType) async {
     final url = _edgeFunctionUrl;

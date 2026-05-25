@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/sync/cloud_sync_service.dart';
+import '../../l10n/app_localizations.dart';
+import '../../shared/l10n/l10n_extension.dart';
 
 const _keyVaultEnabled = 'pacto.vault.enabled';
 const _keyVaultIntervalDays = 'pacto.vault.interval_days';
@@ -35,8 +37,9 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
     setState(() {
       _enabled = prefs.getBool(_keyVaultEnabled) ?? false;
       _intervalDays = prefs.getInt(_keyVaultIntervalDays) ?? 90;
-      _confirmedAt =
-          millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
+      _confirmedAt = millis == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(millis);
       _loading = false;
     });
   }
@@ -54,27 +57,26 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
   }
 
   Future<void> _confirmAlive() async {
+    final l = context.l10n;
     setState(() => _busy = true);
     final now = DateTime.now();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_keyVaultConfirmedAt, now.millisecondsSinceEpoch);
     try {
       await CloudSyncService.sendHeartbeat();
-    } catch (_) {
-      // Lokales Lebenszeichen reicht, auch wenn Sync nicht erreichbar ist.
-    }
+    } catch (_) {}
     if (!mounted) return;
     setState(() {
       _confirmedAt = now;
       _busy = false;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Lebenszeichen aktualisiert')),
+      SnackBar(content: Text(l.vaultConfirmSnackbar)),
     );
   }
 
-  String _confirmedLabel() {
-    if (_confirmedAt == null) return 'noch nie';
+  String _confirmedLabel(AppLocalizations l) {
+    if (_confirmedAt == null) return l.vaultNever;
     final d = _confirmedAt!;
     return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
   }
@@ -87,9 +89,10 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final expiry = _expiryLabel();
     return Scaffold(
-      appBar: AppBar(title: const Text('Lebenszeichen-Tresor')),
+      appBar: AppBar(title: Text(l.vaultTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -105,19 +108,17 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
                         Row(
                           children: [
                             Icon(Icons.favorite_outline,
-                                color: Theme.of(context).colorScheme.primary),
+                                color:
+                                    Theme.of(context).colorScheme.primary),
                             const SizedBox(width: 8),
-                            const Text('Für den Fall der Fälle',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(l.vaultInfoTitle,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
                           ],
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Wenn du eine Weile nicht mehr aktiv warst, '
-                          'erhalten deine hinterlegten Erben automatisch Zugang. '
-                          'Jede App-Nutzung und der Button unten bestätigen, dass alles in Ordnung ist.',
-                          style: TextStyle(fontSize: 13),
-                        ),
+                        Text(l.vaultInfoDesc,
+                            style: const TextStyle(fontSize: 13)),
                       ],
                     ),
                   ),
@@ -126,24 +127,23 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
                 SwitchListTile(
                   value: _enabled,
                   onChanged: _toggle,
-                  title: const Text('Tresor aktivieren'),
-                  subtitle: const Text(
-                      'Benötigt aktivierten Cloud-Sync für die Weitergabe'),
+                  title: Text(l.vaultToggle),
+                  subtitle: Text(l.vaultToggleSubtitle),
                   secondary: const Icon(Icons.lock_clock_outlined),
                 ),
                 const SizedBox(height: 8),
                 if (_enabled) ...[
-                  _intervalPicker(),
+                  _intervalPicker(l),
                   const SizedBox(height: 16),
                   ListTile(
                     leading: const Icon(Icons.history),
-                    title: const Text('Letzte Bestätigung'),
-                    subtitle: Text(_confirmedLabel()),
+                    title: Text(l.vaultLastConfirmed),
+                    subtitle: Text(_confirmedLabel(l)),
                   ),
                   if (expiry != null)
                     ListTile(
                       leading: const Icon(Icons.event_outlined),
-                      title: const Text('Frist läuft ab'),
+                      title: Text(l.vaultExpiry),
                       subtitle: Text(expiry),
                     ),
                   const SizedBox(height: 8),
@@ -153,9 +153,10 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                            child:
+                                CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.check_circle_outline),
-                    label: const Text('Mir geht es gut — Frist zurücksetzen'),
+                    label: Text(l.vaultConfirmButton),
                   ),
                 ],
                 const SizedBox(height: 24),
@@ -164,15 +165,15 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
                     padding: const EdgeInsets.all(14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Server-seitiger Trigger',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 8),
+                      children: [
+                        Text(l.vaultServerTitle,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
                         Text(
-                          'Die automatische Weiterleitung an die Erben übernimmt eine Supabase-Edge-Function '
-                          '(pg_cron + PDF-Generierung + E-Mail-Versand). Diese Komponente ist außerhalb '
-                          'der App vorbereitet und nicht Teil der lokalen Installation.',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          l.vaultServerDesc,
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -183,21 +184,21 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
     );
   }
 
-  Widget _intervalPicker() {
+  Widget _intervalPicker(AppLocalizations l) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Intervall',
-              style: TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(l.vaultIntervalLabel,
+              style: const TextStyle(fontSize: 12, color: Colors.grey)),
           const SizedBox(height: 4),
           Wrap(
             spacing: 8,
             children: [
               for (final d in _intervals)
                 ChoiceChip(
-                  label: Text('$d Tage'),
+                  label: Text(l.vaultIntervalDays(d)),
                   selected: _intervalDays == d,
                   onSelected: (sel) {
                     if (sel) _setInterval(d);

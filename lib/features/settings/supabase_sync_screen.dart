@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/providers/database_provider.dart';
 import '../../data/sync/cloud_sync_service.dart';
+import '../../l10n/app_localizations.dart';
+import '../../shared/l10n/l10n_extension.dart';
 
 const _keySyncEnabled = 'pacto.sync.enabled';
 
@@ -10,7 +12,8 @@ class SupabaseSyncScreen extends ConsumerStatefulWidget {
   const SupabaseSyncScreen({super.key});
 
   @override
-  ConsumerState<SupabaseSyncScreen> createState() => _SupabaseSyncScreenState();
+  ConsumerState<SupabaseSyncScreen> createState() =>
+      _SupabaseSyncScreenState();
 }
 
 class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
@@ -44,6 +47,7 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
   }
 
   Future<void> _syncNow() async {
+    final l = context.l10n;
     setState(() {
       _busy = true;
       _statusMessage = null;
@@ -54,7 +58,7 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
       if (!mounted) return;
       setState(() {
         _lastSync = last;
-        _statusMessage = 'Sync erfolgreich';
+        _statusMessage = l.syncSuccess;
         _statusIsError = false;
       });
     } catch (e) {
@@ -68,8 +72,8 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
     }
   }
 
-  String _lastSyncLabel() {
-    if (_lastSync == null) return 'noch nie';
+  String _lastSyncLabel(AppLocalizations l) {
+    if (_lastSync == null) return l.syncNever;
     final d = _lastSync!;
     return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year} '
         '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
@@ -77,8 +81,9 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Cloud-Sync')),
+      appBar: AppBar(title: Text(l.cloudSyncTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -94,19 +99,17 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                         Row(
                           children: [
                             Icon(Icons.lock_outlined,
-                                color: Theme.of(context).colorScheme.primary),
+                                color:
+                                    Theme.of(context).colorScheme.primary),
                             const SizedBox(width: 8),
-                            const Text('AES-256 verschlüsselt',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(l.cloudEncryptionTitle,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
                           ],
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Deine Daten werden vor dem Upload mit AES-256-GCM verschlüsselt. '
-                          'Der Schlüssel bleibt lokal auf deinem Gerät — in der Pacto-Cloud '
-                          'liegen nur unlesbare Daten.',
-                          style: TextStyle(fontSize: 13),
-                        ),
+                        Text(l.cloudEncryptionDesc,
+                            style: const TextStyle(fontSize: 13)),
                       ],
                     ),
                   ),
@@ -115,14 +118,14 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                 SwitchListTile(
                   value: _syncEnabled,
                   onChanged: _toggle,
-                  title: const Text('Sync aktivieren'),
-                  subtitle: const Text('Verschlüsseltes Backup in der Pacto-Cloud'),
+                  title: Text(l.syncToggle),
+                  subtitle: Text(l.syncToggleSubtitle),
                   secondary: const Icon(Icons.cloud_outlined),
                 ),
                 ListTile(
                   leading: const Icon(Icons.history),
-                  title: const Text('Letzter Sync'),
-                  subtitle: Text(_lastSyncLabel()),
+                  title: Text(l.syncLastSync),
+                  subtitle: Text(_lastSyncLabel(l)),
                 ),
                 const SizedBox(height: 8),
                 FilledButton.icon(
@@ -133,7 +136,7 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.sync),
-                  label: const Text('Jetzt synchronisieren'),
+                  label: Text(l.syncNowButton),
                 ),
                 if (_statusMessage != null) ...[
                   const SizedBox(height: 12),
@@ -161,7 +164,9 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                             _statusMessage!,
                             style: TextStyle(
                               color: _statusIsError
-                                  ? Theme.of(context).colorScheme.onErrorContainer
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .onErrorContainer
                                   : Colors.green.shade900,
                               fontSize: 13,
                             ),
@@ -178,14 +183,12 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.verified_outlined,
-                            color: Theme.of(context).colorScheme.primary),
+                            color:
+                                Theme.of(context).colorScheme.primary),
                         const SizedBox(width: 10),
-                        const Expanded(
-                          child: Text(
-                            'Cloud-Backup ist startklar konfiguriert — keine '
-                            'Einrichtung nötig. Du musst Sync nur aktivieren.',
-                            style: TextStyle(fontSize: 12),
-                          ),
+                        Expanded(
+                          child: Text(l.syncReadyNote,
+                              style: const TextStyle(fontSize: 12)),
                         ),
                       ],
                     ),

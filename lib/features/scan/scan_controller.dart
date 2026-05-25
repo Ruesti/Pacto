@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../shared/l10n/l10n_extension.dart';
 import 'extraction_result.dart';
 import 'extraction_service.dart';
 
@@ -26,8 +27,9 @@ class ScanController {
     return extractFromFile(file);
   }
 
-  /// Extrahiert Vertragsdaten aus einer bereits vorliegenden Datei
-  /// (z.B. ueber die Teilen-Funktion einer anderen App).
+  Future<ExtractionResult> extractFromUrl(String url) =>
+      _service.extractFromUrl(url);
+
   Future<ExtractionResult> extractFromFile(File file) async {
     final isPdf = file.path.toLowerCase().endsWith('.pdf');
     final bytes = await file.readAsBytes();
@@ -68,16 +70,17 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Dokument scannen')),
+      appBar: AppBar(title: Text(l.scanTitle)),
       body: _loading
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('KI analysiert Dokument…'),
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(l.scanLoading),
                 ],
               ),
             )
@@ -86,26 +89,26 @@ class _ScanScreenState extends State<ScanScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Wähle eine Quelle',
-                    style: TextStyle(
+                  Text(
+                    l.scanChooseSource,
+                    style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Die KI extrahiert automatisch Vertragsdetails.',
-                    style: TextStyle(color: Colors.grey),
+                  Text(
+                    l.scanHint,
+                    style: const TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 32),
                   _button(
                     icon: Icons.photo_library_outlined,
-                    label: 'Foto aus Galerie',
+                    label: l.scanFromGallery,
                     onTap: () => _scan(ScanSource.gallery),
                   ),
                   const SizedBox(height: 12),
                   _button(
                     icon: Icons.attach_file,
-                    label: 'Datei / PDF auswählen',
+                    label: l.scanFromFile,
                     onTap: () => _scan(ScanSource.file),
                   ),
                   if (_error != null) ...[

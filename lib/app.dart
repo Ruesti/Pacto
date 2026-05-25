@@ -6,6 +6,8 @@ import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/scan/share_import_screen.dart';
+import 'l10n/app_localizations.dart';
+import 'shared/locale_provider.dart';
 import 'shared/theme/app_theme.dart';
 
 class PactoApp extends ConsumerWidget {
@@ -13,10 +15,16 @@ class PactoApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
     return MaterialApp(
       title: 'Pacto',
-      theme: AppTheme.light,
+      theme: AppTheme.darkTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const _Root(),
     );
   }
@@ -48,14 +56,11 @@ class _RootState extends State<_Root> {
     super.dispose();
   }
 
-  // Empfaengt Bilder/PDFs, die aus anderen Apps an Pacto geteilt werden.
   void _initShareHandler() {
     if (!(Platform.isAndroid || Platform.isIOS)) return;
-    // Teilen waehrend die App laeuft.
     _shareSub = ReceiveSharingIntent.instance
         .getMediaStream()
         .listen(_handleShared, onError: (_) {});
-    // Teilen, das die App gestartet hat (Kaltstart).
     ReceiveSharingIntent.instance.getInitialMedia().then((files) {
       _handleShared(files);
       ReceiveSharingIntent.instance.reset();
@@ -64,17 +69,36 @@ class _RootState extends State<_Root> {
 
   void _handleShared(List<SharedMediaFile> files) {
     if (!mounted || files.isEmpty) return;
-    final shared = files.firstWhere(
-      (f) =>
-          f.type == SharedMediaType.image || f.type == SharedMediaType.file,
-      orElse: () => files.first,
-    );
-    if (shared.type != SharedMediaType.image &&
-        shared.type != SharedMediaType.file) {
+
+    SharedMediaFile? urlFile;
+    for (final f in files) {
+      if (f.type == SharedMediaType.url) {
+        urlFile = f;
+        break;
+      }
+      if (f.type == SharedMediaType.text &&
+          (f.path.startsWith('http://') || f.path.startsWith('https://'))) {
+        urlFile = f;
+        break;
+      }
+    }
+    if (urlFile != null) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => ShareImportScreen(url: urlFile!.path),
+      ));
       return;
     }
+
+    SharedMediaFile? fileShare;
+    for (final f in files) {
+      if (f.type == SharedMediaType.image || f.type == SharedMediaType.file) {
+        fileShare = f;
+        break;
+      }
+    }
+    if (fileShare == null) return;
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ShareImportScreen(filePath: shared.path),
+      builder: (_) => ShareImportScreen(filePath: fileShare!.path),
     ));
   }
 

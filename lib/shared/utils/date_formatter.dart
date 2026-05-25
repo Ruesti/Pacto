@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import '../../l10n/app_localizations.dart';
 
 final _dateFormat = DateFormat('dd.MM.yyyy', 'de_DE');
 final _monthYear = DateFormat('MMMM yyyy', 'de_DE');
@@ -9,11 +10,11 @@ String formatDate(DateTime? date) =>
 String formatMonthYear(DateTime? date) =>
     date == null ? '–' : _monthYear.format(date);
 
-String daysUntil(DateTime? date) {
+String daysUntilL10n(DateTime? date, AppLocalizations l) {
   if (date == null) return '–';
   final diff = date.difference(DateTime.now()).inDays;
-  if (diff < 0) return 'abgelaufen';
-  if (diff == 0) return 'heute';
-  if (diff == 1) return 'morgen';
-  return 'in $diff Tagen';
+  if (diff < 0) return l.daysExpired;
+  if (diff == 0) return l.daysToday;
+  if (diff == 1) return l.daysTomorrow;
+  return l.daysIn(diff);
 }

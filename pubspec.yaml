@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   cupertino_icons: ^1.0.8
 
   # Database (drift with native SQLite)
@@ -33,12 +35,14 @@ dependencies:
   # File handling
   file_picker: ^8.3.0
   url_launcher: ^6.3.0
+  webview_flutter: ^4.10.0
 
   # Cloud & AI (phases 6+)
   receive_sharing_intent: ^1.8.1
   workmanager: ^0.9.0+3
 
 flutter:
+  generate: true
   uses-material-design: true
 
 dev_dependencies:

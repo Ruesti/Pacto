@@ -1,0 +1,275 @@
+{
+  "@@locale": "de",
+
+  "appTitle": "Pacto",
+
+  "saveButton": "Speichern",
+  "cancelButton": "Abbrechen",
+  "deleteButton": "Löschen",
+  "retryButton": "Erneut versuchen",
+  "errorMessage": "Fehler: {error}",
+  "@errorMessage": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "daysExpired": "abgelaufen",
+  "daysToday": "heute",
+  "daysTomorrow": "morgen",
+  "daysIn": "in {days} Tagen",
+  "@daysIn": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+
+  "catStreaming": "Streaming",
+  "catVersicherung": "Versicherung",
+  "catHandy": "Handy",
+  "catInternet": "Internet",
+  "catSoftware": "Software",
+  "catFitness": "Fitness",
+  "catZeitung": "Zeitung / Medien",
+  "catSonstiges": "Sonstiges",
+
+  "billingMonthly": "Monatlich",
+  "billingQuarterly": "Vierteljährlich",
+  "billingYearly": "Jährlich",
+  "billingWeekly": "Wöchentlich",
+
+  "cancBrief": "Brief",
+  "cancOnline": "Online",
+  "cancTelefon": "Telefon",
+  "cancEmail": "E-Mail",
+  "cancAutomatisch": "Automatisch (kein Handlungsbedarf)",
+
+  "accessVollzugang": "Vollzugang (alle Felder)",
+  "accessNurListe": "Nur Liste (Name, Kosten, Kündigung)",
+
+  "searchHint": "Suche nach Name oder Anbieter…",
+  "addContractFab": "Vertrag",
+  "filterAll": "Alle",
+  "noContractsTitle": "Noch keine Verträge",
+  "noContractsDefault": "Füge deinen ersten Vertrag hinzu.\nWeißt du wirklich was du zahlst?",
+  "noContractsSearch": "Kein Vertrag gefunden für \"{query}\"",
+  "@noContractsSearch": {
+    "placeholders": {
+      "query": {"type": "String"}
+    }
+  },
+  "noContractsCategory": "Kein Vertrag in dieser Kategorie",
+  "sortByTitle": "Sortieren nach",
+  "sortCost": "Kosten (höchste zuerst)",
+  "sortName": "Name (A–Z)",
+  "sortCategory": "Kategorie",
+  "sortRenewal": "Nächste Verlängerung",
+
+  "dashboardGreeting": "Hallo, {name}!",
+  "@dashboardGreeting": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "dashboardGreetingAnon": "Meine Verträge",
+  "monthlyCosts": "Monatliche Ausgaben",
+  "perYear": "{amount} pro Jahr",
+  "@perYear": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "contractsLabel": "{count, plural, one{Vertrag} other{Verträge}}",
+  "@contractsLabel": {
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+
+  "addContractTitle": "Vertrag hinzufügen",
+  "editContractTitle": "Vertrag bearbeiten",
+  "updateButton": "Aktualisieren",
+  "sectionBasic": "Basisdaten",
+  "sectionCost": "Kosten",
+  "sectionCancellation": "Kündigung",
+  "sectionContact": "Kontakt",
+  "sectionDuration": "Laufzeit",
+  "sectionNotes": "Notizen",
+  "fieldName": "Name",
+  "fieldProvider": "Anbieter",
+  "fieldCategory": "Kategorie",
+  "fieldAmount": "Betrag (€)",
+  "fieldCycle": "Zyklus",
+  "fieldCancellationMethod": "Methode",
+  "fieldNoticePeriod": "Kündigungsfrist",
+  "fieldNoticePeriodHint": "z. B. \"3 Monate zum Quartalsende\"",
+  "fieldCancellationInstructions": "Kündigungsanleitung",
+  "fieldPhone": "Telefon",
+  "fieldEmail": "E-Mail",
+  "fieldWebsite": "Website",
+  "fieldContractStart": "Vertragsbeginn",
+  "fieldNextRenewal": "Nächste Verlängerung",
+  "fieldNotesHint": "Besonderheiten, Sonderkündigungsrecht…",
+  "validationNameRequired": "Name ist erforderlich",
+  "validationProviderRequired": "Anbieter ist erforderlich",
+  "validationEmailRequired": "E-Mail ist erforderlich",
+  "validationPinTooShort": "PIN muss mind. 6 Ziffern haben",
+  "pickDate": "Datum wählen",
+  "confidenceHigh": "KI-Extraktion erfolgreich. Bitte prüfe die übernommenen Angaben.",
+  "confidenceMedium": "Einige Felder sind unsicher. Bitte sorgfältig prüfen.",
+  "confidenceLow": "Nur wenige Felder erkannt. Bitte alle Angaben prüfen oder erneut scannen.",
+
+  "entrySheetTitle": "Vertrag hinzufügen",
+  "entryLibrary": "Aus Bibliothek wählen",
+  "entryLibrarySubtitle": "Netflix, Spotify, Telekom & mehr",
+  "entryManual": "Manuell eingeben",
+  "entryManualSubtitle": "Alle Felder selbst ausfüllen",
+  "entryScan": "Dokument scannen (KI)",
+  "entryScanSubtitle": "Foto oder PDF → automatisch ausfüllen",
+  "entryWebSearch": "Online-Vertrag suchen (KI)",
+  "entryWebSearchSubtitle": "Webseite des Anbieters → automatisch ausfüllen",
+
+  "scanTitle": "Dokument scannen",
+  "scanChooseSource": "Wähle eine Quelle",
+  "scanHint": "Die KI extrahiert automatisch Vertragsdetails.",
+  "scanFromGallery": "Foto aus Galerie",
+  "scanFromFile": "Datei / PDF auswählen",
+  "scanLoading": "KI analysiert Dokument…",
+
+  "shareImportTitleUrl": "Webseite analysieren",
+  "shareImportTitleFile": "Geteiltes Dokument",
+  "shareImportLoadingUrl": "KI analysiert die Webseite…",
+  "shareImportLoadingFile": "KI analysiert das geteilte Dokument…",
+  "createManually": "Manuell anlegen",
+
+  "webSearchHint": "Suche oder URL eingeben",
+  "webSearchImportButton": "Einpflegen",
+  "webSearchImportTooltip": "Diese Seite per KI auswerten",
+  "urlProcessingTitle": "Seite analysieren",
+  "urlProcessingLoading": "KI analysiert die Webseite…",
+
+  "contractNotFound": "Vertrag nicht gefunden",
+  "contactSectionTitle": "Kontakt",
+  "notesSectionTitle": "Notizen",
+  "contractStartLabel": "Beginn",
+  "renewalLabel": "Verlängerung",
+  "deleteContractTitle": "Vertrag löschen?",
+  "deleteContractContent": "\"{name}\" wirklich dauerhaft löschen?",
+  "@deleteContractContent": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "cancellationCardTitle": "Kündigung",
+  "cancellationMethodLabel": "Methode",
+  "cancellationPeriodLabel": "Frist",
+  "cancellationRenewalLabel": "Nächste Verlängerung",
+  "cancellationInstructionsLabel": "Anleitung:",
+
+  "heirsTitle": "Erben & Teilen",
+  "heirsInfoText": "Hinterbliebene erhalten Zugang zu deinen Verträgen. Für den Fall der Fälle.",
+  "heirsEmptyTitle": "Noch keine Erben hinterlegt",
+  "heirsEmptySubtitle": "Lege fest, wer im Fall der Fälle Zugang\nzu deinen Verträgen erhält.",
+  "heirAddFab": "Erbe hinzufügen",
+  "exportPdfTooltip": "PDF exportieren",
+  "exportedPath": "Exportiert: {path}",
+  "@exportedPath": {
+    "placeholders": {
+      "path": {"type": "String"}
+    }
+  },
+  "noContractsToExport": "Keine Verträge zum Exportieren",
+  "deleteHeirTitle": "Erbe löschen?",
+  "deleteHeirContent": "{name} wirklich entfernen?",
+  "@deleteHeirContent": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "heirEditTitle": "Erbe bearbeiten",
+  "heirAddTitle": "Erbe hinzufügen",
+  "fieldPin": "PIN setzen",
+  "fieldPinEdit": "Neuen PIN setzen (optional)",
+  "fieldPinHelper": "Mind. 6 Ziffern",
+  "fieldAccessLevel": "Zugangsstufe",
+  "accessLevelsTitle": "Zugangsstufen erklärt:",
+
+  "premiumDialogTitle": "Vollzugang freischalten",
+  "premiumDialogContent": "Du hast die kostenlose Grenze von 5 Verträgen erreicht.\n\nMit dem Vollzugang verwaltest du beliebig viele Verträge — einmaliger Kauf, kein Abo.\n\nIm finalen Release: ~2,99 €",
+  "premiumLater": "Später",
+  "premiumUnlock": "Freischalten (Test)",
+
+  "settingsTitle": "Einstellungen",
+  "settingsSectionData": "Daten & Sync",
+  "settingsCloudSync": "Cloud-Sync (Supabase)",
+  "settingsCloudSyncSubtitle": "Verschlüsseltes Backup, AES-256",
+  "settingsVault": "Lebenszeichen-Tresor",
+  "settingsVaultSubtitle": "Automatische Weitergabe an Erben",
+  "settingsSectionApp": "App",
+  "settingsReplay": "Einführung wiederholen",
+  "settingsVersion": "Version",
+  "settingsPrivacy": "Datenschutz",
+  "settingsPrivacySubtitle": "Daten bleiben lokal auf deinem Gerät",
+  "settingsSectionFreemium": "Freemium",
+  "settingsFullAccess": "Vollzugang freigeschaltet",
+  "settingsFullAccessSubtitle": "Unbegrenzt viele Verträge",
+  "settingsUnlockFull": "Vollzugang freischalten",
+  "settingsUnlockSubtitle": "Mehr als 5 Verträge · einmalig ~2,99 €",
+  "settingsBuyButton": "Kaufen",
+  "settingsResetPurchase": "Kauf zurücksetzen (Test)",
+  "settingsResetSubtitle": "Nur für Entwickler — entfernt den Vollzugang lokal",
+  "settingsLanguage": "Sprache",
+  "settingsLanguageSubtitle": "Deutsch / English",
+  "langSystem": "Systemsprache",
+  "langDe": "Deutsch",
+  "langEn": "English",
+
+  "cloudSyncTitle": "Cloud-Sync",
+  "cloudEncryptionTitle": "AES-256 verschlüsselt",
+  "cloudEncryptionDesc": "Deine Daten werden vor dem Upload mit AES-256-GCM verschlüsselt. Der Schlüssel bleibt lokal auf deinem Gerät — in der Pacto-Cloud liegen nur unlesbare Daten.",
+  "syncToggle": "Sync aktivieren",
+  "syncToggleSubtitle": "Verschlüsseltes Backup in der Pacto-Cloud",
+  "syncLastSync": "Letzter Sync",
+  "syncNever": "noch nie",
+  "syncNowButton": "Jetzt synchronisieren",
+  "syncSuccess": "Sync erfolgreich",
+  "syncReadyNote": "Cloud-Backup ist startklar konfiguriert — keine Einrichtung nötig. Du musst Sync nur aktivieren.",
+
+  "vaultTitle": "Lebenszeichen-Tresor",
+  "vaultInfoTitle": "Für den Fall der Fälle",
+  "vaultInfoDesc": "Wenn du eine Weile nicht mehr aktiv warst, erhalten deine hinterlegten Erben automatisch Zugang. Jede App-Nutzung und der Button unten bestätigen, dass alles in Ordnung ist.",
+  "vaultToggle": "Tresor aktivieren",
+  "vaultToggleSubtitle": "Benötigt aktivierten Cloud-Sync für die Weitergabe",
+  "vaultLastConfirmed": "Letzte Bestätigung",
+  "vaultExpiry": "Frist läuft ab",
+  "vaultNever": "noch nie",
+  "vaultConfirmButton": "Mir geht es gut — Frist zurücksetzen",
+  "vaultConfirmSnackbar": "Lebenszeichen aktualisiert",
+  "vaultIntervalLabel": "Intervall",
+  "vaultIntervalDays": "{days} Tage",
+  "@vaultIntervalDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "vaultServerTitle": "Server-seitiger Trigger",
+  "vaultServerDesc": "Die automatische Weiterleitung an die Erben übernimmt eine Supabase-Edge-Function (pg_cron + PDF-Generierung + E-Mail-Versand). Diese Komponente ist außerhalb der App vorbereitet und nicht Teil der lokalen Installation.",
+
+  "onboardingSkip": "Überspringen",
+  "onboardingNext": "Weiter",
+  "onboardingStart": "Loslegen",
+  "onboardingNameTitle": "Wie heißt du?",
+  "onboardingNameBody": "So kann Pacto dich persönlich begrüßen.",
+  "onboardingNameHint": "Dein Vorname",
+  "onboardingNameSkip": "Lieber anonym bleiben",
+  "onboarding1Title": "Weißt du wirklich was du jeden Monat zahlst?",
+  "onboarding1Body": "Pacto sammelt alle deine Abos und Verträge an einem Ort — mit Kosten, Kündigungsfristen und Anleitung zur Beendigung.",
+  "onboarding2Title": "Foto rein — Daten raus",
+  "onboarding2Body": "Mach ein Foto vom Vertrag oder teile ein PDF an Pacto. Die KI füllt das Formular automatisch aus.",
+  "onboarding3Title": "Für den Fall der Fälle",
+  "onboarding3Body": "Hinterlege Erben mit PIN-Zugang. So weiß im Ernstfall sofort jemand Bescheid — ruhig, sicher, nur dann zugänglich, wenn nötig.",
+
+  "webSearchUnsupportedPlatform": "Die Web-Suche ist nur auf Mobilgeräten (Android, iOS) und macOS verfügbar.\n\nAuf dem Desktop kannst du Verträge manuell einpflegen."
+}

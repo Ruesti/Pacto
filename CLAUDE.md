@@ -33,6 +33,8 @@ Freemium: bis 5 Einträge kostenlos.
 | Export | pdf (dart package), qr_flutter |
 | State Management | Riverpod |
 | Navigation | go_router |
+| Lokalisierung | flutter_localizations — DE + EN (ARB) |
+| Web-Ansicht | webview_flutter — URL-Import via WebSearchScreen |
 
 ---
 
@@ -105,11 +107,23 @@ lib/
     widgets/
       category_pill.dart
       cost_badge.dart
+      status_badge.dart
     theme/
       app_theme.dart
+      app_colors.dart
+      app_text_styles.dart
+      app_spacing.dart
     utils/
       currency_formatter.dart
       date_formatter.dart
+    l10n/
+      l10n_extension.dart         # context.l10n shortcut
+      enum_labels.dart            # lokalisierte Enum-Labels
+    locale_provider.dart          # Riverpod StateNotifier für Sprache
+
+assets/
+  images/
+    hero_bg.jpg                 # Dunkle Berglandschaft — Dashboard-Header
 ```
 
 ---
@@ -447,13 +461,255 @@ Die App authentifiziert sich mit einer anonymen Supabase-Session (wird beim erst
 
 ---
 
-## Design-Prinzipien
+## Design-System
 
-- **Ruhige Sprache** — kein "Tod", kein "Sterbefall" im UI. Stattdessen: "Für den Fall der Fälle", "Erben & Teilen", "Weitergabe"
+### Grundprinzipien (inhaltlich)
+- **Ruhige Sprache** — kein "Tod", kein "Sterbefall" im UI. Stattdessen: "Für den Fall der Fälle", "Erben & Teilen", "Für deine Liebsten"
 - **Keine eigene Cloud-Infrastruktur** — Daten bleiben lokal oder in Supabase des Users
 - **Kein Abo für die App** — Einmalkauf, thematisch konsistent
 - **Datensparsamkeit** — nur was für die Funktion nötig ist
 - **Schnelle Ersteinrichtung** — User soll in unter 5 Minuten die ersten 3 Einträge haben
+
+---
+
+### Visuelles Design — Dark Premium
+
+Die App hat ein durchgängig dunkles, hochwertiges Erscheinungsbild.
+Referenz-Screenshot zeigt den finalen Designstand — jede Komponente orientiert sich daran.
+
+#### Farben
+
+```dart
+// lib/shared/theme/app_colors.dart
+
+class AppColors {
+  // Hintergründe
+  static const background       = Color(0xFF0A0A0F); // tiefschwarz, fast blau-schwarz
+  static const surfaceCard      = Color(0xFF15151E); // Karten-Hintergrund
+  static const surfaceElevated  = Color(0xFF1C1C28); // leicht erhöhte Elemente
+  static const surfaceBorder    = Color(0x1AFFFFFF); // rgba(255,255,255,0.10) — Kartenrand
+
+  // Primärfarbe
+  static const primary          = Color(0xFF7C5CE7); // Violett — FAB, aktiver Nav-Tab, Links
+  static const primaryLight     = Color(0x267C5CE7); // 15% Opacity — Highlights, Badges
+
+  // Text
+  static const textPrimary      = Color(0xFFFFFFFF);
+  static const textSecondary    = Color(0x99FFFFFF); // 60% white
+  static const textTertiary     = Color(0x4DFFFFFF); // 30% white — Labels, Hints
+
+  // Status-Farben (für Badges, Icons, Status-Dots)
+  static const statusGreen      = Color(0xFF00C896); // aktiv
+  static const statusGreenBg    = Color(0x1A00C896);
+  static const statusAmber      = Color(0xFFFFB020); // Warnung, nächste 30 Tage
+  static const statusAmberBg    = Color(0x1AFFB020);
+  static const statusBlue       = Color(0xFF4A9EFF); // Info, hinterlegt
+  static const statusBlueBg     = Color(0x1A4A9EFF);
+  static const statusRed        = Color(0xFFFF5A5A); // Fehler, abgelaufen
+  static const statusRedBg      = Color(0x1AFF5A5A);
+
+  // Hero-Overlay (Dashboard-Header)
+  static const heroGradientTop    = Color(0x00000000); // transparent
+  static const heroGradientBottom = Color(0xFF0A0A0F); // fließt in Background über
+}
+```
+
+#### Typografie
+
+```dart
+// lib/shared/theme/app_text_styles.dart
+// Systemschrift: SF Pro (iOS) / Roboto (Android) — kein Custom Font nötig
+
+class AppTextStyles {
+  // Dashboard Begrüßung
+  static const heroTitle = TextStyle(
+    fontSize: 28, fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary, letterSpacing: -0.5,
+  );
+  static const heroSubtitle = TextStyle(
+    fontSize: 15, fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  // Section Labels (DEINE VERTRÄGE, ÜBERSICHT)
+  static const sectionLabel = TextStyle(
+    fontSize: 11, fontWeight: FontWeight.w600,
+    color: AppColors.textTertiary, letterSpacing: 1.2,
+  );
+
+  // Listeneintrag
+  static const listTitle    = TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.textPrimary);
+  static const listSubtitle = TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: AppColors.textSecondary);
+  static const listAmount   = TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary);
+  static const listDate     = TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.textTertiary);
+
+  // Stats-Karte (14 / Verträge / aktiv)
+  static const statNumber   = TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary);
+  static const statLabel    = TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.textSecondary);
+}
+```
+
+#### Abstände & Radien
+
+```dart
+class AppSpacing {
+  static const screenPadding   = EdgeInsets.symmetric(horizontal: 16);
+  static const cardPadding      = EdgeInsets.all(16);
+  static const listItemPadding  = EdgeInsets.symmetric(horizontal: 16, vertical: 14);
+  static const sectionGap       = SizedBox(height: 24);
+  static const itemGap          = SizedBox(height: 8);
+}
+
+class AppRadius {
+  static const card     = BorderRadius.all(Radius.circular(16));
+  static const listItem = BorderRadius.all(Radius.circular(12));
+  static const badge    = BorderRadius.all(Radius.circular(20));
+  static const icon     = BorderRadius.all(Radius.circular(10));
+}
+```
+
+---
+
+### Komponenten
+
+#### Dashboard Hero (oberster Bereich)
+
+```
+Stack:
+  ├── Hintergrundbild (dunkle Berglandschaft, assets/images/hero_bg.jpg)
+  │     → BoxFit.cover, Höhe ~220px
+  │     → LinearGradient Overlay: transparent oben → AppColors.background unten
+  ├── SafeArea-Inhalt:
+  │     ├── Row: Hamburger-Icon (links) + Glocken-Icon (rechts)  — beide in Card-Surface
+  │     ├── SizedBox(height: 32)
+  │     ├── "Hallo [Name] 👋"  — heroTitle
+  │     └── "Deine Verträge. Deine Übersicht. Für deine Liebsten."  — heroSubtitle
+```
+
+Das Hintergrundbild ist ein statisches Asset (kein Netzwerk).
+Empfohlen: dunkle Natur-/Landschafts-Fotografie, kein Text, kein Gesicht.
+Alternative: generierter dunkler Gradient mit subtiler Textur.
+
+#### Stats-Karte (Übersicht)
+
+Vier gleichmäßige Spalten in einer Card (surfaceCard, border surfaceBorder):
+
+```
+┌─────────────────────────────────────────────┐
+│  ÜBERSICHT                                  │
+│  [Icon]  [Icon]  [Icon]  [Icon]             │
+│    14      3       8       2                │
+│  Verträge  Kündigung  Abos  Erben           │
+│  aktiv  nächste 30T  aktiv  hinterlegt      │
+│  (grün)   (amber)   (grün)   (blau)         │
+└─────────────────────────────────────────────┘
+```
+
+Icon-Hintergründe: je Kategorie eigene statusXxxBg Farbe, Icon in statusXxx.
+
+#### Vertrags-Liste (ContractListTile)
+
+```
+┌─────────────────────────────────────────────────┐
+│  [App-Logo 40px]  Netflix          17,99€/Mo  › │
+│                   Streaming-Abo                  │
+│                   Nächste Zahlung: 15.06.2025    │
+└─────────────────────────────────────────────────┘
+```
+
+- App-Logo: echtes Icon wenn in Provider-Bibliothek vorhanden (via `cached_network_image` von
+  `https://logo.clearbit.com/{domain}`) — Fallback: farbiger Icon-Kreis mit Initiale
+- Hintergrund: surfaceCard, keine sichtbare Trennlinie zwischen Items
+- Chevron rechts: textTertiary
+
+#### Notfall-Banner (Dashboard unten)
+
+```
+┌─────────────────────────────────────────────────┐
+│  [Schild-Icon]  FÜR DEN NOTFALL                 │
+│                 Deine Erben sind informiert      │
+│                 Im Ernstfall werden deine...     │
+│                              [Erben verwalten]  │
+└─────────────────────────────────────────────────┘
+```
+
+Hintergrund: surfaceElevated mit grünem linken Rand (3px, statusGreen).
+Nur sichtbar wenn mindestens ein Erbe hinterlegt ist.
+Wenn kein Erbe: Banner "Noch niemand hinterlegt — jetzt einrichten" in amber.
+
+#### Bottom Navigation Bar
+
+```dart
+BottomNavigationBar(
+  backgroundColor: AppColors.surfaceCard,
+  selectedItemColor: AppColors.primary,
+  unselectedItemColor: AppColors.textTertiary,
+  type: BottomNavigationBarType.fixed,
+  // Items: Übersicht | Verträge | [FAB] | Erben | Mehr
+)
+```
+
+Mittlerer Tab ist kein echtes NavItem — stattdessen ein FloatingActionButton:
+```dart
+FloatingActionButton(
+  backgroundColor: AppColors.primary,
+  shape: CircleBorder(),
+  child: Icon(Icons.add, color: Colors.white, size: 28),
+  onPressed: () => showAddContractSheet(context),
+)
+// Positioniert via bottomNavigationBar + floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked
+```
+
+#### Status-Badges
+
+```dart
+// Wiederverwendbar für alle Status-Anzeigen
+Widget statusBadge(String label, Color color, Color bgColor) => Container(
+  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+  decoration: BoxDecoration(color: bgColor, borderRadius: AppRadius.badge),
+  child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
+);
+
+// Verwendung:
+statusBadge('aktiv',           AppColors.statusGreen, AppColors.statusGreenBg)
+statusBadge('nächste 30 Tage', AppColors.statusAmber, AppColors.statusAmberBg)
+statusBadge('hinterlegt',      AppColors.statusBlue,  AppColors.statusBlueBg)
+```
+
+---
+
+### ThemeData
+
+```dart
+// lib/shared/theme/app_theme.dart
+
+ThemeData get darkTheme => ThemeData(
+  brightness: Brightness.dark,
+  scaffoldBackgroundColor: AppColors.background,
+  colorScheme: const ColorScheme.dark(
+    primary: AppColors.primary,
+    surface: AppColors.surfaceCard,
+    background: AppColors.background,
+  ),
+  cardTheme: CardTheme(
+    color: AppColors.surfaceCard,
+    shape: RoundedRectangleBorder(
+      borderRadius: AppRadius.card,
+      side: BorderSide(color: AppColors.surfaceBorder, width: 0.5),
+    ),
+    elevation: 0,
+    margin: EdgeInsets.zero,
+  ),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+  ),
+  dividerTheme: const DividerThemeData(color: AppColors.surfaceBorder, thickness: 0.5),
+);
+```
+
+**Nur Dark Mode.** Kein Light Mode — passt zum Produkt, reduziert Komplexität.
 
 ---
 
@@ -476,7 +732,7 @@ dependencies:
   qr_flutter: ^4.x
   flutter_pdfview: ^1.x
   uuid: ^4.x
-  workmanager: ^0.5.x          # Background-Heartbeat (Android + iOS BGAppRefreshTask)
+  cached_network_image: ^3.x   # Provider-Logos via Clearbit
   intl: ^0.19.x
 
 dev_dependencies:
@@ -505,5 +761,5 @@ dev_dependencies:
 
 - [ ] Kontoauszug-Import: CSV-Format variiert stark je Bank — vorerst weglassen oder nur als "kommt bald" ankündigen
 - [ ] Inaktivitäts-Tresor: Supabase Edge Function für PDF-Generierung + E-Mail-Versand — MVP ohne, v1.1 mit. Lebenszeichen-Modus "Smartphone läuft" für MVP nur Android, iOS in v1.1.
-- [ ] Mehrsprachigkeit: Erstversion nur Deutsch, dann Englisch
+- [x] Mehrsprachigkeit: Deutsch + Englisch implementiert (flutter_localizations, lib/l10n/, locale_provider.dart via shared_preferences)
 - [ ] iPad / Desktop: vorerst nur Mobile

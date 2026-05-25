@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/database_provider.dart';
+import '../../shared/l10n/enum_labels.dart';
+import '../../shared/l10n/l10n_extension.dart';
 import '../premium/premium_service.dart';
 import '../provider_library/provider_library_screen.dart';
 import '../scan/extraction_result.dart';
 import '../scan/scan_controller.dart';
+import '../scan/web_search_screen.dart';
 import 'add_contract_provider.dart';
 
 class AddContractScreen extends ConsumerStatefulWidget {
@@ -86,8 +89,7 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
         MaterialPageRoute(builder: (_) => const ProviderLibraryScreen()));
     if (template == null) return;
     _notifier.prefillFromTemplate(template);
-    final state =
-        ref.read(addContractProvider(widget.existing));
+    final state = ref.read(addContractProvider(widget.existing));
     _nameCtrl.text = state.name;
     _providerCtrl.text = state.provider;
     _cancInstructCtrl.text = state.cancellationInstructions;
@@ -103,6 +105,12 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
         MaterialPageRoute(builder: (_) => const ScanScreen()));
     if (result == null) return;
     _applyExtractionResult(result);
+  }
+
+  void _openWebSearch() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const WebSearchScreen()),
+    );
   }
 
   void _applyExtractionResult(ExtractionResult result) {
@@ -121,11 +129,8 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     setState(() => _extractionConfidence = result.confidence);
   }
 
-  // Freemium-Sperre — greift fuer jeden NEUEN Vertrag unabhaengig vom
-  // Einstiegspunkt (Dashboard, Bibliothek, Scan, Teilen-Import). Liefert
-  // false, wenn der Nutzer am Limit ist und den Kauf abbricht.
   Future<bool> _passesFreemiumGate() async {
-    if (widget.existing != null) return true; // Bearbeiten zaehlt nicht.
+    if (widget.existing != null) return true;
     if (ref.read(premiumProvider)) return true;
     final count = (await ref.read(contractsDaoProvider).getAll()).length;
     if (count < freeTierLimit) return true;
@@ -149,28 +154,34 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final state = ref.watch(addContractProvider(widget.existing));
     final isEdit = widget.existing != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? 'Vertrag bearbeiten' : 'Vertrag hinzufügen'),
+        title: Text(isEdit ? l.editContractTitle : l.addContractTitle),
         actions: [
           if (!isEdit) ...[
             IconButton(
               icon: const Icon(Icons.list_alt_outlined),
-              tooltip: 'Aus Bibliothek',
+              tooltip: l.entryLibrary,
               onPressed: _openLibrary,
             ),
             IconButton(
               icon: const Icon(Icons.document_scanner_outlined),
-              tooltip: 'Scannen',
+              tooltip: l.entryScan,
               onPressed: _openScan,
+            ),
+            IconButton(
+              icon: const Icon(Icons.public_outlined),
+              tooltip: l.entryWebSearch,
+              onPressed: _openWebSearch,
             ),
           ],
           TextButton(
             onPressed: state.isSubmitting ? null : _save,
-            child: const Text('Speichern'),
+            child: Text(l.saveButton),
           ),
         ],
       ),
@@ -180,35 +191,38 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             if (_extractionConfidence != null)
-              _confidenceBanner(_extractionConfidence!),
-            _sectionHeader('Basisdaten'),
+              _confidenceBanner(_extractionConfidence!, l),
+            _sectionHeader(l.sectionBasic),
             TextFormField(
               controller: _nameCtrl,
-              decoration: const InputDecoration(labelText: 'Name *'),
+              decoration: InputDecoration(
+                  labelText: '${l.fieldName} *'),
               validator: (v) =>
-                  v?.isEmpty ?? true ? 'Name ist erforderlich' : null,
+                  v?.isEmpty ?? true ? l.validationNameRequired : null,
               onChanged: _notifier.setName,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _providerCtrl,
-              decoration: const InputDecoration(labelText: 'Anbieter *'),
+              decoration: InputDecoration(
+                  labelText: '${l.fieldProvider} *'),
               validator: (v) =>
-                  v?.isEmpty ?? true ? 'Anbieter ist erforderlich' : null,
+                  v?.isEmpty ?? true ? l.validationProviderRequired : null,
               onChanged: _notifier.setProvider,
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<ContractCategory>(
               initialValue: state.category,
-              decoration: const InputDecoration(labelText: 'Kategorie'),
+              decoration: InputDecoration(labelText: l.fieldCategory),
               items: ContractCategory.values
                   .map((c) => DropdownMenuItem(
-                      value: c, child: Text(c.label)))
+                      value: c,
+                      child: Text(c.localizedLabel(l))))
                   .toList(),
               onChanged: (v) => _notifier.setCategory(v!),
             ),
             const SizedBox(height: 24),
-            _sectionHeader('Kosten'),
+            _sectionHeader(l.sectionCost),
             Row(
               children: [
                 Expanded(
@@ -216,8 +230,8 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
                     controller: _costCtrl,
                     keyboardType: const TextInputType.numberWithOptions(
                         decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: 'Betrag (€)',
+                    decoration: InputDecoration(
+                      labelText: l.fieldAmount,
                       suffixText: '€',
                     ),
                   ),
@@ -226,11 +240,11 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
                 Expanded(
                   child: DropdownButtonFormField<BillingCycle>(
                     initialValue: state.billingCycle,
-                    decoration:
-                        const InputDecoration(labelText: 'Zyklus'),
+                    decoration: InputDecoration(labelText: l.fieldCycle),
                     items: BillingCycle.values
                         .map((b) => DropdownMenuItem(
-                            value: b, child: Text(b.label)))
+                            value: b,
+                            child: Text(b.localizedLabel(l))))
                         .toList(),
                     onChanged: (v) => _notifier.setBillingCycle(v!),
                   ),
@@ -238,22 +252,24 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            _sectionHeader('Kündigung'),
+            _sectionHeader(l.sectionCancellation),
             DropdownButtonFormField<CancellationMethod>(
               initialValue: state.cancellationMethod,
-              decoration: const InputDecoration(labelText: 'Methode'),
+              decoration:
+                  InputDecoration(labelText: l.fieldCancellationMethod),
               items: CancellationMethod.values
                   .map((m) => DropdownMenuItem(
-                      value: m, child: Text(m.label)))
+                      value: m,
+                      child: Text(m.localizedLabel(l))))
                   .toList(),
               onChanged: (v) => _notifier.setCancellationMethod(v!),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _noticePeriodCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Kündigungsfrist',
-                hintText: 'z.B. "3 Monate zum Quartalsende"',
+              decoration: InputDecoration(
+                labelText: l.fieldNoticePeriod,
+                hintText: l.fieldNoticePeriodHint,
               ),
               onChanged: _notifier.setNoticePeriod,
             ),
@@ -261,59 +277,61 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
             TextFormField(
               controller: _cancInstructCtrl,
               maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Kündigungsanleitung',
+              decoration: InputDecoration(
+                labelText: l.fieldCancellationInstructions,
                 alignLabelWithHint: true,
               ),
               onChanged: _notifier.setCancellationInstructions,
             ),
             const SizedBox(height: 24),
-            _sectionHeader('Kontakt'),
+            _sectionHeader(l.sectionContact),
             TextFormField(
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                  labelText: 'Telefon',
-                  prefixIcon: Icon(Icons.phone_outlined)),
+              decoration: InputDecoration(
+                  labelText: l.fieldPhone,
+                  prefixIcon: const Icon(Icons.phone_outlined)),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                  labelText: 'E-Mail',
-                  prefixIcon: Icon(Icons.email_outlined)),
+              decoration: InputDecoration(
+                  labelText: l.fieldEmail,
+                  prefixIcon: const Icon(Icons.email_outlined)),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _urlCtrl,
               keyboardType: TextInputType.url,
-              decoration: const InputDecoration(
-                  labelText: 'Website',
-                  prefixIcon: Icon(Icons.link_outlined)),
+              decoration: InputDecoration(
+                  labelText: l.fieldWebsite,
+                  prefixIcon: const Icon(Icons.link_outlined)),
             ),
             const SizedBox(height: 24),
-            _sectionHeader('Laufzeit'),
+            _sectionHeader(l.sectionDuration),
             _datePicker(
-              label: 'Vertragsbeginn',
+              label: l.fieldContractStart,
               date: state.contractStart,
               onPicked: _notifier.setContractStart,
+              pickDateLabel: l.pickDate,
             ),
             const SizedBox(height: 12),
             _datePicker(
-              label: 'Nächste Verlängerung',
+              label: l.fieldNextRenewal,
               date: state.nextRenewal,
               onPicked: _notifier.setNextRenewal,
+              pickDateLabel: l.pickDate,
             ),
             const SizedBox(height: 24),
-            _sectionHeader('Notizen'),
+            _sectionHeader(l.sectionNotes),
             TextFormField(
               controller: _notesCtrl,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Notizen',
+              decoration: InputDecoration(
+                labelText: l.sectionNotes,
                 alignLabelWithHint: true,
-                hintText: 'Besonderheiten, Sonderkündigungsrecht…',
+                hintText: l.fieldNotesHint,
               ),
               onChanged: _notifier.setNotes,
             ),
@@ -332,7 +350,7 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(isEdit ? 'Aktualisieren' : 'Speichern'),
+                  : Text(isEdit ? l.updateButton : l.saveButton),
             ),
             const SizedBox(height: 32),
           ],
@@ -341,26 +359,26 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     );
   }
 
-  Widget _confidenceBanner(ExtractionConfidence confidence) {
+  Widget _confidenceBanner(ExtractionConfidence confidence, l) {
     final scheme = Theme.of(context).colorScheme;
     final (bg, fg, icon, message) = switch (confidence) {
       ExtractionConfidence.high => (
           Colors.green.shade50,
           Colors.green.shade800,
           Icons.check_circle_outline,
-          'KI-Extraktion erfolgreich. Bitte prüfe die übernommenen Angaben.'
+          l.confidenceHigh,
         ),
       ExtractionConfidence.medium => (
           Colors.amber.shade50,
           Colors.amber.shade900,
           Icons.warning_amber_outlined,
-          'Einige Felder sind unsicher. Bitte sorgfältig prüfen.'
+          l.confidenceMedium,
         ),
       ExtractionConfidence.low => (
           scheme.errorContainer,
           scheme.onErrorContainer,
           Icons.error_outline,
-          'Nur wenige Felder erkannt. Bitte alle Angaben prüfen oder erneut scannen.'
+          l.confidenceLow,
         ),
     };
     return Container(
@@ -375,13 +393,15 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
           Icon(icon, size: 20, color: fg),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(message, style: TextStyle(fontSize: 13, color: fg)),
+            child:
+                Text(message, style: TextStyle(fontSize: 13, color: fg)),
           ),
           IconButton(
             padding: EdgeInsets.zero,
             visualDensity: VisualDensity.compact,
             icon: Icon(Icons.close, size: 18, color: fg),
-            onPressed: () => setState(() => _extractionConfidence = null),
+            onPressed: () =>
+                setState(() => _extractionConfidence = null),
           ),
         ],
       ),
@@ -407,6 +427,7 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     required String label,
     required DateTime? date,
     required ValueChanged<DateTime?> onPicked,
+    required String pickDateLabel,
   }) {
     return InkWell(
       borderRadius: BorderRadius.circular(8),
@@ -432,9 +453,8 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
         child: Text(
           date != null
               ? '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}'
-              : 'Datum wählen',
-          style: TextStyle(
-              color: date == null ? Colors.grey : null),
+              : pickDateLabel,
+          style: TextStyle(color: date == null ? Colors.grey : null),
         ),
       ),
     );

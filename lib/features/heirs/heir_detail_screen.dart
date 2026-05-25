@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/database_provider.dart';
+import '../../shared/l10n/enum_labels.dart';
+import '../../shared/l10n/l10n_extension.dart';
 import 'share_export_service.dart';
 
 class HeirDetailScreen extends ConsumerStatefulWidget {
@@ -45,7 +47,8 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
       final dao = ref.read(heirsDaoProvider);
       final pinHash = _pinCtrl.text.isNotEmpty
           ? ShareExportService.hashPin(_pinCtrl.text)
-          : (widget.existing?.pinHash ?? ShareExportService.hashPin('000000'));
+          : (widget.existing?.pinHash ??
+              ShareExportService.hashPin('000000'));
 
       if (widget.existing != null) {
         await dao.updateHeir(HeirsCompanion(
@@ -71,14 +74,15 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final isEdit = widget.existing != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? 'Erbe bearbeiten' : 'Erbe hinzufügen'),
+        title: Text(isEdit ? l.heirEditTitle : l.heirAddTitle),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,
-            child: const Text('Speichern'),
+            child: Text(l.saveButton),
           ),
         ],
       ),
@@ -89,19 +93,21 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
           children: [
             TextFormField(
               controller: _nameCtrl,
-              decoration: const InputDecoration(
-                  labelText: 'Name', prefixIcon: Icon(Icons.person_outline)),
+              decoration: InputDecoration(
+                  labelText: l.fieldName,
+                  prefixIcon: const Icon(Icons.person_outline)),
               validator: (v) =>
-                  v?.isEmpty ?? true ? 'Name ist erforderlich' : null,
+                  v?.isEmpty ?? true ? l.validationNameRequired : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                  labelText: 'E-Mail', prefixIcon: Icon(Icons.email_outlined)),
+              decoration: InputDecoration(
+                  labelText: l.fieldEmail,
+                  prefixIcon: const Icon(Icons.email_outlined)),
               validator: (v) =>
-                  v?.isEmpty ?? true ? 'E-Mail ist erforderlich' : null,
+                  v?.isEmpty ?? true ? l.validationEmailRequired : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -110,16 +116,17 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
               keyboardType: TextInputType.number,
               maxLength: 8,
               decoration: InputDecoration(
-                labelText: isEdit ? 'Neuen PIN setzen (optional)' : 'PIN setzen',
+                labelText:
+                    isEdit ? l.fieldPinEdit : l.fieldPin,
                 prefixIcon: const Icon(Icons.lock_outline),
-                helperText: 'Mind. 6 Ziffern',
+                helperText: l.fieldPinHelper,
               ),
               validator: (v) {
                 if (!isEdit && (v == null || v.length < 6)) {
-                  return 'PIN muss mind. 6 Ziffern haben';
+                  return l.validationPinTooShort;
                 }
                 if (v != null && v.isNotEmpty && v.length < 6) {
-                  return 'PIN muss mind. 6 Ziffern haben';
+                  return l.validationPinTooShort;
                 }
                 return null;
               },
@@ -127,12 +134,12 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
             const SizedBox(height: 12),
             DropdownButtonFormField<HeirAccess>(
               initialValue: _access,
-              decoration: const InputDecoration(
-                  labelText: 'Zugangsstufe',
-                  prefixIcon: Icon(Icons.visibility_outlined)),
+              decoration: InputDecoration(
+                  labelText: l.fieldAccessLevel,
+                  prefixIcon: const Icon(Icons.visibility_outlined)),
               items: HeirAccess.values
                   .map((a) => DropdownMenuItem(
-                      value: a, child: Text(a.label)))
+                      value: a, child: Text(a.localizedLabel(l))))
                   .toList(),
               onChanged: (v) => setState(() => _access = v!),
             ),
@@ -144,13 +151,14 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Zugangsstufen erklärt:',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(l.accessLevelsTitle,
+                        style:
+                            const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     for (final a in HeirAccess.values)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 4),
-                        child: Text('• ${a.label}',
+                        child: Text('• ${a.localizedLabel(l)}',
                             style: const TextStyle(fontSize: 13)),
                       ),
                   ],

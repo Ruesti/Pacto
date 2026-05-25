@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/database/database.dart';
+import '../../../shared/l10n/l10n_extension.dart';
 import '../../../shared/widgets/category_pill.dart';
 import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/utils/date_formatter.dart';
@@ -50,7 +51,7 @@ class ContractListTile extends StatelessWidget {
                               size: 12, color: Colors.grey[500]),
                           const SizedBox(width: 2),
                           Text(
-                            daysUntil(contract.nextRenewal),
+                            daysUntilL10n(contract.nextRenewal, context.l10n),
                             style: TextStyle(
                                 fontSize: 11, color: Colors.grey[600]),
                           ),

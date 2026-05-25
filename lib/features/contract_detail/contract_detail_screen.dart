@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/database_provider.dart';
+import '../../shared/l10n/enum_labels.dart';
+import '../../shared/l10n/l10n_extension.dart';
 import '../../shared/widgets/category_pill.dart';
 import '../../shared/utils/currency_formatter.dart';
 import '../../shared/utils/date_formatter.dart';
@@ -17,18 +19,20 @@ class ContractDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final contractsAsync = ref.watch(contractsStreamProvider);
 
     return contractsAsync.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('Fehler: $e'))),
+      error: (e, _) =>
+          Scaffold(body: Center(child: Text(l.errorMessage(e.toString())))),
       data: (contracts) {
         final contract =
             contracts.where((c) => c.id == contractId).firstOrNull;
         if (contract == null) {
-          return const Scaffold(
-              body: Center(child: Text('Vertrag nicht gefunden')));
+          return Scaffold(
+              body: Center(child: Text(l.contractNotFound)));
         }
         return _DetailView(contract: contract);
       },
@@ -43,6 +47,7 @@ class _DetailView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     return Scaffold(
       appBar: AppBar(
         title: Text(contract.name),
@@ -61,16 +66,16 @@ class _DetailView extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _headerCard(context),
+          _headerCard(context, l),
           const SizedBox(height: 12),
           CancellationInfoCard(contract: contract),
           const SizedBox(height: 12),
-          _contactCard(context),
+          _contactCard(context, l),
           const SizedBox(height: 12),
           DocumentAttachment(documentPath: contract.documentPath),
           if (contract.notes.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _notesCard(context),
+            _notesCard(context, l),
           ],
           const SizedBox(height: 32),
         ],
@@ -78,7 +83,7 @@ class _DetailView extends ConsumerWidget {
     );
   }
 
-  Widget _headerCard(BuildContext context) {
+  Widget _headerCard(BuildContext context, l) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -107,7 +112,7 @@ class _DetailView extends ConsumerWidget {
                     Text(formatMonthlyCost(contract.monthlyCost),
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text(contract.billingCycle.label,
+                    Text(contract.billingCycle.localizedLabel(l),
                         style: const TextStyle(
                             color: Colors.grey, fontSize: 12)),
                   ],
@@ -120,10 +125,13 @@ class _DetailView extends ConsumerWidget {
                 contract.nextRenewal != null) ...[
               const Divider(height: 20),
               if (contract.contractStart != null)
-                _row('Beginn', formatDate(contract.contractStart)),
+                _row(l.contractStartLabel,
+                    formatDate(contract.contractStart)),
               if (contract.nextRenewal != null)
-                _row('Verlängerung',
-                    '${formatDate(contract.nextRenewal)} (${daysUntil(contract.nextRenewal)})'),
+                _row(
+                  l.renewalLabel,
+                  '${formatDate(contract.nextRenewal)} (${daysUntilL10n(contract.nextRenewal, l)})',
+                ),
             ],
           ],
         ),
@@ -131,7 +139,7 @@ class _DetailView extends ConsumerWidget {
     );
   }
 
-  Widget _contactCard(BuildContext context) {
+  Widget _contactCard(BuildContext context, l) {
     final hasContact = contract.contactPhone != null ||
         contract.contactEmail != null ||
         contract.contactUrl != null;
@@ -143,8 +151,9 @@ class _DetailView extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Kontakt',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(l.contactSectionTitle,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 15)),
             const SizedBox(height: 8),
             if (contract.contactPhone != null)
               _contactRow(
@@ -186,7 +195,9 @@ class _DetailView extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
+            Icon(icon,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
             Expanded(
               child: Text(label,
@@ -200,15 +211,16 @@ class _DetailView extends ConsumerWidget {
     );
   }
 
-  Widget _notesCard(BuildContext context) {
+  Widget _notesCard(BuildContext context, l) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Notizen',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(l.notesSectionTitle,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 15)),
             const SizedBox(height: 8),
             Text(contract.notes,
                 style: const TextStyle(fontSize: 13, height: 1.4)),
@@ -226,7 +238,8 @@ class _DetailView extends ConsumerWidget {
           SizedBox(
             width: 100,
             child: Text('$label:',
-                style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                style: const TextStyle(
+                    color: Colors.grey, fontSize: 13)),
           ),
           Expanded(
             child: Text(value, style: const TextStyle(fontSize: 13)),
@@ -237,20 +250,20 @@ class _DetailView extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final l = context.l10n;
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Vertrag löschen?'),
-        content: Text(
-            '"${contract.name}" wirklich dauerhaft löschen?'),
+        title: Text(l.deleteContractTitle),
+        content: Text(l.deleteContractContent(contract.name)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Abbrechen')),
+              child: Text(l.cancelButton)),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Löschen',
-                  style: TextStyle(color: Colors.red))),
+              child: Text(l.deleteButton,
+                  style: const TextStyle(color: Colors.red))),
         ],
       ),
     );

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../../shared/l10n/l10n_extension.dart';
 
-enum EntryMethod { library, manual, scan }
+enum EntryMethod { library, manual, scan, webSearch }
 
 class EntryMethodSheet extends StatelessWidget {
-  final bool scanAvailable;
-
-  const EntryMethodSheet({super.key, this.scanAvailable = false});
+  const EntryMethodSheet({super.key});
 
   static Future<EntryMethod?> show(BuildContext context) {
     return showModalBottomSheet<EntryMethod>(
@@ -16,39 +15,48 @@ class EntryMethodSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
               child: Text(
-                'Vertrag hinzufügen',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                l.entrySheetTitle,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             _tile(
               context,
               icon: Icons.list_alt,
-              label: 'Aus Bibliothek wählen',
-              subtitle: 'Netflix, Spotify, Telekom & mehr',
+              label: l.entryLibrary,
+              subtitle: l.entryLibrarySubtitle,
               value: EntryMethod.library,
             ),
             _tile(
               context,
               icon: Icons.edit_outlined,
-              label: 'Manuell eingeben',
-              subtitle: 'Alle Felder selbst ausfüllen',
+              label: l.entryManual,
+              subtitle: l.entryManualSubtitle,
               value: EntryMethod.manual,
             ),
             _tile(
               context,
               icon: Icons.document_scanner_outlined,
-              label: 'Dokument scannen (KI)',
-              subtitle: 'Foto oder PDF → automatisch ausfüllen',
+              label: l.entryScan,
+              subtitle: l.entryScanSubtitle,
               value: EntryMethod.scan,
+            ),
+            _tile(
+              context,
+              icon: Icons.public_outlined,
+              label: l.entryWebSearch,
+              subtitle: l.entryWebSearchSubtitle,
+              value: EntryMethod.webSearch,
             ),
           ],
         ),
@@ -62,8 +70,8 @@ class EntryMethodSheet extends StatelessWidget {
       required String subtitle,
       required EntryMethod value}) {
     return ListTile(
-      leading: Icon(icon,
-          color: Theme.of(ctx).colorScheme.primary, size: 28),
+      leading:
+          Icon(icon, color: Theme.of(ctx).colorScheme.primary, size: 28),
       title: Text(label),
       subtitle: Text(subtitle,
           style: const TextStyle(fontSize: 12, color: Colors.grey)),

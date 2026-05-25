@@ -108,34 +108,65 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { imageBase64, mediaType } = await req.json();
+    const { imageBase64, mediaType, url } = await req.json();
 
     const client = new Anthropic({ apiKey: anthropicKey });
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
-                data: imageBase64,
-              },
-            },
-            {
-              type: 'text',
-              text: 'Extrahiere die Vertragsdaten aus diesem Dokument.',
-            },
-          ],
+    let message;
+
+    if (url) {
+      const pageRes = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; Pacto-Bot/1.0)',
+          'Accept': 'text/html,application/xhtml+xml',
+          'Accept-Language': 'de,en;q=0.9',
         },
-      ],
-    });
+      });
+      let pageText = await pageRes.text();
+      if (pageText.length > 50_000) pageText = pageText.substring(0, 50_000);
+
+      message = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: `URL: ${url}\n\nSeiteninhalt (HTML):\n${pageText}\n\nExtrahiere die Vertragsdaten aus diesem Webseiteninhalt.`,
+          },
+        ],
+      });
+    } else if (imageBase64) {
+      message = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
+                  data: imageBase64,
+                },
+              },
+              {
+                type: 'text',
+                text: 'Extrahiere die Vertragsdaten aus diesem Dokument.',
+              },
+            ],
+          },
+        ],
+      });
+    } else {
+      return new Response(
+        JSON.stringify({ error: 'Weder imageBase64 noch url angegeben' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}';
 

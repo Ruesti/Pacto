@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../shared/l10n/l10n_extension.dart';
 
 const _keyPurchased = 'pacto.premium.purchased';
 const freeTierLimit = 5;
@@ -26,24 +27,20 @@ class PremiumNotifier extends StateNotifier<bool> {
 }
 
 Future<bool> showPurchaseDialog(BuildContext context) async {
+  final l = context.l10n;
   final purchased = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text('Vollzugang freischalten'),
-      content: const Text(
-        'Du hast die kostenlose Grenze von 5 Verträgen erreicht.\n\n'
-        'Mit dem Vollzugang verwaltest du beliebig viele Verträge — '
-        'einmaliger Kauf, kein Abo.\n\n'
-        'Im finalen Release: ~2,99 €',
-      ),
+      title: Text(l.premiumDialogTitle),
+      content: Text(l.premiumDialogContent),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(false),
-          child: const Text('Später'),
+          child: Text(l.premiumLater),
         ),
         FilledButton(
           onPressed: () => Navigator.of(ctx).pop(true),
-          child: const Text('Freischalten (Test)'),
+          child: Text(l.premiumUnlock),
         ),
       ],
     ),
