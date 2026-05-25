@@ -13,7 +13,9 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final purchased = ref.watch(premiumProvider);
+    final premiumAsync = ref.watch(premiumProvider);
+    final purchased = premiumAsync.valueOrNull ?? false;
+    final isPurchasing = premiumAsync.isLoading;
     final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
@@ -75,7 +77,7 @@ class SettingsScreen extends ConsumerWidget {
           _section(l.settingsSectionFreemium),
           if (purchased)
             ListTile(
-              leading: const Icon(Icons.verified, color: Colors.green),
+              leading: const Icon(Icons.verified, color: Color(0xFF00C896)),
               title: Text(l.settingsFullAccess),
               subtitle: Text(l.settingsFullAccessSubtitle),
             )
@@ -84,25 +86,49 @@ class SettingsScreen extends ConsumerWidget {
               leading: const Icon(Icons.star_outline),
               title: Text(l.settingsUnlockFull),
               subtitle: Text(l.settingsUnlockSubtitle),
-              trailing: OutlinedButton(
-                onPressed: () async {
-                  final unlocked = await showPurchaseDialog(context);
-                  if (unlocked) {
-                    await ref
-                        .read(premiumProvider.notifier)
-                        .setPurchased(true);
-                  }
-                },
-                child: Text(l.settingsBuyButton),
-              ),
+              trailing: isPurchasing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : OutlinedButton(
+                      onPressed: () =>
+                          showPurchaseDialog(context, ref),
+                      child: Text(l.settingsBuyButton),
+                    ),
             ),
-          if (purchased)
+          // "Kauf wiederherstellen" immer sichtbar auf Mobile (App Store Pflicht)
+          if (iapSupported && !purchased)
+            ListTile(
+              leading: const Icon(Icons.restore_outlined),
+              title: Text(l.settingsRestorePurchase),
+              subtitle: Text(l.settingsRestoreSubtitle),
+              onTap: isPurchasing
+                  ? null
+                  : () async {
+                      final restored =
+                          await ref.read(premiumProvider.notifier).restore();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(restored
+                                ? l.settingsRestoreSuccess
+                                : l.settingsRestoreNotFound),
+                          ),
+                        );
+                      }
+                    },
+            ),
+          // Desktop: Debug-Reset
+          if (!iapSupported && purchased)
             ListTile(
               leading: const Icon(Icons.restart_alt),
               title: Text(l.settingsResetPurchase),
               subtitle: Text(l.settingsResetSubtitle),
-              onTap: () =>
-                  ref.read(premiumProvider.notifier).setPurchased(false),
+              onTap: () => ref
+                  .read(premiumProvider.notifier)
+                  .setDesktopPurchased(false),
             ),
         ],
       ),
@@ -133,10 +159,8 @@ class SettingsScreen extends ConsumerWidget {
                       fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             _langTile(context, ref, null, l.langSystem, current),
-            _langTile(
-                context, ref, const Locale('de'), l.langDe, current),
-            _langTile(
-                context, ref, const Locale('en'), l.langEn, current),
+            _langTile(context, ref, const Locale('de'), l.langDe, current),
+            _langTile(context, ref, const Locale('en'), l.langEn, current),
             const SizedBox(height: 8),
           ],
         ),
@@ -151,8 +175,7 @@ class SettingsScreen extends ConsumerWidget {
     return ListTile(
       title: Text(label),
       trailing: selected
-          ? Icon(Icons.check,
-              color: Theme.of(context).colorScheme.primary)
+          ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
           : null,
       onTap: () {
         ref.read(localeProvider.notifier).setLocale(locale);
@@ -167,9 +190,7 @@ class SettingsScreen extends ConsumerWidget {
       child: Text(
         title,
         style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey),
+            fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:workmanager/workmanager.dart';
 import 'app.dart';
 import 'config/supabase_config.dart';
 import 'data/sync/cloud_sync_service.dart';
+import 'features/premium/premium_service.dart';
 import 'features/scan/extraction_service.dart';
 
 const _heartbeatTask = 'pacto-heartbeat';
@@ -31,6 +32,9 @@ void main() async {
     edgeFunctionUrl: SupabaseConfig.extractFunctionUrl,
     anonKey: SupabaseConfig.anonKey,
   );
+
+  // In-App-Kauf SDK initialisieren (nur Mobile).
+  await initRevenueCat();
 
   // Hintergrund-Heartbeat fuer den Inaktivitaets-Tresor (nur Mobile).
   if (Platform.isAndroid || Platform.isIOS) {

@@ -131,15 +131,11 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
 
   Future<bool> _passesFreemiumGate() async {
     if (widget.existing != null) return true;
-    if (ref.read(premiumProvider)) return true;
+    if (ref.read(premiumProvider).valueOrNull ?? false) return true;
     final count = (await ref.read(contractsDaoProvider).getAll()).length;
     if (count < freeTierLimit) return true;
     if (!mounted) return false;
-    final unlocked = await showPurchaseDialog(context);
-    if (unlocked) {
-      await ref.read(premiumProvider.notifier).setPurchased(true);
-    }
-    return unlocked;
+    return showPurchaseDialog(context, ref);
   }
 
   Future<void> _save() async {

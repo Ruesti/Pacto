@@ -229,16 +229,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Future<bool> _ensureCanAdd() async {
-    final purchased = ref.read(premiumProvider);
-    if (purchased) return true;
+    if (ref.read(premiumProvider).valueOrNull ?? false) return true;
     final contracts = ref.read(contractsStreamProvider).value ?? const [];
     if (contracts.length < freeTierLimit) return true;
     if (!mounted) return false;
-    final unlocked = await showPurchaseDialog(context);
-    if (unlocked) {
-      await ref.read(premiumProvider.notifier).setPurchased(true);
-    }
-    return unlocked;
+    return showPurchaseDialog(context, ref);
   }
 
   Future<void> _addContract() async {

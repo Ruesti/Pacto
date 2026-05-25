@@ -446,7 +446,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get premiumLater => 'Später';
 
   @override
-  String get premiumUnlock => 'Freischalten (Test)';
+  String get premiumUnlock => 'Jetzt kaufen';
+
+  @override
+  String get premiumPurchaseFailed =>
+      'Kauf fehlgeschlagen. Bitte versuche es erneut.';
 
   @override
   String get settingsTitle => 'Einstellungen';
@@ -500,11 +504,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsBuyButton => 'Kaufen';
 
   @override
-  String get settingsResetPurchase => 'Kauf zurücksetzen (Test)';
+  String get settingsRestorePurchase => 'Kauf wiederherstellen';
+
+  @override
+  String get settingsRestoreSubtitle => 'Falls du die App neu installiert hast';
+
+  @override
+  String get settingsRestoreSuccess => 'Vollzugang wiederhergestellt!';
+
+  @override
+  String get settingsRestoreNotFound => 'Kein früherer Kauf gefunden.';
+
+  @override
+  String get settingsResetPurchase => 'Kauf zurücksetzen (Debug)';
 
   @override
   String get settingsResetSubtitle =>
-      'Nur für Entwickler — entfernt den Vollzugang lokal';
+      'Nur auf Desktop — entfernt den Vollzugang lokal';
 
   @override
   String get settingsLanguage => 'Sprache';

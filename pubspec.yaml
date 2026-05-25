@@ -40,6 +40,7 @@ dependencies:
   # Cloud & AI (phases 6+)
   receive_sharing_intent: ^1.8.1
   workmanager: ^0.9.0+3
+  purchases_flutter: ^10.1.1
 
 flutter:
   generate: true

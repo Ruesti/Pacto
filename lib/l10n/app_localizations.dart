@@ -911,8 +911,14 @@ abstract class AppLocalizations {
   /// No description provided for @premiumUnlock.
   ///
   /// In de, this message translates to:
-  /// **'Freischalten (Test)'**
+  /// **'Jetzt kaufen'**
   String get premiumUnlock;
+
+  /// No description provided for @premiumPurchaseFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Kauf fehlgeschlagen. Bitte versuche es erneut.'**
+  String get premiumPurchaseFailed;
 
   /// No description provided for @settingsTitle.
   ///
@@ -1016,16 +1022,40 @@ abstract class AppLocalizations {
   /// **'Kaufen'**
   String get settingsBuyButton;
 
+  /// No description provided for @settingsRestorePurchase.
+  ///
+  /// In de, this message translates to:
+  /// **'Kauf wiederherstellen'**
+  String get settingsRestorePurchase;
+
+  /// No description provided for @settingsRestoreSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Falls du die App neu installiert hast'**
+  String get settingsRestoreSubtitle;
+
+  /// No description provided for @settingsRestoreSuccess.
+  ///
+  /// In de, this message translates to:
+  /// **'Vollzugang wiederhergestellt!'**
+  String get settingsRestoreSuccess;
+
+  /// No description provided for @settingsRestoreNotFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein früherer Kauf gefunden.'**
+  String get settingsRestoreNotFound;
+
   /// No description provided for @settingsResetPurchase.
   ///
   /// In de, this message translates to:
-  /// **'Kauf zurücksetzen (Test)'**
+  /// **'Kauf zurücksetzen (Debug)'**
   String get settingsResetPurchase;
 
   /// No description provided for @settingsResetSubtitle.
   ///
   /// In de, this message translates to:
-  /// **'Nur für Entwickler — entfernt den Vollzugang lokal'**
+  /// **'Nur auf Desktop — entfernt den Vollzugang lokal'**
   String get settingsResetSubtitle;
 
   /// No description provided for @settingsLanguage.
