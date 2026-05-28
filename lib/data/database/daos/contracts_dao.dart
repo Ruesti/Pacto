@@ -31,4 +31,23 @@ class ContractsDao extends DatabaseAccessor<AppDatabase>
     final all = await getAll();
     return all.fold<double>(0.0, (sum, c) => sum + c.monthlyCost);
   }
+
+  /// Loescht alle gespeicherten Login-Passwoerter (Username + Hint bleiben).
+  /// Genutzt beim Wechsel der HeirPasswordPolicy auf `none`, wenn der User
+  /// die bereits abgelegten Passwoerter explizit purgen will.
+  Future<int> clearAllLoginPasswords() async {
+    return (update(contracts)
+          ..where((t) => t.loginPasswordCt.isNotNull()))
+        .write(const ContractsCompanion(
+      loginPasswordCt: Value(null),
+    ));
+  }
+
+  Future<int> countStoredLoginPasswords() async {
+    final query = selectOnly(contracts)
+      ..addColumns([contracts.id.count()])
+      ..where(contracts.loginPasswordCt.isNotNull());
+    final row = await query.getSingle();
+    return row.read(contracts.id.count()) ?? 0;
+  }
 }

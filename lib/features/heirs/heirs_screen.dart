@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/database_provider.dart';
+import '../../data/providers/user_name_provider.dart';
 import '../../shared/l10n/enum_labels.dart';
 import '../../shared/l10n/l10n_extension.dart';
 import 'heir_detail_screen.dart';
@@ -15,6 +17,7 @@ class HeirsScreen extends ConsumerWidget {
     final l = context.l10n;
     final heirsAsync = ref.watch(heirsStreamProvider);
     final contractsAsync = ref.watch(contractsStreamProvider);
+    final ownerName = ref.watch(userNameProvider).valueOrNull ?? 'Pacto-User';
 
     return Scaffold(
       appBar: AppBar(
@@ -23,8 +26,8 @@ class HeirsScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             tooltip: l.exportPdfTooltip,
-            onPressed: () =>
-                _exportPdf(context, contractsAsync.valueOrNull ?? [], l),
+            onPressed: () => _exportPdf(
+                context, contractsAsync.valueOrNull ?? [], ownerName, l),
           ),
         ],
       ),
@@ -151,8 +154,8 @@ class HeirsScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _exportPdf(
-      BuildContext context, List<Contract> contracts, l) async {
+  Future<void> _exportPdf(BuildContext context, List<Contract> contracts,
+      String ownerName, l) async {
     if (contracts.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.noContractsToExport)),
@@ -160,13 +163,13 @@ class HeirsScreen extends ConsumerWidget {
       return;
     }
     try {
-      final file = await ShareExportService.exportToPdfText(
-          contracts, 'Mein Haushalt');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.exportedPath(file.path))),
-        );
-      }
+      final file = await ShareExportService.exportToPdf(contracts, ownerName);
+      final bytes = await file.readAsBytes();
+      if (!context.mounted) return;
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename: 'pacto_vertraege.pdf',
+      );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

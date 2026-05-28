@@ -593,6 +593,37 @@ class AppLocalizationsDe extends AppLocalizations {
       'Stelle sicher, dass deine Erben ihren PIN kennen — sonst können sie deine Passwörter nicht entschlüsseln.';
 
   @override
+  String get heirPolicyPurgeTitle => 'Gespeicherte Passwörter entfernen?';
+
+  @override
+  String heirPolicyPurgeBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Verträge haben gespeicherte Passwörter.',
+      one: 'Ein Vertrag hat ein gespeichertes Passwort.',
+    );
+    return '$_temp0 Da du \"Keine Passwörter speichern\" gewählt hast, kannst du sie jetzt aus Pacto entfernen. Benutzernamen und Hinweise bleiben erhalten.';
+  }
+
+  @override
+  String get heirPolicyPurgeKeep => 'Behalten';
+
+  @override
+  String get heirPolicyPurgeConfirm => 'Passwörter löschen';
+
+  @override
+  String heirPolicyPurgeDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Passwörter entfernt.',
+      one: '1 Passwort entfernt.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get sectionLogin => 'Login-Daten';
 
   @override
@@ -828,6 +859,37 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get vaultServerDesc =>
       'Die automatische Weiterleitung an die Erben übernimmt eine Supabase-Edge-Function (pg_cron + PDF-Generierung + E-Mail-Versand). Diese Komponente ist außerhalb der App vorbereitet und nicht Teil der lokalen Installation.';
+
+  @override
+  String get vaultOwnerEmailLabel => 'Deine E-Mail für Vorwarnungen';
+
+  @override
+  String get vaultOwnerEmailHint =>
+      'An diese Adresse senden wir kurz vor Auslösung eine Warnmail.';
+
+  @override
+  String get vaultOwnerEmailRequired =>
+      'E-Mail-Adresse fehlt — ohne sie kann der Tresor nicht warnen.';
+
+  @override
+  String get vaultSyncNowButton => 'Erbendaten jetzt hochladen';
+
+  @override
+  String vaultSyncSuccess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Erben-Briefe im Tresor abgelegt.',
+      one: '1 Erben-Brief im Tresor abgelegt.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultLastSyncLabel => 'Zuletzt synchronisiert';
+
+  @override
+  String get vaultLastSyncNever => 'noch nicht';
 
   @override
   String get onboardingSkip => 'Überspringen';

@@ -123,6 +123,60 @@ in `sync_data` mit verschlüsseltem `encrypted_payload`.
 
 ---
 
+## Inaktivitäts-Tresor deployen (v1.1)
+
+Zusätzlich zu den bisherigen Komponenten ergänzt die App einen automatischen
+Erbenversand, falls der Nutzer länger kein Lebenszeichen mehr abgegeben hat.
+
+1. **Migration einspielen** — fügt `vault_settings`, `vault_payloads`,
+   `vault_log` hinzu und versucht einen `pg_cron`-Job zu registrieren:
+   ```bash
+   supabase db push
+   ```
+
+2. **Project-URL und Service-Key als Postgres-GUC setzen** (einmalig, damit
+   der Cron-Job die Trigger-Function erreichen kann):
+   ```sql
+   alter database postgres
+     set "app.settings.project_url" = 'https://<PROJECT-REF>.supabase.co';
+   alter database postgres
+     set "app.settings.service_role_key" = '<SERVICE-ROLE-KEY>';
+   ```
+   Danach den `do $$ ... $$;`-Block am Ende der Migration erneut ausführen,
+   damit der Cron-Job registriert wird.
+
+3. **Edge Functions deployen**:
+   ```bash
+   supabase functions deploy vault-heartbeat
+   supabase functions deploy vault-sync
+   supabase functions deploy vault-trigger
+   ```
+
+4. **Resend-API-Key als Secret hinterlegen** (für Vorwarnungen und
+   Erbenmails). Ohne diesen Key schreibt die Trigger-Function die geplanten
+   Mails nur ins `vault_log`:
+   ```bash
+   supabase secrets set RESEND_API_KEY=re_...
+   supabase secrets set VAULT_FROM_EMAIL=no-reply@<deine-domain>
+   ```
+   Die Absender-Domain in Resend muss verifiziert sein.
+
+5. **Cron-Job prüfen**:
+   ```sql
+   select jobname, schedule, command from cron.job;
+   ```
+   `vault-daily` sollte sichtbar sein (`0 9 * * *`).
+
+6. **Trigger einmal manuell auslösen** (sanity check, ohne dass wirklich
+   Mails versendet werden – setze `RESEND_API_KEY` vorher leer):
+   ```bash
+   curl -X POST https://<PROJECT-REF>.functions.supabase.co/vault-trigger \
+        -H "Authorization: Bearer <SERVICE-ROLE-KEY>"
+   ```
+   Antwort: `{"ok":true,"processed":N,"summary":{...}}`.
+
+---
+
 ## ⚠️ Bekannte Lücke: KI-Scan braucht noch eine Code-Änderung
 
 Cloud-Sync und der Tresor-Heartbeat funktionieren nach dieser Einrichtung

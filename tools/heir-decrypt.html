@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pacto — Erbe entsperren</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0A0A0F;
+    --card: #15151E;
+    --border: rgba(255,255,255,0.10);
+    --primary: #7C5CE7;
+    --text: #FFFFFF;
+    --muted: rgba(255,255,255,0.60);
+    --tint: rgba(255,255,255,0.30);
+    --ok: #00C896;
+    --err: #FF5A5A;
+    --okBg: rgba(0, 200, 150, 0.10);
+    --errBg: rgba(255, 90, 90, 0.10);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+  }
+  main {
+    max-width: 640px; margin: 0 auto; padding: 32px 20px 80px;
+  }
+  h1 {
+    font-size: 22px; font-weight: 700; letter-spacing: -0.3px;
+    margin: 0 0 6px;
+  }
+  p.sub { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+  section.card {
+    background: var(--card); border: 0.5px solid var(--border);
+    border-radius: 16px; padding: 18px; margin-bottom: 16px;
+  }
+  label {
+    display: block; font-size: 11px; font-weight: 600; letter-spacing: 1.2px;
+    color: var(--tint); margin: 0 0 6px;
+  }
+  textarea, input[type=password], input[type=text] {
+    width: 100%; background: var(--bg); color: var(--text);
+    border: 0.5px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; font-size: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  textarea { min-height: 110px; resize: vertical; }
+  input[type=password], input[type=text] { font-family: inherit; }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+  button {
+    background: var(--primary); color: #fff; border: 0;
+    padding: 10px 16px; border-radius: 12px; font-size: 14px;
+    font-weight: 600; cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.ghost { background: transparent; color: var(--text);
+    border: 0.5px solid var(--border); }
+  .result {
+    margin-top: 18px; padding: 14px; border-radius: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 14px; white-space: pre-wrap; word-break: break-all;
+  }
+  .result.ok { background: var(--okBg); color: var(--ok);
+    border: 0.5px solid var(--ok); }
+  .result.err { background: var(--errBg); color: var(--err);
+    border: 0.5px solid var(--err); }
+  details { color: var(--muted); font-size: 13px; margin-top: 24px; }
+  details > summary { cursor: pointer; padding: 6px 0; }
+  details > div { padding: 8px 0 0; line-height: 1.5; }
+  .help { color: var(--muted); font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Pacto — Erbe entsperren</h1>
+  <p class="sub">
+    Diese Seite entschlüsselt ein im Pacto-Maximum-Modus verschlüsseltes
+    Passwort. Sie läuft komplett im Browser — nichts wird hochgeladen.
+  </p>
+
+  <section class="card">
+    <label for="envelope">Cipher (aus der E-Mail / dem PDF)</label>
+    <textarea id="envelope" placeholder='{"v":1,"mode":"pin","salt":"...","iv":"...","ct":"..."}'></textarea>
+    <p class="help">Das Cipher beginnt mit <code>{"v":1,"mode":"pin"</code>.</p>
+
+    <label for="pin" style="margin-top:14px">Dein Erben-PIN</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" />
+
+    <div class="row">
+      <button id="go">Entschlüsseln</button>
+      <button id="reveal" class="ghost" type="button">PIN anzeigen</button>
+    </div>
+    <div id="result" class="result" hidden></div>
+  </section>
+
+  <details>
+    <summary>Wie funktioniert das?</summary>
+    <div>
+      Pacto verschlüsselt im Maximum-Modus jedes Passwort mit einem
+      Schlüssel, der per <strong>PBKDF2-SHA256 (100 000 Iterationen)</strong>
+      aus deinem PIN abgeleitet wird. Das eigentliche Passwort wird mit
+      <strong>AES-256-GCM</strong> verschlüsselt.
+      <br><br>
+      Die Seite nutzt die WebCrypto-API deines Browsers — der PIN und das
+      entschlüsselte Passwort verlassen den Browser nie. Du kannst diese
+      HTML-Datei jederzeit offline öffnen.
+    </div>
+  </details>
+</main>
+<script>
+  const $env = document.getElementById('envelope');
+  const $pin = document.getElementById('pin');
+  const $go = document.getElementById('go');
+  const $reveal = document.getElementById('reveal');
+  const $result = document.getElementById('result');
+
+  $reveal.addEventListener('click', () => {
+    $pin.type = $pin.type === 'password' ? 'text' : 'password';
+    $reveal.textContent = $pin.type === 'password' ? 'PIN anzeigen' : 'PIN verbergen';
+  });
+
+  function b64decode(s) {
+    const bin = atob(s);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  function show(text, ok) {
+    $result.hidden = false;
+    $result.className = 'result ' + (ok ? 'ok' : 'err');
+    $result.textContent = text;
+  }
+
+  async function deriveKey(pin, salt) {
+    const enc = new TextEncoder();
+    const baseKey = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(pin),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: 100000,
+        hash: 'SHA-256',
+      },
+      baseKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['decrypt']
+    );
+  }
+
+  async function decrypt() {
+    $result.hidden = true;
+    let envelope;
+    try {
+      envelope = JSON.parse($env.value.trim());
+    } catch (e) {
+      show('Der Cipher ist kein gültiges JSON. Bitte den kompletten Block aus der E-Mail kopieren.', false);
+      return;
+    }
+    if (!envelope || envelope.mode !== 'pin' || !envelope.salt || !envelope.iv || !envelope.ct) {
+      show('Falscher Cipher-Typ. Erwartet wird ein Pacto-Maximum-Block (mode: "pin").', false);
+      return;
+    }
+    const pin = $pin.value.trim();
+    if (!pin) {
+      show('Bitte den PIN eingeben.', false);
+      return;
+    }
+
+    $go.disabled = true;
+    $go.textContent = 'Entschlüssele…';
+    try {
+      const salt = b64decode(envelope.salt);
+      const iv = b64decode(envelope.iv);
+      const ct = b64decode(envelope.ct);
+      const key = await deriveKey(pin, salt);
+      const plainBuf = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: iv, tagLength: 128 },
+        key,
+        ct
+      );
+      const plain = new TextDecoder().decode(plainBuf);
+      show(plain, true);
+    } catch (e) {
+      show('Konnte nicht entschlüsseln. Wahrscheinlich ist der PIN falsch.', false);
+    } finally {
+      $go.disabled = false;
+      $go.textContent = 'Entschlüsseln';
+    }
+  }
+
+  $go.addEventListener('click', decrypt);
+  $pin.addEventListener('keydown', (e) => { if (e.key === 'Enter') decrypt(); });
+</script>
+</body>
+</html>

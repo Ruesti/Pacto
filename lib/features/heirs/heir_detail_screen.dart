@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/database_provider.dart';
 import '../../data/providers/heir_password_policy_provider.dart';
@@ -41,6 +42,44 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
     _emailCtrl.dispose();
     _pinCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _exportHeirPdf() async {
+    final existing = widget.existing!;
+    final l = context.l10n;
+    final policy = await getHeirPasswordPolicy();
+
+    String? pin;
+    if (policy == HeirPasswordPolicy.maximum) {
+      pin = await _promptForPin(l);
+      if (pin == null || pin.isEmpty) return;
+    }
+
+    final contracts = ref.read(contractsStreamProvider).value ?? const [];
+    final ownerName = ref.read(userNameProvider).valueOrNull ?? 'Pacto-User';
+    final crypto = ref.read(cryptoServiceProvider);
+
+    try {
+      final file = await ShareExportService.buildHeirExportPdf(
+        contracts: contracts,
+        ownerName: ownerName,
+        heir: existing,
+        policy: policy,
+        crypto: crypto,
+        heirPin: pin,
+      );
+      final bytes = await file.readAsBytes();
+      if (!mounted) return;
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename: 'pacto_${existing.name.toLowerCase()}.pdf',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.errorMessage(e.toString()))),
+      );
+    }
   }
 
   Future<void> _showPreview() async {
@@ -188,12 +227,18 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
       appBar: AppBar(
         title: Text(isEdit ? l.heirEditTitle : l.heirAddTitle),
         actions: [
-          if (isEdit)
+          if (isEdit) ...[
             IconButton(
               icon: const Icon(Icons.visibility_outlined),
               tooltip: l.heirExportPreviewButton,
               onPressed: _saving ? null : _showPreview,
             ),
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf_outlined),
+              tooltip: l.exportPdfTooltip,
+              onPressed: _saving ? null : _exportHeirPdf,
+            ),
+          ],
           TextButton(
             onPressed: _saving ? null : _save,
             child: Text(l.saveButton),

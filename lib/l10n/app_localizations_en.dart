@@ -591,6 +591,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'Make sure your heirs know their PIN — otherwise they cannot decrypt your passwords.';
 
   @override
+  String get heirPolicyPurgeTitle => 'Remove stored passwords?';
+
+  @override
+  String heirPolicyPurgeBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count contracts have stored passwords.',
+      one: 'One contract has a stored password.',
+    );
+    return '$_temp0 Since you chose \"Don\'t store passwords\", you can remove them from Pacto now. Usernames and hints will be kept.';
+  }
+
+  @override
+  String get heirPolicyPurgeKeep => 'Keep';
+
+  @override
+  String get heirPolicyPurgeConfirm => 'Delete passwords';
+
+  @override
+  String heirPolicyPurgeDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count passwords removed.',
+      one: '1 password removed.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get sectionLogin => 'Login credentials';
 
   @override
@@ -826,6 +857,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get vaultServerDesc =>
       'The automatic handover to heirs is handled by a Supabase Edge Function (pg_cron + PDF generation + email sending). This component is prepared outside the app and is not part of the local installation.';
+
+  @override
+  String get vaultOwnerEmailLabel => 'Your email for warnings';
+
+  @override
+  String get vaultOwnerEmailHint =>
+      'We will email you shortly before the heirs are notified.';
+
+  @override
+  String get vaultOwnerEmailRequired =>
+      'Email address missing — the vault cannot warn you without it.';
+
+  @override
+  String get vaultSyncNowButton => 'Upload heir bundles now';
+
+  @override
+  String vaultSyncSuccess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count heir bundles stored in the vault.',
+      one: '1 heir bundle stored in the vault.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultLastSyncLabel => 'Last synced';
+
+  @override
+  String get vaultLastSyncNever => 'never';
 
   @override
   String get onboardingSkip => 'Skip';

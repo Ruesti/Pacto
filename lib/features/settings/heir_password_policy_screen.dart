@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/providers/database_provider.dart';
 import '../../data/providers/heir_password_policy_provider.dart';
 import '../../shared/l10n/l10n_extension.dart';
 import '../../shared/theme/app_colors.dart';
@@ -70,6 +71,44 @@ class HeirPasswordPolicyScreen extends ConsumerWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.l10n.heirPolicySaved)),
+    );
+    if (policy == HeirPasswordPolicy.none) {
+      await _maybePurgeStoredPasswords(context, ref);
+    }
+  }
+
+  Future<void> _maybePurgeStoredPasswords(
+      BuildContext context, WidgetRef ref) async {
+    final dao = ref.read(contractsDaoProvider);
+    final count = await dao.countStoredLoginPasswords();
+    if (count == 0 || !context.mounted) return;
+    final l = context.l10n;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.heirPolicyPurgeTitle),
+        content: Text(l.heirPolicyPurgeBody(count)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.heirPolicyPurgeKeep),
+          ),
+          FilledButton.tonal(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.statusRedBg,
+              foregroundColor: AppColors.statusRed,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.heirPolicyPurgeConfirm),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final removed = await dao.clearAllLoginPasswords();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l.heirPolicyPurgeDone(removed))),
     );
   }
 }

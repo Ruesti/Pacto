@@ -1178,6 +1178,36 @@ abstract class AppLocalizations {
   /// **'Stelle sicher, dass deine Erben ihren PIN kennen — sonst können sie deine Passwörter nicht entschlüsseln.'**
   String get heirPolicyWarnPinShared;
 
+  /// No description provided for @heirPolicyPurgeTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Gespeicherte Passwörter entfernen?'**
+  String get heirPolicyPurgeTitle;
+
+  /// No description provided for @heirPolicyPurgeBody.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{Ein Vertrag hat ein gespeichertes Passwort.} other{{count} Verträge haben gespeicherte Passwörter.}} Da du \"Keine Passwörter speichern\" gewählt hast, kannst du sie jetzt aus Pacto entfernen. Benutzernamen und Hinweise bleiben erhalten.'**
+  String heirPolicyPurgeBody(int count);
+
+  /// No description provided for @heirPolicyPurgeKeep.
+  ///
+  /// In de, this message translates to:
+  /// **'Behalten'**
+  String get heirPolicyPurgeKeep;
+
+  /// No description provided for @heirPolicyPurgeConfirm.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwörter löschen'**
+  String get heirPolicyPurgeConfirm;
+
+  /// No description provided for @heirPolicyPurgeDone.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Passwort entfernt.} other{{count} Passwörter entfernt.}}'**
+  String heirPolicyPurgeDone(int count);
+
   /// No description provided for @sectionLogin.
   ///
   /// In de, this message translates to:
@@ -1615,6 +1645,48 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Die automatische Weiterleitung an die Erben übernimmt eine Supabase-Edge-Function (pg_cron + PDF-Generierung + E-Mail-Versand). Diese Komponente ist außerhalb der App vorbereitet und nicht Teil der lokalen Installation.'**
   String get vaultServerDesc;
+
+  /// No description provided for @vaultOwnerEmailLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine E-Mail für Vorwarnungen'**
+  String get vaultOwnerEmailLabel;
+
+  /// No description provided for @vaultOwnerEmailHint.
+  ///
+  /// In de, this message translates to:
+  /// **'An diese Adresse senden wir kurz vor Auslösung eine Warnmail.'**
+  String get vaultOwnerEmailHint;
+
+  /// No description provided for @vaultOwnerEmailRequired.
+  ///
+  /// In de, this message translates to:
+  /// **'E-Mail-Adresse fehlt — ohne sie kann der Tresor nicht warnen.'**
+  String get vaultOwnerEmailRequired;
+
+  /// No description provided for @vaultSyncNowButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Erbendaten jetzt hochladen'**
+  String get vaultSyncNowButton;
+
+  /// No description provided for @vaultSyncSuccess.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Erben-Brief im Tresor abgelegt.} other{{count} Erben-Briefe im Tresor abgelegt.}}'**
+  String vaultSyncSuccess(int count);
+
+  /// No description provided for @vaultLastSyncLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Zuletzt synchronisiert'**
+  String get vaultLastSyncLabel;
+
+  /// No description provided for @vaultLastSyncNever.
+  ///
+  /// In de, this message translates to:
+  /// **'noch nicht'**
+  String get vaultLastSyncNever;
 
   /// No description provided for @onboardingSkip.
   ///

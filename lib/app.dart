@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'data/sync/vault_service.dart';
 import 'features/home/home_shell.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/scan/share_import_screen.dart';
@@ -40,23 +41,36 @@ class _Root extends StatefulWidget {
   State<_Root> createState() => _RootState();
 }
 
-class _RootState extends State<_Root> {
+class _RootState extends State<_Root> with WidgetsBindingObserver {
   bool? _onboardingDone;
   StreamSubscription<List<SharedMediaFile>>? _shareSub;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     isOnboardingDone().then((v) {
       if (mounted) setState(() => _onboardingDone = v);
     });
     _initShareHandler();
+    // Beim ersten Start ein Lebenszeichen senden, damit die confirmed_at
+    // auf dem Server stets aktuell ist und die Vorwarnung nicht
+    // versehentlich feuert.
+    unawaited(VaultService.heartbeat());
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _shareSub?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(VaultService.heartbeat());
+    }
   }
 
   void _initShareHandler() {
