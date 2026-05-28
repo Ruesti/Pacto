@@ -155,6 +155,7 @@ Fehlende Felder als null. monthlyCost immer als Monatsbetrag (Jahresbetrag ÷ 12
   Future<http.Response> _callFunctionWithUrl(
     String functionUrl,
     String pageUrl,
+    String? pageContent,
   ) async {
     final sessionToken = await _ensureSessionToken();
     return http.post(
@@ -164,32 +165,52 @@ Fehlende Felder als null. monthlyCost immer als Monatsbetrag (Jahresbetrag ÷ 12
         'apikey': _supabaseAnonKey!,
         'Authorization': 'Bearer $sessionToken',
       },
-      body: jsonEncode({'url': pageUrl}),
+      body: jsonEncode({
+        'url': pageUrl,
+        if (pageContent != null) 'pageContent': pageContent,
+      }),
     );
   }
 
-  Future<ExtractionResult> extractFromUrl(String pageUrl) async {
+  Future<ExtractionResult> extractFromUrl(
+    String pageUrl, {
+    String? pageContent,
+  }) async {
     final functionUrl = _edgeFunctionUrl;
     if (functionUrl == null || (_supabaseAnonKey ?? '').isEmpty) {
       throw Exception('ExtractionService not configured');
     }
 
-    var response = await _callFunctionWithUrl(functionUrl, pageUrl);
+    var response =
+        await _callFunctionWithUrl(functionUrl, pageUrl, pageContent);
 
     if (response.statusCode == 401) {
       await _clearSession();
-      response = await _callFunctionWithUrl(functionUrl, pageUrl);
+      response = await _callFunctionWithUrl(functionUrl, pageUrl, pageContent);
     }
 
     if (response.statusCode == 429) {
       throw Exception('Scan-Limit erreicht (max. 100/Monat)');
     }
     if (response.statusCode != 200) {
-      throw Exception('Extraktionsfehler: ${response.statusCode}');
+      throw Exception(_formatError(response));
     }
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     return ExtractionResult.fromJson(json);
+  }
+
+  // Liest die `error`-Nachricht aus dem Antwort-Body aus, sodass z.B. ein
+  // serverseitiger Anthropic-Fehler nicht als generisches "Extraktionsfehler:
+  // 500" beim Nutzer ankommt, sondern die echte Ursache zeigt.
+  String _formatError(http.Response response) {
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map && decoded['error'] is String) {
+        return 'Extraktionsfehler (${response.statusCode}): ${decoded['error']}';
+      }
+    } catch (_) {}
+    return 'Extraktionsfehler: ${response.statusCode}';
   }
 
   Future<ExtractionResult> extractFromBase64Image(
@@ -212,7 +233,7 @@ Fehlende Felder als null. monthlyCost immer als Monatsbetrag (Jahresbetrag ÷ 12
       throw Exception('Scan-Limit erreicht (max. 100/Monat)');
     }
     if (response.statusCode != 200) {
-      throw Exception('Extraktionsfehler: ${response.statusCode}');
+      throw Exception(_formatError(response));
     }
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;

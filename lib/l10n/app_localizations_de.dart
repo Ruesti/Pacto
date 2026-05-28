@@ -140,11 +140,91 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String dashboardGreeting(String name) {
-    return 'Hallo, $name!';
+    return 'Hallo $name 👋';
   }
 
   @override
-  String get dashboardGreetingAnon => 'Meine Verträge';
+  String get dashboardGreetingAnon => 'Hallo 👋';
+
+  @override
+  String get dashboardSubtitle =>
+      'Deine Verträge. Deine Übersicht. Für deine Liebsten.';
+
+  @override
+  String get sectionOverview => 'Übersicht';
+
+  @override
+  String get sectionYourContracts => 'Deine Verträge';
+
+  @override
+  String get sectionShowAll => 'Alle anzeigen';
+
+  @override
+  String get statContracts => 'Verträge';
+
+  @override
+  String get statContractsHint => 'aktiv';
+
+  @override
+  String get statCancellations => 'Kündigungen';
+
+  @override
+  String get statCancellationsHint => 'nächste 30 Tage';
+
+  @override
+  String get statSubscriptions => 'Abos';
+
+  @override
+  String get statSubscriptionsHint => 'aktiv';
+
+  @override
+  String get statHeirs => 'Erben';
+
+  @override
+  String get statHeirsHint => 'hinterlegt';
+
+  @override
+  String get emergencyLabel => 'Für den Notfall';
+
+  @override
+  String get emergencyHeadlineNotified => 'Deine Erben sind informiert';
+
+  @override
+  String get emergencyBodyNotified =>
+      'Im Ernstfall werden deine Erben benachrichtigt und erhalten Zugriff auf deine Vertragsübersicht.';
+
+  @override
+  String get emergencyHeadlineEmpty => 'Noch niemand hinterlegt';
+
+  @override
+  String get emergencyBodyEmpty =>
+      'Lege fest, wer im Fall der Fälle Zugang zu deinen Verträgen erhält.';
+
+  @override
+  String get emergencyAction => 'Erben verwalten';
+
+  @override
+  String get navOverview => 'Übersicht';
+
+  @override
+  String get navContracts => 'Verträge';
+
+  @override
+  String get navAdd => 'Hinzufügen';
+
+  @override
+  String get navHeirs => 'Erben';
+
+  @override
+  String get navMore => 'Mehr';
+
+  @override
+  String nextPayment(String date) {
+    return 'Nächste Zahlung: $date';
+  }
+
+  @override
+  String get perMonthSuffix => '/ Monat';
 
   @override
   String get monthlyCosts => 'Monatliche Ausgaben';
@@ -469,6 +549,139 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsVaultSubtitle => 'Automatische Weitergabe an Erben';
+
+  @override
+  String get settingsHeirPasswordPolicy => 'Login-Daten für Erben';
+
+  @override
+  String get settingsHeirPasswordPolicySubtitle =>
+      'Wie kommen Erben an Benutzernamen und Passwörter?';
+
+  @override
+  String get heirPolicyTitle => 'Login-Daten für Erben';
+
+  @override
+  String get heirPolicyIntro =>
+      'Pacto kann pro Vertrag Benutzername und Passwort speichern, damit deine Erben im Ernstfall direkt kündigen können. Wähle, wie diese Daten geschützt werden — du kannst die Auswahl jederzeit ändern.';
+
+  @override
+  String get heirPolicyNoneTitle => 'Keine Passwörter speichern';
+
+  @override
+  String get heirPolicyNoneBody =>
+      'Nur ein Freitext-Hinweis pro Vertrag (z. B. „siehe 1Password\" oder „Notizbuch im Schreibtisch\"). Pacto speichert keine Login-Daten — du verwaltest sie anderswo.';
+
+  @override
+  String get heirPolicyKomfortTitle => 'Komfort: in der Mail im Klartext';
+
+  @override
+  String get heirPolicyKomfortBody =>
+      'Passwörter werden verschlüsselt gespeichert. Im Erbfall entschlüsselt der Pacto-Server sie und packt sie in die E-Mail an deine Erben. Vertrauensmodell: du vertraust dem Pacto-Anbieter (vergleichbar mit iCloud / Google).';
+
+  @override
+  String get heirPolicyMaximumTitle => 'Maximum: Erbe braucht PIN';
+
+  @override
+  String get heirPolicyMaximumBody =>
+      'Passwörter werden mit einem Schlüssel verschlüsselt, der aus dem Erben-PIN abgeleitet wird. Der Pacto-Server kann nichts entschlüsseln. Wichtig: du musst jedem Erben den PIN vorab mitteilen (Brief, SMS, Notar). Sonst kommt er an die Daten nicht.';
+
+  @override
+  String get heirPolicySaved => 'Einstellung gespeichert.';
+
+  @override
+  String get heirPolicyWarnPinShared =>
+      'Stelle sicher, dass deine Erben ihren PIN kennen — sonst können sie deine Passwörter nicht entschlüsseln.';
+
+  @override
+  String get sectionLogin => 'Login-Daten';
+
+  @override
+  String get sectionLoginSubtitle =>
+      'Optional — werden im Erbfall an die Erben weitergegeben';
+
+  @override
+  String get fieldLoginUsername => 'Benutzername / E-Mail';
+
+  @override
+  String get fieldLoginPassword => 'Passwort';
+
+  @override
+  String get fieldLoginPasswordPlaceholderExisting => '•••••• (gespeichert)';
+
+  @override
+  String get fieldLoginPasswordHintExisting =>
+      'Leer lassen, um das gespeicherte Passwort zu behalten.';
+
+  @override
+  String get fieldLoginHint => 'Hinweis (falls kein Passwort gespeichert ist)';
+
+  @override
+  String get fieldLoginHintHint =>
+      'z. B. \"siehe 1Password\" / \"Notizbuch im Schreibtisch\"';
+
+  @override
+  String get loginLastVerifiedNever => 'Noch nicht bestätigt';
+
+  @override
+  String loginLastVerifiedRecent(Object date) {
+    return 'Bestätigt am $date';
+  }
+
+  @override
+  String get loginConfirmNowButton => 'Jetzt als aktuell bestätigen';
+
+  @override
+  String get loginStaleWarning =>
+      'Seit über 6 Monaten nicht bestätigt — prüfen, ob das Passwort noch stimmt.';
+
+  @override
+  String get loginPolicyHintNone =>
+      'Du speicherst aktuell keine Passwörter (Einstellung: \"Keine Passwörter speichern\"). Nur das Hinweis-Feld wird in der Erben-Mail erscheinen.';
+
+  @override
+  String get loginPolicyHintKomfort =>
+      'Passwörter landen im Erbfall im Klartext in der Erben-Mail (Komfort-Modus).';
+
+  @override
+  String get loginPolicyHintMaximum =>
+      'Passwörter werden mit dem Erben-PIN verschlüsselt — Erbe braucht den PIN.';
+
+  @override
+  String get loginCardTitle => 'Login-Daten';
+
+  @override
+  String get loginCopied => 'In Zwischenablage kopiert';
+
+  @override
+  String get loginRevealError => 'Passwort konnte nicht entschlüsselt werden.';
+
+  @override
+  String get loginPasswordStored => 'Passwort gespeichert';
+
+  @override
+  String get heirExportPreviewButton => 'Vorschau für diesen Erben';
+
+  @override
+  String get heirExportPreviewTitle => 'So sieht die Erben-Mail aus';
+
+  @override
+  String get heirExportPinPromptTitle => 'Erben-PIN nötig';
+
+  @override
+  String get heirExportPinPromptBody =>
+      'Im Maximum-Modus wird das Passwort mit dem Erben-PIN verschlüsselt. Gib den PIN ein, den du diesem Erben mitgeteilt hast.';
+
+  @override
+  String get heirExportPinPromptField => 'Erben-PIN';
+
+  @override
+  String get heirExportPinPromptButton => 'Vorschau erzeugen';
+
+  @override
+  String get heirExportCancel => 'Schließen';
+
+  @override
+  String get heirExportCopyAll => 'Alles kopieren';
 
   @override
   String get settingsSectionApp => 'App';

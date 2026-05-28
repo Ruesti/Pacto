@@ -106,6 +106,30 @@ class $ContractsTable extends Contracts
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant(''));
+  static const VerificationMeta _loginUsernameMeta =
+      const VerificationMeta('loginUsername');
+  @override
+  late final GeneratedColumn<String> loginUsername = GeneratedColumn<String>(
+      'login_username', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _loginPasswordCtMeta =
+      const VerificationMeta('loginPasswordCt');
+  @override
+  late final GeneratedColumn<String> loginPasswordCt = GeneratedColumn<String>(
+      'login_password_ct', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _loginHintMeta =
+      const VerificationMeta('loginHint');
+  @override
+  late final GeneratedColumn<String> loginHint = GeneratedColumn<String>(
+      'login_hint', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _loginLastVerifiedAtMeta =
+      const VerificationMeta('loginLastVerifiedAt');
+  @override
+  late final GeneratedColumn<DateTime> loginLastVerifiedAt =
+      GeneratedColumn<DateTime>('login_last_verified_at', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _contractStartMeta =
       const VerificationMeta('contractStart');
   @override
@@ -150,6 +174,10 @@ class $ContractsTable extends Contracts
         billingCycle,
         documentPath,
         notes,
+        loginUsername,
+        loginPasswordCt,
+        loginHint,
+        loginLastVerifiedAt,
         contractStart,
         nextRenewal,
         createdAt,
@@ -227,6 +255,28 @@ class $ContractsTable extends Contracts
       context.handle(
           _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
     }
+    if (data.containsKey('login_username')) {
+      context.handle(
+          _loginUsernameMeta,
+          loginUsername.isAcceptableOrUnknown(
+              data['login_username']!, _loginUsernameMeta));
+    }
+    if (data.containsKey('login_password_ct')) {
+      context.handle(
+          _loginPasswordCtMeta,
+          loginPasswordCt.isAcceptableOrUnknown(
+              data['login_password_ct']!, _loginPasswordCtMeta));
+    }
+    if (data.containsKey('login_hint')) {
+      context.handle(_loginHintMeta,
+          loginHint.isAcceptableOrUnknown(data['login_hint']!, _loginHintMeta));
+    }
+    if (data.containsKey('login_last_verified_at')) {
+      context.handle(
+          _loginLastVerifiedAtMeta,
+          loginLastVerifiedAt.isAcceptableOrUnknown(
+              data['login_last_verified_at']!, _loginLastVerifiedAtMeta));
+    }
     if (data.containsKey('contract_start')) {
       context.handle(
           _contractStartMeta,
@@ -288,6 +338,15 @@ class $ContractsTable extends Contracts
           .read(DriftSqlType.string, data['${effectivePrefix}document_path']),
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes'])!,
+      loginUsername: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}login_username']),
+      loginPasswordCt: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}login_password_ct']),
+      loginHint: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}login_hint']),
+      loginLastVerifiedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}login_last_verified_at']),
       contractStart: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}contract_start']),
       nextRenewal: attachedDatabase.typeMapping
@@ -330,6 +389,10 @@ class Contract extends DataClass implements Insertable<Contract> {
   final BillingCycle billingCycle;
   final String? documentPath;
   final String notes;
+  final String? loginUsername;
+  final String? loginPasswordCt;
+  final String? loginHint;
+  final DateTime? loginLastVerifiedAt;
   final DateTime? contractStart;
   final DateTime? nextRenewal;
   final DateTime createdAt;
@@ -349,6 +412,10 @@ class Contract extends DataClass implements Insertable<Contract> {
       required this.billingCycle,
       this.documentPath,
       required this.notes,
+      this.loginUsername,
+      this.loginPasswordCt,
+      this.loginHint,
+      this.loginLastVerifiedAt,
       this.contractStart,
       this.nextRenewal,
       required this.createdAt,
@@ -389,6 +456,18 @@ class Contract extends DataClass implements Insertable<Contract> {
       map['document_path'] = Variable<String>(documentPath);
     }
     map['notes'] = Variable<String>(notes);
+    if (!nullToAbsent || loginUsername != null) {
+      map['login_username'] = Variable<String>(loginUsername);
+    }
+    if (!nullToAbsent || loginPasswordCt != null) {
+      map['login_password_ct'] = Variable<String>(loginPasswordCt);
+    }
+    if (!nullToAbsent || loginHint != null) {
+      map['login_hint'] = Variable<String>(loginHint);
+    }
+    if (!nullToAbsent || loginLastVerifiedAt != null) {
+      map['login_last_verified_at'] = Variable<DateTime>(loginLastVerifiedAt);
+    }
     if (!nullToAbsent || contractStart != null) {
       map['contract_start'] = Variable<DateTime>(contractStart);
     }
@@ -424,6 +503,18 @@ class Contract extends DataClass implements Insertable<Contract> {
           ? const Value.absent()
           : Value(documentPath),
       notes: Value(notes),
+      loginUsername: loginUsername == null && nullToAbsent
+          ? const Value.absent()
+          : Value(loginUsername),
+      loginPasswordCt: loginPasswordCt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(loginPasswordCt),
+      loginHint: loginHint == null && nullToAbsent
+          ? const Value.absent()
+          : Value(loginHint),
+      loginLastVerifiedAt: loginLastVerifiedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(loginLastVerifiedAt),
       contractStart: contractStart == null && nullToAbsent
           ? const Value.absent()
           : Value(contractStart),
@@ -457,6 +548,11 @@ class Contract extends DataClass implements Insertable<Contract> {
           .fromJson(serializer.fromJson<String>(json['billingCycle'])),
       documentPath: serializer.fromJson<String?>(json['documentPath']),
       notes: serializer.fromJson<String>(json['notes']),
+      loginUsername: serializer.fromJson<String?>(json['loginUsername']),
+      loginPasswordCt: serializer.fromJson<String?>(json['loginPasswordCt']),
+      loginHint: serializer.fromJson<String?>(json['loginHint']),
+      loginLastVerifiedAt:
+          serializer.fromJson<DateTime?>(json['loginLastVerifiedAt']),
       contractStart: serializer.fromJson<DateTime?>(json['contractStart']),
       nextRenewal: serializer.fromJson<DateTime?>(json['nextRenewal']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -486,6 +582,10 @@ class Contract extends DataClass implements Insertable<Contract> {
           $ContractsTable.$converterbillingCycle.toJson(billingCycle)),
       'documentPath': serializer.toJson<String?>(documentPath),
       'notes': serializer.toJson<String>(notes),
+      'loginUsername': serializer.toJson<String?>(loginUsername),
+      'loginPasswordCt': serializer.toJson<String?>(loginPasswordCt),
+      'loginHint': serializer.toJson<String?>(loginHint),
+      'loginLastVerifiedAt': serializer.toJson<DateTime?>(loginLastVerifiedAt),
       'contractStart': serializer.toJson<DateTime?>(contractStart),
       'nextRenewal': serializer.toJson<DateTime?>(nextRenewal),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -508,6 +608,10 @@ class Contract extends DataClass implements Insertable<Contract> {
           BillingCycle? billingCycle,
           Value<String?> documentPath = const Value.absent(),
           String? notes,
+          Value<String?> loginUsername = const Value.absent(),
+          Value<String?> loginPasswordCt = const Value.absent(),
+          Value<String?> loginHint = const Value.absent(),
+          Value<DateTime?> loginLastVerifiedAt = const Value.absent(),
           Value<DateTime?> contractStart = const Value.absent(),
           Value<DateTime?> nextRenewal = const Value.absent(),
           DateTime? createdAt,
@@ -531,6 +635,15 @@ class Contract extends DataClass implements Insertable<Contract> {
         documentPath:
             documentPath.present ? documentPath.value : this.documentPath,
         notes: notes ?? this.notes,
+        loginUsername:
+            loginUsername.present ? loginUsername.value : this.loginUsername,
+        loginPasswordCt: loginPasswordCt.present
+            ? loginPasswordCt.value
+            : this.loginPasswordCt,
+        loginHint: loginHint.present ? loginHint.value : this.loginHint,
+        loginLastVerifiedAt: loginLastVerifiedAt.present
+            ? loginLastVerifiedAt.value
+            : this.loginLastVerifiedAt,
         contractStart:
             contractStart.present ? contractStart.value : this.contractStart,
         nextRenewal: nextRenewal.present ? nextRenewal.value : this.nextRenewal,
@@ -569,6 +682,16 @@ class Contract extends DataClass implements Insertable<Contract> {
           ? data.documentPath.value
           : this.documentPath,
       notes: data.notes.present ? data.notes.value : this.notes,
+      loginUsername: data.loginUsername.present
+          ? data.loginUsername.value
+          : this.loginUsername,
+      loginPasswordCt: data.loginPasswordCt.present
+          ? data.loginPasswordCt.value
+          : this.loginPasswordCt,
+      loginHint: data.loginHint.present ? data.loginHint.value : this.loginHint,
+      loginLastVerifiedAt: data.loginLastVerifiedAt.present
+          ? data.loginLastVerifiedAt.value
+          : this.loginLastVerifiedAt,
       contractStart: data.contractStart.present
           ? data.contractStart.value
           : this.contractStart,
@@ -596,6 +719,10 @@ class Contract extends DataClass implements Insertable<Contract> {
           ..write('billingCycle: $billingCycle, ')
           ..write('documentPath: $documentPath, ')
           ..write('notes: $notes, ')
+          ..write('loginUsername: $loginUsername, ')
+          ..write('loginPasswordCt: $loginPasswordCt, ')
+          ..write('loginHint: $loginHint, ')
+          ..write('loginLastVerifiedAt: $loginLastVerifiedAt, ')
           ..write('contractStart: $contractStart, ')
           ..write('nextRenewal: $nextRenewal, ')
           ..write('createdAt: $createdAt, ')
@@ -605,25 +732,30 @@ class Contract extends DataClass implements Insertable<Contract> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      name,
-      category,
-      provider,
-      contactPhone,
-      contactEmail,
-      contactUrl,
-      cancellationMethod,
-      cancellationInstructions,
-      noticePeriod,
-      monthlyCost,
-      billingCycle,
-      documentPath,
-      notes,
-      contractStart,
-      nextRenewal,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        id,
+        name,
+        category,
+        provider,
+        contactPhone,
+        contactEmail,
+        contactUrl,
+        cancellationMethod,
+        cancellationInstructions,
+        noticePeriod,
+        monthlyCost,
+        billingCycle,
+        documentPath,
+        notes,
+        loginUsername,
+        loginPasswordCt,
+        loginHint,
+        loginLastVerifiedAt,
+        contractStart,
+        nextRenewal,
+        createdAt,
+        updatedAt
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -642,6 +774,10 @@ class Contract extends DataClass implements Insertable<Contract> {
           other.billingCycle == this.billingCycle &&
           other.documentPath == this.documentPath &&
           other.notes == this.notes &&
+          other.loginUsername == this.loginUsername &&
+          other.loginPasswordCt == this.loginPasswordCt &&
+          other.loginHint == this.loginHint &&
+          other.loginLastVerifiedAt == this.loginLastVerifiedAt &&
           other.contractStart == this.contractStart &&
           other.nextRenewal == this.nextRenewal &&
           other.createdAt == this.createdAt &&
@@ -663,6 +799,10 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
   final Value<BillingCycle> billingCycle;
   final Value<String?> documentPath;
   final Value<String> notes;
+  final Value<String?> loginUsername;
+  final Value<String?> loginPasswordCt;
+  final Value<String?> loginHint;
+  final Value<DateTime?> loginLastVerifiedAt;
   final Value<DateTime?> contractStart;
   final Value<DateTime?> nextRenewal;
   final Value<DateTime> createdAt;
@@ -683,6 +823,10 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
     this.billingCycle = const Value.absent(),
     this.documentPath = const Value.absent(),
     this.notes = const Value.absent(),
+    this.loginUsername = const Value.absent(),
+    this.loginPasswordCt = const Value.absent(),
+    this.loginHint = const Value.absent(),
+    this.loginLastVerifiedAt = const Value.absent(),
     this.contractStart = const Value.absent(),
     this.nextRenewal = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -704,6 +848,10 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
     this.billingCycle = const Value.absent(),
     this.documentPath = const Value.absent(),
     this.notes = const Value.absent(),
+    this.loginUsername = const Value.absent(),
+    this.loginPasswordCt = const Value.absent(),
+    this.loginHint = const Value.absent(),
+    this.loginLastVerifiedAt = const Value.absent(),
     this.contractStart = const Value.absent(),
     this.nextRenewal = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -726,6 +874,10 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
     Expression<String>? billingCycle,
     Expression<String>? documentPath,
     Expression<String>? notes,
+    Expression<String>? loginUsername,
+    Expression<String>? loginPasswordCt,
+    Expression<String>? loginHint,
+    Expression<DateTime>? loginLastVerifiedAt,
     Expression<DateTime>? contractStart,
     Expression<DateTime>? nextRenewal,
     Expression<DateTime>? createdAt,
@@ -748,6 +900,11 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
       if (billingCycle != null) 'billing_cycle': billingCycle,
       if (documentPath != null) 'document_path': documentPath,
       if (notes != null) 'notes': notes,
+      if (loginUsername != null) 'login_username': loginUsername,
+      if (loginPasswordCt != null) 'login_password_ct': loginPasswordCt,
+      if (loginHint != null) 'login_hint': loginHint,
+      if (loginLastVerifiedAt != null)
+        'login_last_verified_at': loginLastVerifiedAt,
       if (contractStart != null) 'contract_start': contractStart,
       if (nextRenewal != null) 'next_renewal': nextRenewal,
       if (createdAt != null) 'created_at': createdAt,
@@ -771,6 +928,10 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
       Value<BillingCycle>? billingCycle,
       Value<String?>? documentPath,
       Value<String>? notes,
+      Value<String?>? loginUsername,
+      Value<String?>? loginPasswordCt,
+      Value<String?>? loginHint,
+      Value<DateTime?>? loginLastVerifiedAt,
       Value<DateTime?>? contractStart,
       Value<DateTime?>? nextRenewal,
       Value<DateTime>? createdAt,
@@ -792,6 +953,10 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
       billingCycle: billingCycle ?? this.billingCycle,
       documentPath: documentPath ?? this.documentPath,
       notes: notes ?? this.notes,
+      loginUsername: loginUsername ?? this.loginUsername,
+      loginPasswordCt: loginPasswordCt ?? this.loginPasswordCt,
+      loginHint: loginHint ?? this.loginHint,
+      loginLastVerifiedAt: loginLastVerifiedAt ?? this.loginLastVerifiedAt,
       contractStart: contractStart ?? this.contractStart,
       nextRenewal: nextRenewal ?? this.nextRenewal,
       createdAt: createdAt ?? this.createdAt,
@@ -850,6 +1015,19 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (loginUsername.present) {
+      map['login_username'] = Variable<String>(loginUsername.value);
+    }
+    if (loginPasswordCt.present) {
+      map['login_password_ct'] = Variable<String>(loginPasswordCt.value);
+    }
+    if (loginHint.present) {
+      map['login_hint'] = Variable<String>(loginHint.value);
+    }
+    if (loginLastVerifiedAt.present) {
+      map['login_last_verified_at'] =
+          Variable<DateTime>(loginLastVerifiedAt.value);
+    }
     if (contractStart.present) {
       map['contract_start'] = Variable<DateTime>(contractStart.value);
     }
@@ -885,6 +1063,10 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
           ..write('billingCycle: $billingCycle, ')
           ..write('documentPath: $documentPath, ')
           ..write('notes: $notes, ')
+          ..write('loginUsername: $loginUsername, ')
+          ..write('loginPasswordCt: $loginPasswordCt, ')
+          ..write('loginHint: $loginHint, ')
+          ..write('loginLastVerifiedAt: $loginLastVerifiedAt, ')
           ..write('contractStart: $contractStart, ')
           ..write('nextRenewal: $nextRenewal, ')
           ..write('createdAt: $createdAt, ')
@@ -1874,6 +2056,10 @@ typedef $$ContractsTableCreateCompanionBuilder = ContractsCompanion Function({
   Value<BillingCycle> billingCycle,
   Value<String?> documentPath,
   Value<String> notes,
+  Value<String?> loginUsername,
+  Value<String?> loginPasswordCt,
+  Value<String?> loginHint,
+  Value<DateTime?> loginLastVerifiedAt,
   Value<DateTime?> contractStart,
   Value<DateTime?> nextRenewal,
   Value<DateTime> createdAt,
@@ -1895,6 +2081,10 @@ typedef $$ContractsTableUpdateCompanionBuilder = ContractsCompanion Function({
   Value<BillingCycle> billingCycle,
   Value<String?> documentPath,
   Value<String> notes,
+  Value<String?> loginUsername,
+  Value<String?> loginPasswordCt,
+  Value<String?> loginHint,
+  Value<DateTime?> loginLastVerifiedAt,
   Value<DateTime?> contractStart,
   Value<DateTime?> nextRenewal,
   Value<DateTime> createdAt,
@@ -1959,6 +2149,20 @@ class $$ContractsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get loginUsername => $composableBuilder(
+      column: $table.loginUsername, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get loginPasswordCt => $composableBuilder(
+      column: $table.loginPasswordCt,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get loginHint => $composableBuilder(
+      column: $table.loginHint, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get loginLastVerifiedAt => $composableBuilder(
+      column: $table.loginLastVerifiedAt,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get contractStart => $composableBuilder(
       column: $table.contractStart, builder: (column) => ColumnFilters(column));
@@ -2031,6 +2235,21 @@ class $$ContractsTableOrderingComposer
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get loginUsername => $composableBuilder(
+      column: $table.loginUsername,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get loginPasswordCt => $composableBuilder(
+      column: $table.loginPasswordCt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get loginHint => $composableBuilder(
+      column: $table.loginHint, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get loginLastVerifiedAt => $composableBuilder(
+      column: $table.loginLastVerifiedAt,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get contractStart => $composableBuilder(
       column: $table.contractStart,
       builder: (column) => ColumnOrderings(column));
@@ -2098,6 +2317,18 @@ class $$ContractsTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  GeneratedColumn<String> get loginUsername => $composableBuilder(
+      column: $table.loginUsername, builder: (column) => column);
+
+  GeneratedColumn<String> get loginPasswordCt => $composableBuilder(
+      column: $table.loginPasswordCt, builder: (column) => column);
+
+  GeneratedColumn<String> get loginHint =>
+      $composableBuilder(column: $table.loginHint, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get loginLastVerifiedAt => $composableBuilder(
+      column: $table.loginLastVerifiedAt, builder: (column) => column);
+
   GeneratedColumn<DateTime> get contractStart => $composableBuilder(
       column: $table.contractStart, builder: (column) => column);
 
@@ -2148,6 +2379,10 @@ class $$ContractsTableTableManager extends RootTableManager<
             Value<BillingCycle> billingCycle = const Value.absent(),
             Value<String?> documentPath = const Value.absent(),
             Value<String> notes = const Value.absent(),
+            Value<String?> loginUsername = const Value.absent(),
+            Value<String?> loginPasswordCt = const Value.absent(),
+            Value<String?> loginHint = const Value.absent(),
+            Value<DateTime?> loginLastVerifiedAt = const Value.absent(),
             Value<DateTime?> contractStart = const Value.absent(),
             Value<DateTime?> nextRenewal = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -2169,6 +2404,10 @@ class $$ContractsTableTableManager extends RootTableManager<
             billingCycle: billingCycle,
             documentPath: documentPath,
             notes: notes,
+            loginUsername: loginUsername,
+            loginPasswordCt: loginPasswordCt,
+            loginHint: loginHint,
+            loginLastVerifiedAt: loginLastVerifiedAt,
             contractStart: contractStart,
             nextRenewal: nextRenewal,
             createdAt: createdAt,
@@ -2190,6 +2429,10 @@ class $$ContractsTableTableManager extends RootTableManager<
             Value<BillingCycle> billingCycle = const Value.absent(),
             Value<String?> documentPath = const Value.absent(),
             Value<String> notes = const Value.absent(),
+            Value<String?> loginUsername = const Value.absent(),
+            Value<String?> loginPasswordCt = const Value.absent(),
+            Value<String?> loginHint = const Value.absent(),
+            Value<DateTime?> loginLastVerifiedAt = const Value.absent(),
             Value<DateTime?> contractStart = const Value.absent(),
             Value<DateTime?> nextRenewal = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
@@ -2211,6 +2454,10 @@ class $$ContractsTableTableManager extends RootTableManager<
             billingCycle: billingCycle,
             documentPath: documentPath,
             notes: notes,
+            loginUsername: loginUsername,
+            loginPasswordCt: loginPasswordCt,
+            loginHint: loginHint,
+            loginLastVerifiedAt: loginLastVerifiedAt,
             contractStart: contractStart,
             nextRenewal: nextRenewal,
             createdAt: createdAt,

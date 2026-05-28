@@ -140,11 +140,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardGreeting(String name) {
-    return 'Hello, $name!';
+    return 'Hi $name 👋';
   }
 
   @override
-  String get dashboardGreetingAnon => 'My Contracts';
+  String get dashboardGreetingAnon => 'Hi 👋';
+
+  @override
+  String get dashboardSubtitle =>
+      'Your contracts. Your overview. For your loved ones.';
+
+  @override
+  String get sectionOverview => 'Overview';
+
+  @override
+  String get sectionYourContracts => 'Your contracts';
+
+  @override
+  String get sectionShowAll => 'Show all';
+
+  @override
+  String get statContracts => 'Contracts';
+
+  @override
+  String get statContractsHint => 'active';
+
+  @override
+  String get statCancellations => 'Cancellations';
+
+  @override
+  String get statCancellationsHint => 'next 30 days';
+
+  @override
+  String get statSubscriptions => 'Subs';
+
+  @override
+  String get statSubscriptionsHint => 'active';
+
+  @override
+  String get statHeirs => 'Heirs';
+
+  @override
+  String get statHeirsHint => 'registered';
+
+  @override
+  String get emergencyLabel => 'Just in case';
+
+  @override
+  String get emergencyHeadlineNotified => 'Your heirs are informed';
+
+  @override
+  String get emergencyBodyNotified =>
+      'In the worst case, your heirs are notified and gain access to your contract overview.';
+
+  @override
+  String get emergencyHeadlineEmpty => 'No-one registered yet';
+
+  @override
+  String get emergencyBodyEmpty =>
+      'Decide who gets access to your contracts in case of emergency.';
+
+  @override
+  String get emergencyAction => 'Manage heirs';
+
+  @override
+  String get navOverview => 'Overview';
+
+  @override
+  String get navContracts => 'Contracts';
+
+  @override
+  String get navAdd => 'Add';
+
+  @override
+  String get navHeirs => 'Heirs';
+
+  @override
+  String get navMore => 'More';
+
+  @override
+  String nextPayment(String date) {
+    return 'Next payment: $date';
+  }
+
+  @override
+  String get perMonthSuffix => '/ month';
 
   @override
   String get monthlyCosts => 'Monthly expenses';
@@ -467,6 +547,139 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsVaultSubtitle => 'Automatic handover to heirs';
+
+  @override
+  String get settingsHeirPasswordPolicy => 'Logins for heirs';
+
+  @override
+  String get settingsHeirPasswordPolicySubtitle =>
+      'How heirs get to your usernames and passwords';
+
+  @override
+  String get heirPolicyTitle => 'Logins for heirs';
+
+  @override
+  String get heirPolicyIntro =>
+      'Pacto can store a username and password per contract so your heirs can cancel directly. Choose how those credentials are protected — you can change this any time.';
+
+  @override
+  String get heirPolicyNoneTitle => 'Don\'t store passwords';
+
+  @override
+  String get heirPolicyNoneBody =>
+      'Only a free-text hint per contract (e.g. \"see 1Password\" or \"notebook on the desk\"). Pacto stores no login data — you manage it elsewhere.';
+
+  @override
+  String get heirPolicyKomfortTitle => 'Comfort: cleartext in the email';
+
+  @override
+  String get heirPolicyKomfortBody =>
+      'Passwords are stored encrypted. On inheritance, the Pacto server decrypts them and includes them in the email to your heirs. Trust model: you trust the Pacto provider (similar to iCloud / Google).';
+
+  @override
+  String get heirPolicyMaximumTitle => 'Maximum: heir needs PIN';
+
+  @override
+  String get heirPolicyMaximumBody =>
+      'Passwords are encrypted with a key derived from the heir PIN. The Pacto server cannot decrypt them. Important: you must give each heir their PIN beforehand (letter, SMS, notary). Otherwise they cannot access the data.';
+
+  @override
+  String get heirPolicySaved => 'Setting saved.';
+
+  @override
+  String get heirPolicyWarnPinShared =>
+      'Make sure your heirs know their PIN — otherwise they cannot decrypt your passwords.';
+
+  @override
+  String get sectionLogin => 'Login credentials';
+
+  @override
+  String get sectionLoginSubtitle =>
+      'Optional — passed on to heirs in case of inheritance';
+
+  @override
+  String get fieldLoginUsername => 'Username / email';
+
+  @override
+  String get fieldLoginPassword => 'Password';
+
+  @override
+  String get fieldLoginPasswordPlaceholderExisting => '•••••• (saved)';
+
+  @override
+  String get fieldLoginPasswordHintExisting =>
+      'Leave empty to keep the saved password.';
+
+  @override
+  String get fieldLoginHint => 'Hint (if no password is stored)';
+
+  @override
+  String get fieldLoginHintHint =>
+      'e.g. \"see 1Password\" / \"notebook on the desk\"';
+
+  @override
+  String get loginLastVerifiedNever => 'Never verified';
+
+  @override
+  String loginLastVerifiedRecent(Object date) {
+    return 'Verified on $date';
+  }
+
+  @override
+  String get loginConfirmNowButton => 'Mark as current now';
+
+  @override
+  String get loginStaleWarning =>
+      'Not verified for over 6 months — check the password is still correct.';
+
+  @override
+  String get loginPolicyHintNone =>
+      'You currently store no passwords (setting: \"Don\'t store passwords\"). Only the hint field appears in the heir email.';
+
+  @override
+  String get loginPolicyHintKomfort =>
+      'Passwords appear in cleartext in the heir email on inheritance (comfort mode).';
+
+  @override
+  String get loginPolicyHintMaximum =>
+      'Passwords are encrypted with the heir PIN — heir needs the PIN.';
+
+  @override
+  String get loginCardTitle => 'Login credentials';
+
+  @override
+  String get loginCopied => 'Copied to clipboard';
+
+  @override
+  String get loginRevealError => 'Could not decrypt password.';
+
+  @override
+  String get loginPasswordStored => 'Password stored';
+
+  @override
+  String get heirExportPreviewButton => 'Preview for this heir';
+
+  @override
+  String get heirExportPreviewTitle => 'What the heir email looks like';
+
+  @override
+  String get heirExportPinPromptTitle => 'Heir PIN required';
+
+  @override
+  String get heirExportPinPromptBody =>
+      'In maximum mode the password is encrypted with the heir\'s PIN. Enter the PIN you gave this heir.';
+
+  @override
+  String get heirExportPinPromptField => 'Heir PIN';
+
+  @override
+  String get heirExportPinPromptButton => 'Generate preview';
+
+  @override
+  String get heirExportCancel => 'Close';
+
+  @override
+  String get heirExportCopyAll => 'Copy all';
 
   @override
   String get settingsSectionApp => 'App';

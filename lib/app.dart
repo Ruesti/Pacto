@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'features/dashboard/dashboard_screen.dart';
+import 'features/home/home_shell.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/scan/share_import_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'shared/locale_provider.dart';
 import 'shared/theme/app_theme.dart';
+import 'shared/widgets/app_background.dart';
 
 class PactoApp extends ConsumerWidget {
   const PactoApp({super.key});
@@ -25,6 +26,8 @@ class PactoApp extends ConsumerWidget {
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      builder: (context, child) =>
+          AppBackground(child: child ?? const SizedBox.shrink()),
       home: const _Root(),
     );
   }
@@ -112,6 +115,6 @@ class _RootState extends State<_Root> {
         onDone: () => setState(() => _onboardingDone = true),
       );
     }
-    return const DashboardScreen();
+    return const HomeShell();
   }
 }

@@ -347,14 +347,164 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardGreeting.
   ///
   /// In de, this message translates to:
-  /// **'Hallo, {name}!'**
+  /// **'Hallo {name} 👋'**
   String dashboardGreeting(String name);
 
   /// No description provided for @dashboardGreetingAnon.
   ///
   /// In de, this message translates to:
-  /// **'Meine Verträge'**
+  /// **'Hallo 👋'**
   String get dashboardGreetingAnon;
+
+  /// No description provided for @dashboardSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Verträge. Deine Übersicht. Für deine Liebsten.'**
+  String get dashboardSubtitle;
+
+  /// No description provided for @sectionOverview.
+  ///
+  /// In de, this message translates to:
+  /// **'Übersicht'**
+  String get sectionOverview;
+
+  /// No description provided for @sectionYourContracts.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Verträge'**
+  String get sectionYourContracts;
+
+  /// No description provided for @sectionShowAll.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle anzeigen'**
+  String get sectionShowAll;
+
+  /// No description provided for @statContracts.
+  ///
+  /// In de, this message translates to:
+  /// **'Verträge'**
+  String get statContracts;
+
+  /// No description provided for @statContractsHint.
+  ///
+  /// In de, this message translates to:
+  /// **'aktiv'**
+  String get statContractsHint;
+
+  /// No description provided for @statCancellations.
+  ///
+  /// In de, this message translates to:
+  /// **'Kündigungen'**
+  String get statCancellations;
+
+  /// No description provided for @statCancellationsHint.
+  ///
+  /// In de, this message translates to:
+  /// **'nächste 30 Tage'**
+  String get statCancellationsHint;
+
+  /// No description provided for @statSubscriptions.
+  ///
+  /// In de, this message translates to:
+  /// **'Abos'**
+  String get statSubscriptions;
+
+  /// No description provided for @statSubscriptionsHint.
+  ///
+  /// In de, this message translates to:
+  /// **'aktiv'**
+  String get statSubscriptionsHint;
+
+  /// No description provided for @statHeirs.
+  ///
+  /// In de, this message translates to:
+  /// **'Erben'**
+  String get statHeirs;
+
+  /// No description provided for @statHeirsHint.
+  ///
+  /// In de, this message translates to:
+  /// **'hinterlegt'**
+  String get statHeirsHint;
+
+  /// No description provided for @emergencyLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Für den Notfall'**
+  String get emergencyLabel;
+
+  /// No description provided for @emergencyHeadlineNotified.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Erben sind informiert'**
+  String get emergencyHeadlineNotified;
+
+  /// No description provided for @emergencyBodyNotified.
+  ///
+  /// In de, this message translates to:
+  /// **'Im Ernstfall werden deine Erben benachrichtigt und erhalten Zugriff auf deine Vertragsübersicht.'**
+  String get emergencyBodyNotified;
+
+  /// No description provided for @emergencyHeadlineEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch niemand hinterlegt'**
+  String get emergencyHeadlineEmpty;
+
+  /// No description provided for @emergencyBodyEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Lege fest, wer im Fall der Fälle Zugang zu deinen Verträgen erhält.'**
+  String get emergencyBodyEmpty;
+
+  /// No description provided for @emergencyAction.
+  ///
+  /// In de, this message translates to:
+  /// **'Erben verwalten'**
+  String get emergencyAction;
+
+  /// No description provided for @navOverview.
+  ///
+  /// In de, this message translates to:
+  /// **'Übersicht'**
+  String get navOverview;
+
+  /// No description provided for @navContracts.
+  ///
+  /// In de, this message translates to:
+  /// **'Verträge'**
+  String get navContracts;
+
+  /// No description provided for @navAdd.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinzufügen'**
+  String get navAdd;
+
+  /// No description provided for @navHeirs.
+  ///
+  /// In de, this message translates to:
+  /// **'Erben'**
+  String get navHeirs;
+
+  /// No description provided for @navMore.
+  ///
+  /// In de, this message translates to:
+  /// **'Mehr'**
+  String get navMore;
+
+  /// No description provided for @nextPayment.
+  ///
+  /// In de, this message translates to:
+  /// **'Nächste Zahlung: {date}'**
+  String nextPayment(String date);
+
+  /// No description provided for @perMonthSuffix.
+  ///
+  /// In de, this message translates to:
+  /// **'/ Monat'**
+  String get perMonthSuffix;
 
   /// No description provided for @monthlyCosts.
   ///
@@ -955,6 +1105,240 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Automatische Weitergabe an Erben'**
   String get settingsVaultSubtitle;
+
+  /// No description provided for @settingsHeirPasswordPolicy.
+  ///
+  /// In de, this message translates to:
+  /// **'Login-Daten für Erben'**
+  String get settingsHeirPasswordPolicy;
+
+  /// No description provided for @settingsHeirPasswordPolicySubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie kommen Erben an Benutzernamen und Passwörter?'**
+  String get settingsHeirPasswordPolicySubtitle;
+
+  /// No description provided for @heirPolicyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Login-Daten für Erben'**
+  String get heirPolicyTitle;
+
+  /// No description provided for @heirPolicyIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Pacto kann pro Vertrag Benutzername und Passwort speichern, damit deine Erben im Ernstfall direkt kündigen können. Wähle, wie diese Daten geschützt werden — du kannst die Auswahl jederzeit ändern.'**
+  String get heirPolicyIntro;
+
+  /// No description provided for @heirPolicyNoneTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Passwörter speichern'**
+  String get heirPolicyNoneTitle;
+
+  /// No description provided for @heirPolicyNoneBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur ein Freitext-Hinweis pro Vertrag (z. B. „siehe 1Password\" oder „Notizbuch im Schreibtisch\"). Pacto speichert keine Login-Daten — du verwaltest sie anderswo.'**
+  String get heirPolicyNoneBody;
+
+  /// No description provided for @heirPolicyKomfortTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Komfort: in der Mail im Klartext'**
+  String get heirPolicyKomfortTitle;
+
+  /// No description provided for @heirPolicyKomfortBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwörter werden verschlüsselt gespeichert. Im Erbfall entschlüsselt der Pacto-Server sie und packt sie in die E-Mail an deine Erben. Vertrauensmodell: du vertraust dem Pacto-Anbieter (vergleichbar mit iCloud / Google).'**
+  String get heirPolicyKomfortBody;
+
+  /// No description provided for @heirPolicyMaximumTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Maximum: Erbe braucht PIN'**
+  String get heirPolicyMaximumTitle;
+
+  /// No description provided for @heirPolicyMaximumBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwörter werden mit einem Schlüssel verschlüsselt, der aus dem Erben-PIN abgeleitet wird. Der Pacto-Server kann nichts entschlüsseln. Wichtig: du musst jedem Erben den PIN vorab mitteilen (Brief, SMS, Notar). Sonst kommt er an die Daten nicht.'**
+  String get heirPolicyMaximumBody;
+
+  /// No description provided for @heirPolicySaved.
+  ///
+  /// In de, this message translates to:
+  /// **'Einstellung gespeichert.'**
+  String get heirPolicySaved;
+
+  /// No description provided for @heirPolicyWarnPinShared.
+  ///
+  /// In de, this message translates to:
+  /// **'Stelle sicher, dass deine Erben ihren PIN kennen — sonst können sie deine Passwörter nicht entschlüsseln.'**
+  String get heirPolicyWarnPinShared;
+
+  /// No description provided for @sectionLogin.
+  ///
+  /// In de, this message translates to:
+  /// **'Login-Daten'**
+  String get sectionLogin;
+
+  /// No description provided for @sectionLoginSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Optional — werden im Erbfall an die Erben weitergegeben'**
+  String get sectionLoginSubtitle;
+
+  /// No description provided for @fieldLoginUsername.
+  ///
+  /// In de, this message translates to:
+  /// **'Benutzername / E-Mail'**
+  String get fieldLoginUsername;
+
+  /// No description provided for @fieldLoginPassword.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort'**
+  String get fieldLoginPassword;
+
+  /// No description provided for @fieldLoginPasswordPlaceholderExisting.
+  ///
+  /// In de, this message translates to:
+  /// **'•••••• (gespeichert)'**
+  String get fieldLoginPasswordPlaceholderExisting;
+
+  /// No description provided for @fieldLoginPasswordHintExisting.
+  ///
+  /// In de, this message translates to:
+  /// **'Leer lassen, um das gespeicherte Passwort zu behalten.'**
+  String get fieldLoginPasswordHintExisting;
+
+  /// No description provided for @fieldLoginHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweis (falls kein Passwort gespeichert ist)'**
+  String get fieldLoginHint;
+
+  /// No description provided for @fieldLoginHintHint.
+  ///
+  /// In de, this message translates to:
+  /// **'z. B. \"siehe 1Password\" / \"Notizbuch im Schreibtisch\"'**
+  String get fieldLoginHintHint;
+
+  /// No description provided for @loginLastVerifiedNever.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch nicht bestätigt'**
+  String get loginLastVerifiedNever;
+
+  /// No description provided for @loginLastVerifiedRecent.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätigt am {date}'**
+  String loginLastVerifiedRecent(Object date);
+
+  /// No description provided for @loginConfirmNowButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Jetzt als aktuell bestätigen'**
+  String get loginConfirmNowButton;
+
+  /// No description provided for @loginStaleWarning.
+  ///
+  /// In de, this message translates to:
+  /// **'Seit über 6 Monaten nicht bestätigt — prüfen, ob das Passwort noch stimmt.'**
+  String get loginStaleWarning;
+
+  /// No description provided for @loginPolicyHintNone.
+  ///
+  /// In de, this message translates to:
+  /// **'Du speicherst aktuell keine Passwörter (Einstellung: \"Keine Passwörter speichern\"). Nur das Hinweis-Feld wird in der Erben-Mail erscheinen.'**
+  String get loginPolicyHintNone;
+
+  /// No description provided for @loginPolicyHintKomfort.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwörter landen im Erbfall im Klartext in der Erben-Mail (Komfort-Modus).'**
+  String get loginPolicyHintKomfort;
+
+  /// No description provided for @loginPolicyHintMaximum.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwörter werden mit dem Erben-PIN verschlüsselt — Erbe braucht den PIN.'**
+  String get loginPolicyHintMaximum;
+
+  /// No description provided for @loginCardTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Login-Daten'**
+  String get loginCardTitle;
+
+  /// No description provided for @loginCopied.
+  ///
+  /// In de, this message translates to:
+  /// **'In Zwischenablage kopiert'**
+  String get loginCopied;
+
+  /// No description provided for @loginRevealError.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort konnte nicht entschlüsselt werden.'**
+  String get loginRevealError;
+
+  /// No description provided for @loginPasswordStored.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort gespeichert'**
+  String get loginPasswordStored;
+
+  /// No description provided for @heirExportPreviewButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorschau für diesen Erben'**
+  String get heirExportPreviewButton;
+
+  /// No description provided for @heirExportPreviewTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'So sieht die Erben-Mail aus'**
+  String get heirExportPreviewTitle;
+
+  /// No description provided for @heirExportPinPromptTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Erben-PIN nötig'**
+  String get heirExportPinPromptTitle;
+
+  /// No description provided for @heirExportPinPromptBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Im Maximum-Modus wird das Passwort mit dem Erben-PIN verschlüsselt. Gib den PIN ein, den du diesem Erben mitgeteilt hast.'**
+  String get heirExportPinPromptBody;
+
+  /// No description provided for @heirExportPinPromptField.
+  ///
+  /// In de, this message translates to:
+  /// **'Erben-PIN'**
+  String get heirExportPinPromptField;
+
+  /// No description provided for @heirExportPinPromptButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorschau erzeugen'**
+  String get heirExportPinPromptButton;
+
+  /// No description provided for @heirExportCancel.
+  ///
+  /// In de, this message translates to:
+  /// **'Schließen'**
+  String get heirExportCancel;
+
+  /// No description provided for @heirExportCopyAll.
+  ///
+  /// In de, this message translates to:
+  /// **'Alles kopieren'**
+  String get heirExportCopyAll;
 
   /// No description provided for @settingsSectionApp.
   ///

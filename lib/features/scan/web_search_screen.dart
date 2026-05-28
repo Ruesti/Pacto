@@ -65,9 +65,32 @@ class _WebSearchScreenState extends State<WebSearchScreen> {
 
   Future<void> _importCurrentPage() async {
     final url = (await _webCtrl.currentUrl()) ?? _currentUrl;
+    String? pageContent;
+    try {
+      // document.body.innerText liefert den sichtbaren, bereits gerenderten
+      // Text — auch für SPAs und eingeloggte Seiten wie claude.ai/settings.
+      // Erste 50 000 Zeichen reichen Claude für die Extraktion.
+      final raw = await _webCtrl.runJavaScriptReturningResult(
+        '(document.body && document.body.innerText || "").substring(0, 50000)',
+      );
+      var text = raw.toString();
+      // Android/iOS wrappen das Ergebnis in JSON-String-Quotes.
+      if (text.length >= 2 && text.startsWith('"') && text.endsWith('"')) {
+        text = text.substring(1, text.length - 1);
+      }
+      text = text
+          .replaceAll(r'\n', '\n')
+          .replaceAll(r'\t', '\t')
+          .replaceAll(r'\"', '"')
+          .replaceAll(r'\\', r'\');
+      if (text.trim().isNotEmpty) pageContent = text;
+    } catch (_) {
+      // Wenn die JS-Auslese scheitert, geben wir nur die URL weiter — die
+      // Edge Function holt die Seite dann selbst (alter Pfad).
+    }
     if (!mounted) return;
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => _UrlProcessingScreen(url: url),
+      builder: (_) => _UrlProcessingScreen(url: url, pageContent: pageContent),
     ));
   }
 
@@ -157,8 +180,9 @@ class _WebSearchScreenState extends State<WebSearchScreen> {
 
 class _UrlProcessingScreen extends StatefulWidget {
   final String url;
+  final String? pageContent;
 
-  const _UrlProcessingScreen({required this.url});
+  const _UrlProcessingScreen({required this.url, this.pageContent});
 
   @override
   State<_UrlProcessingScreen> createState() => _UrlProcessingScreenState();
@@ -177,7 +201,10 @@ class _UrlProcessingScreenState extends State<_UrlProcessingScreen> {
   Future<void> _process() async {
     setState(() => _error = null);
     try {
-      final result = await _ctrl.extractFromUrl(widget.url);
+      final result = await _ctrl.extractFromUrl(
+        widget.url,
+        pageContent: widget.pageContent,
+      );
       if (!mounted) return;
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (_) => AddContractScreen(initialExtraction: result),

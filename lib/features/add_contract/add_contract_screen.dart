@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/database_provider.dart';
+import '../../data/providers/heir_password_policy_provider.dart';
 import '../../shared/l10n/enum_labels.dart';
 import '../../shared/l10n/l10n_extension.dart';
+import '../../shared/theme/app_colors.dart';
 import '../premium/premium_service.dart';
 import '../provider_library/provider_library_screen.dart';
 import '../scan/extraction_result.dart';
@@ -31,6 +33,10 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
   late final TextEditingController _emailCtrl;
   late final TextEditingController _urlCtrl;
   late final TextEditingController _notesCtrl;
+  late final TextEditingController _loginUsernameCtrl;
+  late final TextEditingController _loginPasswordCtrl;
+  late final TextEditingController _loginHintCtrl;
+  bool _passwordObscured = true;
   final _formKey = GlobalKey<FormState>();
   ExtractionConfidence? _extractionConfidence;
 
@@ -49,6 +55,10 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     _emailCtrl = TextEditingController(text: e?.contactEmail ?? '');
     _urlCtrl = TextEditingController(text: e?.contactUrl ?? '');
     _notesCtrl = TextEditingController(text: e?.notes ?? '');
+    _loginUsernameCtrl =
+        TextEditingController(text: e?.loginUsername ?? '');
+    _loginPasswordCtrl = TextEditingController();
+    _loginHintCtrl = TextEditingController(text: e?.loginHint ?? '');
 
     if (widget.initialExtraction != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -61,7 +71,8 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
   void dispose() {
     for (final c in [
       _nameCtrl, _providerCtrl, _costCtrl, _cancInstructCtrl,
-      _noticePeriodCtrl, _phoneCtrl, _emailCtrl, _urlCtrl, _notesCtrl
+      _noticePeriodCtrl, _phoneCtrl, _emailCtrl, _urlCtrl, _notesCtrl,
+      _loginUsernameCtrl, _loginPasswordCtrl, _loginHintCtrl,
     ]) {
       c.dispose();
     }
@@ -82,6 +93,16 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
         _emailCtrl.text.isEmpty ? null : _emailCtrl.text);
     _notifier.setContactUrl(_urlCtrl.text.isEmpty ? null : _urlCtrl.text);
     _notifier.setNotes(_notesCtrl.text);
+    _notifier.setLoginUsername(
+        _loginUsernameCtrl.text.isEmpty ? null : _loginUsernameCtrl.text);
+    _notifier.setLoginHint(
+        _loginHintCtrl.text.isEmpty ? null : _loginHintCtrl.text);
+    // Passwort wird nur uebernommen wenn der User tatsaechlich getippt hat.
+    // Leeres Feld + vorhandener Ciphertext → wir lassen das alte Passwort
+    // unangetastet (loginPasswordNew bleibt null).
+    if (_loginPasswordCtrl.text.isNotEmpty) {
+      _notifier.setLoginPasswordNew(_loginPasswordCtrl.text);
+    }
   }
 
   Future<void> _openLibrary() async {
@@ -320,6 +341,8 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
               pickDateLabel: l.pickDate,
             ),
             const SizedBox(height: 24),
+            _loginSection(state, l),
+            const SizedBox(height: 24),
             _sectionHeader(l.sectionNotes),
             TextFormField(
               controller: _notesCtrl,
@@ -403,6 +426,143 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
       ),
     );
   }
+
+  Widget _loginSection(AddContractState state, l) {
+    final policy =
+        ref.watch(heirPasswordPolicyProvider).valueOrNull ??
+            HeirPasswordPolicy.none;
+    final hasExistingPw = state.loginPasswordCt != null;
+    final lastVerified = state.loginLastVerifiedAt;
+    final isStale = lastVerified != null &&
+        DateTime.now().difference(lastVerified).inDays > 180;
+    final policyHint = switch (policy) {
+      HeirPasswordPolicy.none => l.loginPolicyHintNone,
+      HeirPasswordPolicy.komfort => l.loginPolicyHintKomfort,
+      HeirPasswordPolicy.maximum => l.loginPolicyHintMaximum,
+    };
+    final policyHintColor = switch (policy) {
+      HeirPasswordPolicy.none => AppColors.textTertiary,
+      HeirPasswordPolicy.komfort => AppColors.statusBlue,
+      HeirPasswordPolicy.maximum => AppColors.statusGreen,
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionHeader(l.sectionLogin),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Text(l.sectionLoginSubtitle,
+              style: const TextStyle(
+                  fontSize: 12, color: AppColors.textTertiary)),
+        ),
+        // Hinweis: aktuelle Policy + Konsequenz fuer diesen Vertrag.
+        Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: policyHintColor.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.info_outline, size: 16, color: policyHintColor),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(policyHint,
+                    style: TextStyle(fontSize: 12, color: policyHintColor)),
+              ),
+            ],
+          ),
+        ),
+        // Wenn die Policy "none" ist, blenden wir die Passwort-Felder aus —
+        // dann ist nur das Hint-Feld sichtbar.
+        if (policy != HeirPasswordPolicy.none) ...[
+          TextFormField(
+            controller: _loginUsernameCtrl,
+            decoration: InputDecoration(
+              labelText: l.fieldLoginUsername,
+              prefixIcon: const Icon(Icons.person_outline),
+            ),
+            onChanged: (v) => _notifier
+                .setLoginUsername(v.isEmpty ? null : v),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _loginPasswordCtrl,
+            obscureText: _passwordObscured,
+            decoration: InputDecoration(
+              labelText: l.fieldLoginPassword,
+              hintText: hasExistingPw
+                  ? l.fieldLoginPasswordPlaceholderExisting
+                  : null,
+              helperText: hasExistingPw
+                  ? l.fieldLoginPasswordHintExisting
+                  : null,
+              prefixIcon: const Icon(Icons.lock_outline),
+              suffixIcon: IconButton(
+                icon: Icon(_passwordObscured
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined),
+                onPressed: () =>
+                    setState(() => _passwordObscured = !_passwordObscured),
+              ),
+            ),
+            onChanged: (v) {
+              if (v.isEmpty) return; // leeres Feld = unveraendert
+              _notifier.setLoginPasswordNew(v);
+            },
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  lastVerified == null
+                      ? l.loginLastVerifiedNever
+                      : l.loginLastVerifiedRecent(_formatDate(lastVerified)),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: isStale
+                          ? AppColors.statusAmber
+                          : AppColors.textTertiary),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () {
+                  _notifier.markLoginVerifiedNow();
+                },
+                icon: const Icon(Icons.check, size: 16),
+                label: Text(l.loginConfirmNowButton,
+                    style: const TextStyle(fontSize: 12)),
+              ),
+            ],
+          ),
+          if (isStale)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(l.loginStaleWarning,
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.statusAmber)),
+            ),
+          const SizedBox(height: 12),
+        ],
+        TextFormField(
+          controller: _loginHintCtrl,
+          decoration: InputDecoration(
+            labelText: l.fieldLoginHint,
+            hintText: l.fieldLoginHintHint,
+            prefixIcon: const Icon(Icons.note_outlined),
+          ),
+          onChanged: (v) => _notifier.setLoginHint(v.isEmpty ? null : v),
+        ),
+      ],
+    );
+  }
+
+  String _formatDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
 
   Widget _sectionHeader(String title) {
     return Padding(

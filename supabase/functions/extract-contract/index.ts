@@ -108,21 +108,46 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { imageBase64, mediaType, url } = await req.json();
+    const { imageBase64, mediaType, url, pageContent } = await req.json();
 
     const client = new Anthropic({ apiKey: anthropicKey });
 
     let message;
 
-    if (url) {
-      const pageRes = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; Pacto-Bot/1.0)',
-          'Accept': 'text/html,application/xhtml+xml',
-          'Accept-Language': 'de,en;q=0.9',
-        },
-      });
-      let pageText = await pageRes.text();
+    if (url || pageContent) {
+      // Bevorzugt der Client-WebView-Text: schon gerendert, schon
+      // eingeloggt — funktioniert auch fuer SPAs und auth-walled Seiten
+      // wie claude.ai/settings/billing oder netflix.com/account.
+      // Fallback (kein pageContent): serverseitig per HTTP-GET holen.
+      let pageText = typeof pageContent === 'string' && pageContent.trim().length > 0
+        ? pageContent
+        : '';
+
+      if (!pageText && url) {
+        try {
+          const pageRes = await fetch(url, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (compatible; Pacto-Bot/1.0)',
+              'Accept': 'text/html,application/xhtml+xml',
+              'Accept-Language': 'de,en;q=0.9',
+            },
+          });
+          pageText = await pageRes.text();
+        } catch (e) {
+          return new Response(
+            JSON.stringify({ error: `Seite konnte nicht geladen werden: ${(e as Error).message}` }),
+            { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+
+      if (!pageText) {
+        return new Response(
+          JSON.stringify({ error: 'Kein Seiteninhalt erhalten — bitte Seite neu laden und nochmal importieren.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       if (pageText.length > 50_000) pageText = pageText.substring(0, 50_000);
 
       message = await client.messages.create({
@@ -132,7 +157,7 @@ Deno.serve(async (req: Request) => {
         messages: [
           {
             role: 'user',
-            content: `URL: ${url}\n\nSeiteninhalt (HTML):\n${pageText}\n\nExtrahiere die Vertragsdaten aus diesem Webseiteninhalt.`,
+            content: `URL: ${url ?? '(unbekannt)'}\n\nSeiteninhalt:\n${pageText}\n\nExtrahiere die Vertragsdaten aus diesem Webseiteninhalt.`,
           },
         ],
       });
@@ -188,9 +213,10 @@ Deno.serve(async (req: Request) => {
     );
 
   } catch (error) {
-    console.error('Extraction error:', error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Extraction error:', msg);
     return new Response(
-      JSON.stringify({ error: 'Extraktionsfehler' }),
+      JSON.stringify({ error: msg }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

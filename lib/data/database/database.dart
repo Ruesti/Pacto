@@ -32,7 +32,21 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            // v2: Login-Daten pro Vertrag (Username + verschluesseltes Passwort
+            // + Hinweis-Text + lastVerifiedAt).
+            await m.addColumn(contracts, contracts.loginUsername);
+            await m.addColumn(contracts, contracts.loginPasswordCt);
+            await m.addColumn(contracts, contracts.loginHint);
+            await m.addColumn(contracts, contracts.loginLastVerifiedAt);
+          }
+        },
+      );
 }
 
 LazyDatabase _openConnection() {

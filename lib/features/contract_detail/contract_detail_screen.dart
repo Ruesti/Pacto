@@ -11,6 +11,7 @@ import '../../shared/utils/date_formatter.dart';
 import '../add_contract/add_contract_screen.dart';
 import 'widgets/cancellation_info_card.dart';
 import 'widgets/document_attachment.dart';
+import 'widgets/login_card.dart';
 
 class ContractDetailScreen extends ConsumerWidget {
   final String contractId;
@@ -45,6 +46,11 @@ class _DetailView extends ConsumerWidget {
 
   const _DetailView({required this.contract});
 
+  bool get _hasLoginData =>
+      (contract.loginUsername?.isNotEmpty ?? false) ||
+      contract.loginPasswordCt != null ||
+      (contract.loginHint?.isNotEmpty ?? false);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
@@ -71,6 +77,10 @@ class _DetailView extends ConsumerWidget {
           CancellationInfoCard(contract: contract),
           const SizedBox(height: 12),
           _contactCard(context, l),
+          if (_hasLoginData) ...[
+            const SizedBox(height: 12),
+            LoginCard(contract: contract),
+          ],
           const SizedBox(height: 12),
           DocumentAttachment(documentPath: contract.documentPath),
           if (contract.notes.isNotEmpty) ...[

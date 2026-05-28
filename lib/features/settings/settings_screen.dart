@@ -4,6 +4,7 @@ import '../../shared/l10n/l10n_extension.dart';
 import '../../shared/locale_provider.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../premium/premium_service.dart';
+import 'heir_password_policy_screen.dart';
 import 'supabase_sync_screen.dart';
 import 'vault_screen.dart';
 
@@ -38,6 +39,14 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const VaultScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.key_outlined),
+            title: Text(l.settingsHeirPasswordPolicy),
+            subtitle: Text(l.settingsHeirPasswordPolicySubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const HeirPasswordPolicyScreen())),
           ),
           _section(l.settingsSectionApp),
           ListTile(

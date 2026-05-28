@@ -1,8 +1,11 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/database_provider.dart';
+import '../../data/providers/heir_password_policy_provider.dart';
+import '../../data/providers/user_name_provider.dart';
 import '../../shared/l10n/enum_labels.dart';
 import '../../shared/l10n/l10n_extension.dart';
 import 'share_export_service.dart';
@@ -38,6 +41,111 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
     _emailCtrl.dispose();
     _pinCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _showPreview() async {
+    final existing = widget.existing!;
+    final l = context.l10n;
+    final policy = await getHeirPasswordPolicy();
+
+    String? pin;
+    if (policy == HeirPasswordPolicy.maximum) {
+      pin = await _promptForPin(l);
+      if (pin == null || pin.isEmpty) return;
+    }
+
+    final contracts = ref.read(contractsStreamProvider).value ?? const [];
+    final ownerName = ref.read(userNameProvider).valueOrNull ?? 'Pacto-User';
+    final crypto = ref.read(cryptoServiceProvider);
+
+    try {
+      final text = await ShareExportService.buildHeirExportText(
+        contracts: contracts,
+        ownerName: ownerName,
+        heir: existing,
+        policy: policy,
+        crypto: crypto,
+        heirPin: pin,
+      );
+      if (!mounted) return;
+      await _showPreviewDialog(text);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.errorMessage(e.toString()))),
+      );
+    }
+  }
+
+  Future<String?> _promptForPin(dynamic l) async {
+    final ctrl = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.heirExportPinPromptTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l.heirExportPinPromptBody,
+                style: const TextStyle(fontSize: 13)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: ctrl,
+              obscureText: true,
+              keyboardType: TextInputType.number,
+              maxLength: 8,
+              decoration:
+                  InputDecoration(labelText: l.heirExportPinPromptField),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l.cancelButton)),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+            child: Text(l.heirExportPinPromptButton),
+          ),
+        ],
+      ),
+    );
+    ctrl.dispose();
+    return result;
+  }
+
+  Future<void> _showPreviewDialog(String text) async {
+    final l = context.l10n;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.heirExportPreviewTitle),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: SelectableText(
+              text,
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: text));
+              if (!ctx.mounted) return;
+              ScaffoldMessenger.of(ctx).showSnackBar(
+                SnackBar(content: Text(l.loginCopied)),
+              );
+            },
+            child: Text(l.heirExportCopyAll),
+          ),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l.heirExportCancel)),
+        ],
+      ),
+    );
   }
 
   Future<void> _save() async {
@@ -80,6 +188,12 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
       appBar: AppBar(
         title: Text(isEdit ? l.heirEditTitle : l.heirAddTitle),
         actions: [
+          if (isEdit)
+            IconButton(
+              icon: const Icon(Icons.visibility_outlined),
+              tooltip: l.heirExportPreviewButton,
+              onPressed: _saving ? null : _showPreview,
+            ),
           TextButton(
             onPressed: _saving ? null : _save,
             child: Text(l.saveButton),

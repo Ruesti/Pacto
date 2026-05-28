@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../shared/l10n/l10n_extension.dart';
+import 'extraction_enricher.dart';
 import 'extraction_result.dart';
 import 'extraction_service.dart';
 
@@ -27,8 +28,13 @@ class ScanController {
     return extractFromFile(file);
   }
 
-  Future<ExtractionResult> extractFromUrl(String url) =>
-      _service.extractFromUrl(url);
+  Future<ExtractionResult> extractFromUrl(
+    String url, {
+    String? pageContent,
+  }) async {
+    final raw = await _service.extractFromUrl(url, pageContent: pageContent);
+    return enrichExtraction(raw, url);
+  }
 
   Future<ExtractionResult> extractFromFile(File file) async {
     final isPdf = file.path.toLowerCase().endsWith('.pdf');

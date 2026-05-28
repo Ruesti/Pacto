@@ -6,7 +6,7 @@ class AppTheme {
   static ThemeData get darkTheme => ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,
-        scaffoldBackgroundColor: AppColors.background,
+        scaffoldBackgroundColor: Colors.transparent,
         colorScheme: const ColorScheme.dark(
           primary: AppColors.primary,
           onPrimary: AppColors.textPrimary,

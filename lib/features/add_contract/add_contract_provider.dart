@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/database.dart';
 import '../../data/database/daos/contracts_dao.dart';
 import '../../data/providers/database_provider.dart';
+import '../../data/sync/crypto_service.dart';
 import '../provider_library/provider_library_data.dart';
 import '../scan/extraction_result.dart';
 
@@ -21,6 +22,22 @@ class AddContractState {
   final String notes;
   final DateTime? contractStart;
   final DateTime? nextRenewal;
+  // ─── Login-Daten ───
+  // Username im Klartext (allein nicht sensibel).
+  final String? loginUsername;
+  // Freitext-Hinweis falls der User keine Passwoerter speichern moechte.
+  final String? loginHint;
+  final DateTime? loginLastVerifiedAt;
+  // Beim Bearbeiten halten wir den vorhandenen Cipher-Envelope (kommt aus
+  // dem DB-Datensatz). Wir entschluesseln ihn NICHT in den Editor — der
+  // User tippt entweder ein neues Passwort (loginPasswordNew != null) oder
+  // laesst das alte unangetastet.
+  final String? loginPasswordCt;
+  // Vom User in der UI eingegebener neuer Klartext.
+  //   null  → unveraendert, alter Ciphertext bleibt erhalten.
+  //   ''    → explizit geloescht.
+  //   sonst → neuer Wert (wird beim Speichern verschluesselt).
+  final String? loginPasswordNew;
   final bool isSubmitting;
   final String? error;
 
@@ -39,6 +56,11 @@ class AddContractState {
     this.notes = '',
     this.contractStart,
     this.nextRenewal,
+    this.loginUsername,
+    this.loginHint,
+    this.loginLastVerifiedAt,
+    this.loginPasswordCt,
+    this.loginPasswordNew,
     this.isSubmitting = false,
     this.error,
   });
@@ -58,6 +80,11 @@ class AddContractState {
     String? notes,
     DateTime? contractStart,
     DateTime? nextRenewal,
+    String? loginUsername,
+    String? loginHint,
+    DateTime? loginLastVerifiedAt,
+    String? loginPasswordCt,
+    Object? loginPasswordNew = _absent,
     bool? isSubmitting,
     String? error,
   }) =>
@@ -77,6 +104,13 @@ class AddContractState {
         notes: notes ?? this.notes,
         contractStart: contractStart ?? this.contractStart,
         nextRenewal: nextRenewal ?? this.nextRenewal,
+        loginUsername: loginUsername ?? this.loginUsername,
+        loginHint: loginHint ?? this.loginHint,
+        loginLastVerifiedAt: loginLastVerifiedAt ?? this.loginLastVerifiedAt,
+        loginPasswordCt: loginPasswordCt ?? this.loginPasswordCt,
+        loginPasswordNew: identical(loginPasswordNew, _absent)
+            ? this.loginPasswordNew
+            : loginPasswordNew as String?,
         isSubmitting: isSubmitting ?? this.isSubmitting,
         error: error,
       );
@@ -84,12 +118,19 @@ class AddContractState {
   bool get isValid => name.isNotEmpty && provider.isNotEmpty;
 }
 
+const _absent = Object();
+
 class AddContractNotifier extends StateNotifier<AddContractState> {
   final ContractsDao _dao;
+  final CryptoService _crypto;
   final String? _editingId;
 
-  AddContractNotifier(this._dao, {String? editingId, Contract? existing})
-      : _editingId = editingId,
+  AddContractNotifier(
+    this._dao,
+    this._crypto, {
+    String? editingId,
+    Contract? existing,
+  })  : _editingId = editingId,
         super(existing != null
             ? AddContractState(
                 name: existing.name,
@@ -106,6 +147,10 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
                 notes: existing.notes,
                 contractStart: existing.contractStart,
                 nextRenewal: existing.nextRenewal,
+                loginUsername: existing.loginUsername,
+                loginHint: existing.loginHint,
+                loginLastVerifiedAt: existing.loginLastVerifiedAt,
+                loginPasswordCt: existing.loginPasswordCt,
               )
             : const AddContractState());
 
@@ -156,6 +201,13 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
   void setNotes(String v) => state = state.copyWith(notes: v);
   void setContractStart(DateTime? v) => state = state.copyWith(contractStart: v);
   void setNextRenewal(DateTime? v) => state = state.copyWith(nextRenewal: v);
+  void setLoginUsername(String? v) =>
+      state = state.copyWith(loginUsername: v);
+  void setLoginHint(String? v) => state = state.copyWith(loginHint: v);
+  void setLoginPasswordNew(String? v) =>
+      state = state.copyWith(loginPasswordNew: v);
+  void markLoginVerifiedNow() =>
+      state = state.copyWith(loginLastVerifiedAt: DateTime.now());
 
   void setMonthlyCostFromInput(String raw, BillingCycle cycle) {
     final parsed = double.tryParse(raw.replaceAll(',', '.')) ?? 0.0;
@@ -169,11 +221,30 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
     state = state.copyWith(monthlyCost: monthly);
   }
 
+  // Errechnet aus alter Cipher + neuem Klartext den endgueltigen Ciphertext.
+  // null  → user hat nichts angefasst → alten Wert behalten
+  // ''    → user hat explizit geleert → null speichern (Passwort entfernen)
+  // sonst → neuen Wert verschluesseln
+  Future<String?> _resolveFinalPasswordCt() async {
+    final newValue = state.loginPasswordNew;
+    if (newValue == null) return state.loginPasswordCt;
+    if (newValue.isEmpty) return null;
+    return _crypto.encryptString(newValue);
+  }
+
   Future<bool> save() async {
     if (!state.isValid) return false;
     state = state.copyWith(isSubmitting: true);
     try {
       final now = DateTime.now();
+      final passwordCt = await _resolveFinalPasswordCt();
+      // Wenn der User ein neues Passwort gesetzt hat, gilt es ab jetzt als
+      // gerade-bestaetigt — sonst behalten wir den vorhandenen Zeitstempel.
+      final verifiedAt = state.loginPasswordNew != null &&
+              state.loginPasswordNew!.isNotEmpty
+          ? now
+          : state.loginLastVerifiedAt;
+
       if (_editingId != null) {
         await _dao.updateContract(ContractsCompanion(
           id: Value(_editingId),
@@ -191,6 +262,10 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
           notes: Value(state.notes),
           contractStart: Value(state.contractStart),
           nextRenewal: Value(state.nextRenewal),
+          loginUsername: Value(state.loginUsername),
+          loginPasswordCt: Value(passwordCt),
+          loginHint: Value(state.loginHint),
+          loginLastVerifiedAt: Value(verifiedAt),
           updatedAt: Value(now),
         ));
       } else {
@@ -209,6 +284,10 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
           notes: Value(state.notes),
           contractStart: Value(state.contractStart),
           nextRenewal: Value(state.nextRenewal),
+          loginUsername: Value(state.loginUsername),
+          loginPasswordCt: Value(passwordCt),
+          loginHint: Value(state.loginHint),
+          loginLastVerifiedAt: Value(verifiedAt),
         ));
       }
       return true;
@@ -225,6 +304,7 @@ final addContractProvider = StateNotifierProvider.autoDispose
     .family<AddContractNotifier, AddContractState, Contract?>(
   (ref, existing) => AddContractNotifier(
     ref.watch(contractsDaoProvider),
+    ref.watch(cryptoServiceProvider),
     editingId: existing?.id,
     existing: existing,
   ),
