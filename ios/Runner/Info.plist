@@ -26,7 +26,9 @@
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
-		<!-- Phase 7: Share Extension — Dokumente empfangen -->
+		<!-- "Öffnen in Pacto" (Dateien-App etc.). NICHT die Share Extension —
+		     das System-Teilen-Menü braucht ein eigenes Extension-Target,
+		     siehe IOS_NATIVE_SETUP.md Abschnitt 1. -->
 		<key>CFBundleDocumentTypes</key>
 		<array>
 			<dict>
