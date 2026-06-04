@@ -128,6 +128,11 @@ in `sync_data` mit verschlüsseltem `encrypted_payload`.
 Zusätzlich zu den bisherigen Komponenten ergänzt die App einen automatischen
 Erbenversand, falls der Nutzer länger kein Lebenszeichen mehr abgegeben hat.
 
+Die App rendert pro Erbe Brief **und** PDF bereits lokal vor und legt beides
+verschlüsselt im Tresor ab (`vault_payloads.body` + `vault_payloads.pdf_b64`).
+Die Erbenmail trägt das PDF (`pacto.pdf`) als Anhang — der Server generiert
+nichts selbst, da das Gerät zum Versandzeitpunkt offline sein kann.
+
 1. **Migration einspielen** — fügt `vault_settings`, `vault_payloads`,
    `vault_log` hinzu und versucht einen `pg_cron`-Job zu registrieren:
    ```bash
