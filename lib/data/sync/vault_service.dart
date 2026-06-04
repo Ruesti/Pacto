@@ -110,41 +110,63 @@ class VaultService {
       final visibleContracts = h.accessLevel == HeirAccess.nurListe
           ? contracts.map(_redactSensitive).toList()
           : contracts;
+
+      // Pro Erbe rendern wir den Text-Body (Mail-Inhalt) und das PDF
+      // (Mail-Anhang). Im Maximum-Modus weiss der Server den PIN nicht — der
+      // Aufruf mit heirPin: null wirft dann, und wir fallen auf den
+      // passwortlosen Hinweis-Modus zurueck. Body und PDF nutzen dieselbe
+      // effektive Policy, damit Mail und Anhang konsistent sind.
+      var effectivePolicy = policy;
+      String body;
+      List<int> pdfBytes;
       try {
-        // Im Maximum-Modus weiss der Server den PIN nicht — Erbe muss ihn
-        // vorab kennen. Wir rendern hier nur die *Klartext-Anteile* (Name,
-        // Anbieter, Kuendigung, Hinweise) ohne Passwoerter.
-        // Im Komfort-Modus wandern die Klartext-Passwoerter in den Body,
-        // den der Server in die Mail kopiert.
-        final body = await ShareExportService.buildHeirExportText(
+        body = await ShareExportService.buildHeirExportText(
           contracts: visibleContracts,
           ownerName: ownerName,
           heir: h,
           policy: policy,
           crypto: _crypto,
           heirPin: null,
-        ).catchError((_) async {
-          // Maximum ohne PIN wirft — wir liefern dann nur den
-          // Hinweis-Body ohne Login-Daten ab.
-          return await ShareExportService.buildHeirExportText(
+        );
+        pdfBytes = await ShareExportService.buildHeirExportPdfBytes(
+          contracts: visibleContracts,
+          ownerName: ownerName,
+          heir: h,
+          policy: policy,
+          crypto: _crypto,
+          heirPin: null,
+        );
+      } catch (_) {
+        effectivePolicy = HeirPasswordPolicy.none;
+        try {
+          body = await ShareExportService.buildHeirExportText(
             contracts: visibleContracts,
             ownerName: ownerName,
             heir: h,
             policy: HeirPasswordPolicy.none,
             crypto: _crypto,
           );
-        });
-        payloads.add({
-          'heirId': h.id,
-          'heirName': h.name,
-          'heirEmail': h.email,
-          'policy': policy.name,
-          'body': body,
-        });
-      } catch (_) {
-        // Einzelnes Rendering darf das ganze Sync nicht killen.
-        continue;
+          pdfBytes = await ShareExportService.buildHeirExportPdfBytes(
+            contracts: visibleContracts,
+            ownerName: ownerName,
+            heir: h,
+            policy: HeirPasswordPolicy.none,
+            crypto: _crypto,
+          );
+        } catch (_) {
+          // Einzelnes Rendering darf das ganze Sync nicht killen.
+          continue;
+        }
       }
+
+      payloads.add({
+        'heirId': h.id,
+        'heirName': h.name,
+        'heirEmail': h.email,
+        'policy': effectivePolicy.name,
+        'body': body,
+        'pdfB64': base64Encode(pdfBytes),
+      });
     }
 
     final id = await deviceId();

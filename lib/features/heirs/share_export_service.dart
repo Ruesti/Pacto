@@ -52,6 +52,33 @@ class ShareExportService {
     required CryptoService crypto,
     String? heirPin,
   }) async {
+    final bytes = await buildHeirExportPdfBytes(
+      contracts: contracts,
+      ownerName: ownerName,
+      heir: heir,
+      policy: policy,
+      crypto: crypto,
+      heirPin: heirPin,
+    );
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File(
+        '${dir.path}/pacto_erbe_${heir.id.substring(0, 8)}_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    await file.writeAsBytes(bytes);
+    return file;
+  }
+
+  /// Wie [buildHeirExportPdf], liefert aber die PDF-Bytes direkt zurueck,
+  /// ohne eine Datei anzulegen. Fuer den serverseitigen Tresor-Versand
+  /// (vault-sync), der das PDF base64-kodiert hochlaedt und kein lokales
+  /// File braucht.
+  static Future<List<int>> buildHeirExportPdfBytes({
+    required List<Contract> contracts,
+    required String ownerName,
+    required Heir heir,
+    required HeirPasswordPolicy policy,
+    required CryptoService crypto,
+    String? heirPin,
+  }) async {
     if (policy == HeirPasswordPolicy.maximum && (heirPin?.isEmpty ?? true)) {
       throw ArgumentError(
           'Maximum-Modus benoetigt den Erben-PIN zum Verschluesseln.');
@@ -77,7 +104,7 @@ class ShareExportService {
         ],
     };
 
-    final bytes = await _renderPdf(
+    return _renderPdf(
       contracts: contracts,
       ownerName: ownerName,
       titleLine: 'PACTO – UEBERSICHT FUER ${heir.name.toUpperCase()}',
@@ -85,11 +112,6 @@ class ShareExportService {
       includeLogins: true,
       loginBlocks: loginBlocks,
     );
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File(
-        '${dir.path}/pacto_erbe_${heir.id.substring(0, 8)}_${DateTime.now().millisecondsSinceEpoch}.pdf');
-    await file.writeAsBytes(bytes);
-    return file;
   }
 
   /// Pro Vertrag eine Liste von Schluessel-Wert-Paaren fuer den Login-Block.
