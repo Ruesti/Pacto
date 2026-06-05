@@ -120,8 +120,15 @@ Future<void> _migratePlaintextDb(File file, String keyHex) async {
 
   final plain = sqlite3.open(file.path);
   try {
+    // sqlcipher_export kopiert Schema + Daten, aber NICHT die user_version.
+    // Ohne sie wuerde die verschluesselte DB als Version 0 gelten und Drifts
+    // onUpgrade (das z.B. entry_type ergaenzt) liefe nie. Darum manuell
+    // uebertragen.
+    final version =
+        plain.select('PRAGMA user_version;').first.values.first as int;
     plain.execute('ATTACH DATABASE \'$tmpPath\' AS encrypted KEY "x\'$keyHex\'";');
     plain.execute("SELECT sqlcipher_export('encrypted');");
+    plain.execute('PRAGMA encrypted.user_version = $version;');
     plain.execute('DETACH DATABASE encrypted;');
   } finally {
     plain.dispose();

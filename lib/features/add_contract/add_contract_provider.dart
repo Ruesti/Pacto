@@ -317,12 +317,14 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
           loginLastVerifiedAt: Value(verifiedAt),
         ));
       }
+      state = state.copyWith(isSubmitting: false);
       return true;
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      // isSubmitting + error im selben copyWith setzen, damit der Fehler nicht
+      // verloren geht (copyWith setzt error hart, ein separates Update wuerde
+      // ihn nullen).
+      state = state.copyWith(isSubmitting: false, error: e.toString());
       return false;
-    } finally {
-      state = state.copyWith(isSubmitting: false);
     }
   }
 }
