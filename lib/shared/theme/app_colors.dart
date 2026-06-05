@@ -52,4 +52,27 @@ class AppColors {
     'zeitung': Color(0x1AFF8A65),
     'sonstiges': Color(0x1A78909C),
   };
+
+  // Farben fuer AccessCategory (eigenstaendige Zugaenge). Schluessel = enum.name.
+  static const Map<String, Color> accessCatFg = {
+    'router': Color(0xFF4A9EFF),
+    'smarthome': Color(0xFF00C896),
+    'email': Color(0xFFB57BFF),
+    'banking': Color(0xFFFFB020),
+    'server': Color(0xFF00BCD4),
+    'partnerAccount': Color(0xFFFF6B9D),
+    'geraet': Color(0xFF7C5CE7),
+    'sonstiges': Color(0xFF78909C),
+  };
+
+  static const Map<String, Color> accessCatBg = {
+    'router': Color(0x1A4A9EFF),
+    'smarthome': Color(0x1A00C896),
+    'email': Color(0x1AB57BFF),
+    'banking': Color(0x1AFFB020),
+    'server': Color(0x1A00BCD4),
+    'partnerAccount': Color(0x1AFF6B9D),
+    'geraet': Color(0x267C5CE7),
+    'sonstiges': Color(0x1A78909C),
+  };
 }

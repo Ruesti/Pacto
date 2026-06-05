@@ -67,6 +67,62 @@ class AppLocalizationsDe extends AppLocalizations {
   String get catSonstiges => 'Sonstiges';
 
   @override
+  String get accessCatRouter => 'Router / WLAN';
+
+  @override
+  String get accessCatSmarthome => 'Smart Home';
+
+  @override
+  String get accessCatEmail => 'E-Mail / Konto';
+
+  @override
+  String get accessCatBanking => 'Banking';
+
+  @override
+  String get accessCatServer => 'Server / NAS';
+
+  @override
+  String get accessCatPartnerAccount => 'Partner-Zugang';
+
+  @override
+  String get accessCatGeraet => 'Gerät';
+
+  @override
+  String get accessCatSonstiges => 'Sonstiges';
+
+  @override
+  String get entryAccess => 'Zugang anlegen';
+
+  @override
+  String get entryAccessSubtitle =>
+      'Login ohne Vertrag (Router, Server, Partner …)';
+
+  @override
+  String get addAccessTitle => 'Zugang hinzufügen';
+
+  @override
+  String get editAccessTitle => 'Zugang bearbeiten';
+
+  @override
+  String get accessesTitle => 'Zugänge';
+
+  @override
+  String get segmentContracts => 'Verträge';
+
+  @override
+  String get segmentAccesses => 'Zugänge';
+
+  @override
+  String get fieldAccessCategory => 'Art des Zugangs';
+
+  @override
+  String get noAccessesTitle => 'Noch keine Zugänge';
+
+  @override
+  String get noAccessesDefault =>
+      'Lege Zugänge an, die deine Erben brauchen:\nRouter, Server, E-Mail-Konto.';
+
+  @override
   String get billingMonthly => 'Monatlich';
 
   @override

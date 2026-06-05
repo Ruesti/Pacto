@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers/database_provider.dart';
+import '../../domain/models/access_category.dart';
 import '../../domain/models/contract_category.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/l10n/enum_labels.dart';
@@ -22,6 +23,9 @@ class ContractsScreen extends ConsumerStatefulWidget {
 
 class _ContractsScreenState extends ConsumerState<ContractsScreen> {
   ContractCategory? _filterCategory;
+  AccessCategory? _filterAccessCategory;
+  // false = Verträge, true = Zugänge.
+  bool _showAccesses = false;
   _SortOrder _sortOrder = _SortOrder.name;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
@@ -62,9 +66,17 @@ class _ContractsScreenState extends ConsumerState<ContractsScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text(l.errorMessage(e.toString()))),
         data: (allContracts) {
-          final filtered = allContracts
-              .where((c) =>
-                  _filterCategory == null || c.category == _filterCategory)
+          final pool = allContracts
+              .where((c) => _showAccesses
+                  ? c.entryType.isZugang
+                  : c.entryType.isVertrag)
+              .toList();
+          final filtered = pool
+              .where((c) => _showAccesses
+                  ? (_filterAccessCategory == null ||
+                      c.accessCategory == _filterAccessCategory)
+                  : (_filterCategory == null ||
+                      c.category == _filterCategory))
               .where((c) {
                 if (_searchQuery.isEmpty) return true;
                 return c.name.toLowerCase().contains(_searchQuery) ||
@@ -76,14 +88,17 @@ class _ContractsScreenState extends ConsumerState<ContractsScreen> {
             ..sort((a, b) => switch (_sortOrder) {
                   _SortOrder.cost => b.monthlyCost.compareTo(a.monthlyCost),
                   _SortOrder.name => a.name.compareTo(b.name),
-                  _SortOrder.category =>
-                    a.category.name.compareTo(b.category.name),
+                  _SortOrder.category => _showAccesses
+                      ? (a.accessCategory?.name ?? '')
+                          .compareTo(b.accessCategory?.name ?? '')
+                      : a.category.name.compareTo(b.category.name),
                   _SortOrder.renewal => (a.nextRenewal ?? DateTime(2100))
                       .compareTo(b.nextRenewal ?? DateTime(2100)),
                 });
 
           return CustomScrollView(
             slivers: [
+              SliverToBoxAdapter(child: _segmentControl(l)),
               if (_searchVisible)
                 SliverToBoxAdapter(
                   child: Padding(
@@ -109,7 +124,10 @@ class _ContractsScreenState extends ConsumerState<ContractsScreen> {
                     ),
                   ),
                 ),
-              SliverToBoxAdapter(child: _categoryFilter(l)),
+              SliverToBoxAdapter(
+                  child: _showAccesses
+                      ? _accessCategoryFilter(l)
+                      : _categoryFilter(l)),
               if (sorted.isEmpty)
                 SliverFillRemaining(child: _emptyState(l))
               else
@@ -135,6 +153,29 @@ class _ContractsScreenState extends ConsumerState<ContractsScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _segmentControl(AppLocalizations l) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: SegmentedButton<bool>(
+        segments: [
+          ButtonSegment(
+            value: false,
+            label: Text(l.segmentContracts),
+            icon: const Icon(Icons.description_outlined, size: 18),
+          ),
+          ButtonSegment(
+            value: true,
+            label: Text(l.segmentAccesses),
+            icon: const Icon(Icons.vpn_key_outlined, size: 18),
+          ),
+        ],
+        selected: {_showAccesses},
+        onSelectionChanged: (s) => setState(() => _showAccesses = s.first),
+        showSelectedIcon: false,
       ),
     );
   }
@@ -166,6 +207,33 @@ class _ContractsScreenState extends ConsumerState<ContractsScreen> {
     );
   }
 
+  Widget _accessCategoryFilter(AppLocalizations l) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Row(
+        children: [
+          _accessFilterChip(null, l.filterAll),
+          ...AccessCategory.values
+              .map((c) => _accessFilterChip(c, c.localizedLabel(l))),
+        ],
+      ),
+    );
+  }
+
+  Widget _accessFilterChip(AccessCategory? cat, String label) {
+    final selected = _filterAccessCategory == cat;
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: FilterChip(
+        label: Text(label, style: const TextStyle(fontSize: 12)),
+        selected: selected,
+        onSelected: (_) =>
+            setState(() => _filterAccessCategory = selected ? null : cat),
+      ),
+    );
+  }
+
   Widget _emptyState(AppLocalizations l) {
     return Center(
       child: Padding(
@@ -173,20 +241,24 @@ class _ContractsScreenState extends ConsumerState<ContractsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.receipt_long_outlined,
+            Icon(_showAccesses ? Icons.vpn_key_outlined : Icons.receipt_long_outlined,
                 size: 64, color: AppColors.textTertiary),
             const SizedBox(height: 16),
             Text(
-              l.noContractsTitle,
+              _showAccesses ? l.noAccessesTitle : l.noContractsTitle,
               style: AppTextStyles.heroTitle.copyWith(fontSize: 20),
             ),
             const SizedBox(height: 8),
             Text(
               _searchQuery.isNotEmpty
                   ? l.noContractsSearch(_searchQuery)
-                  : _filterCategory != null
-                      ? l.noContractsCategory
-                      : l.noContractsDefault,
+                  : _showAccesses
+                      ? (_filterAccessCategory != null
+                          ? l.noContractsCategory
+                          : l.noAccessesDefault)
+                      : (_filterCategory != null
+                          ? l.noContractsCategory
+                          : l.noContractsDefault),
               textAlign: TextAlign.center,
               style: AppTextStyles.listSubtitle,
             ),

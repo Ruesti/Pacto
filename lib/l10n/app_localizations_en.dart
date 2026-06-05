@@ -67,6 +67,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catSonstiges => 'Other';
 
   @override
+  String get accessCatRouter => 'Router / Wi-Fi';
+
+  @override
+  String get accessCatSmarthome => 'Smart Home';
+
+  @override
+  String get accessCatEmail => 'Email / Account';
+
+  @override
+  String get accessCatBanking => 'Banking';
+
+  @override
+  String get accessCatServer => 'Server / NAS';
+
+  @override
+  String get accessCatPartnerAccount => 'Partner access';
+
+  @override
+  String get accessCatGeraet => 'Device';
+
+  @override
+  String get accessCatSonstiges => 'Other';
+
+  @override
+  String get entryAccess => 'Add access';
+
+  @override
+  String get entryAccessSubtitle =>
+      'A login without a contract (router, server, partner …)';
+
+  @override
+  String get addAccessTitle => 'Add access';
+
+  @override
+  String get editAccessTitle => 'Edit access';
+
+  @override
+  String get accessesTitle => 'Accesses';
+
+  @override
+  String get segmentContracts => 'Contracts';
+
+  @override
+  String get segmentAccesses => 'Accesses';
+
+  @override
+  String get fieldAccessCategory => 'Type of access';
+
+  @override
+  String get noAccessesTitle => 'No accesses yet';
+
+  @override
+  String get noAccessesDefault =>
+      'Add the accesses your heirs will need:\nrouter, server, email account.';
+
+  @override
   String get billingMonthly => 'Monthly';
 
   @override

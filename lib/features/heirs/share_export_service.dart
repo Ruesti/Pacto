@@ -174,7 +174,9 @@ class ShareExportService {
       author: 'Pacto',
     );
 
-    final total = contracts.fold(0.0, (s, c) => s + c.monthlyCost);
+    final vertraege = contracts.where((c) => c.entryType.isVertrag).toList();
+    final zugaenge = contracts.where((c) => c.entryType.isZugang).toList();
+    final total = vertraege.fold(0.0, (s, c) => s + c.monthlyCost);
 
     pw.Widget header() => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -208,24 +210,35 @@ class ShareExportService {
             children: [
               pw.Text('Gesamtkosten: ${formatMonthlyCost(total)}',
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-              pw.Text('Anzahl Vertraege: ${contracts.length}'),
+              pw.Text(zugaenge.isEmpty
+                  ? 'Anzahl Vertraege: ${vertraege.length}'
+                  : 'Vertraege: ${vertraege.length}  ·  Zugaenge: ${zugaenge.length}'),
             ],
           ),
         );
 
     pw.Widget contractBlock(Contract c) {
-      final rows = <List<String>>[
-        ['Anbieter', c.provider],
-        ['Kategorie', c.category.label],
-        ['Kosten', formatMonthlyCost(c.monthlyCost)],
-        ['Kuendigung', c.cancellationMethod.label],
-        if (c.noticePeriod.isNotEmpty) ['Frist', c.noticePeriod],
-        if (c.nextRenewal != null)
-          ['Verlaengerung', formatDate(c.nextRenewal)],
-        if (c.contactPhone != null) ['Telefon', c.contactPhone!],
-        if (c.contactEmail != null) ['E-Mail', c.contactEmail!],
-        if (c.contactUrl != null) ['Website', c.contactUrl!],
-      ];
+      final rows = c.entryType.isZugang
+          ? <List<String>>[
+              ['Typ', 'Zugang'],
+              ['Kategorie',
+                  (c.accessCategory ?? AccessCategory.sonstiges).label],
+              if (c.contactPhone != null) ['Telefon', c.contactPhone!],
+              if (c.contactEmail != null) ['E-Mail', c.contactEmail!],
+              if (c.contactUrl != null) ['Website', c.contactUrl!],
+            ]
+          : <List<String>>[
+              ['Anbieter', c.provider],
+              ['Kategorie', c.category.label],
+              ['Kosten', formatMonthlyCost(c.monthlyCost)],
+              ['Kuendigung', c.cancellationMethod.label],
+              if (c.noticePeriod.isNotEmpty) ['Frist', c.noticePeriod],
+              if (c.nextRenewal != null)
+                ['Verlaengerung', formatDate(c.nextRenewal)],
+              if (c.contactPhone != null) ['Telefon', c.contactPhone!],
+              if (c.contactEmail != null) ['E-Mail', c.contactEmail!],
+              if (c.contactUrl != null) ['Website', c.contactUrl!],
+            ];
 
       return pw.Container(
         margin: const pw.EdgeInsets.only(bottom: 14),
@@ -407,24 +420,38 @@ class ShareExportService {
     buffer.writeln('=' * 60);
     buffer.writeln();
 
-    final total = contracts.fold(0.0, (s, c) => s + c.monthlyCost);
+    final vertraege = contracts.where((c) => c.entryType.isVertrag).toList();
+    final zugaenge = contracts.where((c) => c.entryType.isZugang).toList();
+    final total = vertraege.fold(0.0, (s, c) => s + c.monthlyCost);
     buffer.writeln('Gesamtkosten: ${formatMonthlyCost(total)}');
-    buffer.writeln('Anzahl Verträge: ${contracts.length}');
+    buffer.writeln('Anzahl Verträge: ${vertraege.length}');
+    if (zugaenge.isNotEmpty) {
+      buffer.writeln('Anzahl Zugänge: ${zugaenge.length}');
+    }
     buffer.writeln();
     buffer.writeln('=' * 60);
     buffer.writeln();
 
     for (final c in contracts) {
       buffer.writeln('── ${c.name} ──');
-      buffer.writeln('Anbieter:     ${c.provider}');
-      buffer.writeln('Kategorie:    ${c.category.label}');
-      buffer.writeln('Kosten:       ${formatMonthlyCost(c.monthlyCost)}');
-      buffer.writeln('Kündigung:    ${c.cancellationMethod.label}');
-      if (c.noticePeriod.isNotEmpty) {
-        buffer.writeln('Frist:        ${c.noticePeriod}');
-      }
-      if (c.nextRenewal != null) {
-        buffer.writeln('Verlängerung: ${formatDate(c.nextRenewal)}');
+      if (c.entryType.isZugang) {
+        buffer.writeln('Typ:          Zugang');
+        buffer.writeln(
+            'Kategorie:    ${(c.accessCategory ?? AccessCategory.sonstiges).label}');
+        if (c.provider.isNotEmpty) {
+          buffer.writeln('Anbieter:     ${c.provider}');
+        }
+      } else {
+        buffer.writeln('Anbieter:     ${c.provider}');
+        buffer.writeln('Kategorie:    ${c.category.label}');
+        buffer.writeln('Kosten:       ${formatMonthlyCost(c.monthlyCost)}');
+        buffer.writeln('Kündigung:    ${c.cancellationMethod.label}');
+        if (c.noticePeriod.isNotEmpty) {
+          buffer.writeln('Frist:        ${c.noticePeriod}');
+        }
+        if (c.nextRenewal != null) {
+          buffer.writeln('Verlängerung: ${formatDate(c.nextRenewal)}');
+        }
       }
       if (c.contactPhone != null) {
         buffer.writeln('Telefon:      ${c.contactPhone}');

@@ -49,6 +49,8 @@ class CloudSyncService {
   Map<String, dynamic> _contractToMap(Contract c) => {
         'id': c.id,
         'name': c.name,
+        'entryType': c.entryType.name,
+        'accessCategory': c.accessCategory?.name,
         'category': c.category.name,
         'provider': c.provider,
         'contactPhone': c.contactPhone,

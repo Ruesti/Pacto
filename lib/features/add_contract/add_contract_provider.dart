@@ -10,6 +10,10 @@ import '../scan/extraction_result.dart';
 class AddContractState {
   final String name;
   final String provider;
+  // Vertrag vs. eigenstaendiger Zugang. Steuert welche Formular-Sektionen
+  // sichtbar sind und ob category oder accessCategory gilt.
+  final EntryType entryType;
+  final AccessCategory? accessCategory;
   final ContractCategory category;
   final double monthlyCost;
   final BillingCycle billingCycle;
@@ -44,6 +48,8 @@ class AddContractState {
   const AddContractState({
     this.name = '',
     this.provider = '',
+    this.entryType = EntryType.vertrag,
+    this.accessCategory,
     this.category = ContractCategory.sonstiges,
     this.monthlyCost = 0.0,
     this.billingCycle = BillingCycle.monthly,
@@ -68,6 +74,8 @@ class AddContractState {
   AddContractState copyWith({
     String? name,
     String? provider,
+    EntryType? entryType,
+    AccessCategory? accessCategory,
     ContractCategory? category,
     double? monthlyCost,
     BillingCycle? billingCycle,
@@ -91,6 +99,8 @@ class AddContractState {
       AddContractState(
         name: name ?? this.name,
         provider: provider ?? this.provider,
+        entryType: entryType ?? this.entryType,
+        accessCategory: accessCategory ?? this.accessCategory,
         category: category ?? this.category,
         monthlyCost: monthlyCost ?? this.monthlyCost,
         billingCycle: billingCycle ?? this.billingCycle,
@@ -135,6 +145,8 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
             ? AddContractState(
                 name: existing.name,
                 provider: existing.provider,
+                entryType: existing.entryType,
+                accessCategory: existing.accessCategory,
                 category: existing.category,
                 monthlyCost: existing.monthlyCost,
                 billingCycle: existing.billingCycle,
@@ -188,6 +200,9 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
 
   void setName(String v) => state = state.copyWith(name: v);
   void setProvider(String v) => state = state.copyWith(provider: v);
+  void setEntryType(EntryType v) => state = state.copyWith(entryType: v);
+  void setAccessCategory(AccessCategory v) =>
+      state = state.copyWith(accessCategory: v);
   void setCategory(ContractCategory v) => state = state.copyWith(category: v);
   void setBillingCycle(BillingCycle v) => state = state.copyWith(billingCycle: v);
   void setCancellationMethod(CancellationMethod v) =>
@@ -245,13 +260,23 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
           ? now
           : state.loginLastVerifiedAt;
 
+      final isZugang = state.entryType.isZugang;
+      // Zugaenge tragen keine Kosten — so stimmen alle Summen automatisch.
+      final cost = isZugang ? 0.0 : state.monthlyCost;
+      // accessCategory nur bei Zugang; sonst null.
+      final accessCat = isZugang
+          ? (state.accessCategory ?? AccessCategory.sonstiges)
+          : null;
+
       if (_editingId != null) {
         await _dao.updateContract(ContractsCompanion(
           id: Value(_editingId),
           name: Value(state.name),
           provider: Value(state.provider),
+          entryType: Value(state.entryType),
+          accessCategory: Value(accessCat),
           category: Value(state.category),
-          monthlyCost: Value(state.monthlyCost),
+          monthlyCost: Value(cost),
           billingCycle: Value(state.billingCycle),
           cancellationMethod: Value(state.cancellationMethod),
           cancellationInstructions: Value(state.cancellationInstructions),
@@ -272,8 +297,10 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
         await _dao.insertContract(ContractsCompanion.insert(
           name: state.name,
           provider: state.provider,
+          entryType: Value(state.entryType),
+          accessCategory: Value(accessCat),
           category: Value(state.category),
-          monthlyCost: Value(state.monthlyCost),
+          monthlyCost: Value(cost),
           billingCycle: Value(state.billingCycle),
           cancellationMethod: Value(state.cancellationMethod),
           cancellationInstructions: Value(state.cancellationInstructions),

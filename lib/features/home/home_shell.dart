@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/database/database.dart';
 import '../../data/providers/database_provider.dart';
 import '../../shared/l10n/l10n_extension.dart';
 import '../../shared/theme/app_colors.dart';
@@ -75,6 +76,14 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       case EntryMethod.webSearch:
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const WebSearchScreen()),
+        );
+        break;
+      case EntryMethod.access:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) =>
+                const AddContractScreen(entryType: EntryType.zugang),
+          ),
         );
         break;
     }

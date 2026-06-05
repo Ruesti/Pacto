@@ -40,8 +40,13 @@ class DashboardScreen extends ConsumerWidget {
         ? l.dashboardGreeting(userName)
         : l.dashboardGreetingAnon;
 
-    final contracts = contractsAsync.valueOrNull ?? const <Contract>[];
+    final allEntries = contractsAsync.valueOrNull ?? const <Contract>[];
     final heirs = heirsAsync.valueOrNull ?? const [];
+
+    // Das Dashboard ist die Kosten-/Vertragsuebersicht — Zugaenge zaehlen hier
+    // nicht mit (sie haben keine Kosten/Verlaengerung).
+    final contracts =
+        allEntries.where((c) => c.entryType.isVertrag).toList();
 
     final now = DateTime.now();
     final cancellationsSoon = contracts.where((c) {

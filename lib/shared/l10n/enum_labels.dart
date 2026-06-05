@@ -1,3 +1,4 @@
+import '../../domain/models/access_category.dart';
 import '../../domain/models/billing_cycle.dart';
 import '../../domain/models/cancellation_method.dart';
 import '../../domain/models/contract_category.dart';
@@ -14,6 +15,19 @@ extension ContractCategoryL10n on ContractCategory {
         ContractCategory.fitness => l.catFitness,
         ContractCategory.zeitung => l.catZeitung,
         ContractCategory.sonstiges => l.catSonstiges,
+      };
+}
+
+extension AccessCategoryL10n on AccessCategory {
+  String localizedLabel(AppLocalizations l) => switch (this) {
+        AccessCategory.router => l.accessCatRouter,
+        AccessCategory.smarthome => l.accessCatSmarthome,
+        AccessCategory.email => l.accessCatEmail,
+        AccessCategory.banking => l.accessCatBanking,
+        AccessCategory.server => l.accessCatServer,
+        AccessCategory.partnerAccount => l.accessCatPartnerAccount,
+        AccessCategory.geraet => l.accessCatGeraet,
+        AccessCategory.sonstiges => l.accessCatSonstiges,
       };
 }
 

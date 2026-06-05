@@ -206,6 +206,114 @@ abstract class AppLocalizations {
   /// **'Sonstiges'**
   String get catSonstiges;
 
+  /// No description provided for @accessCatRouter.
+  ///
+  /// In de, this message translates to:
+  /// **'Router / WLAN'**
+  String get accessCatRouter;
+
+  /// No description provided for @accessCatSmarthome.
+  ///
+  /// In de, this message translates to:
+  /// **'Smart Home'**
+  String get accessCatSmarthome;
+
+  /// No description provided for @accessCatEmail.
+  ///
+  /// In de, this message translates to:
+  /// **'E-Mail / Konto'**
+  String get accessCatEmail;
+
+  /// No description provided for @accessCatBanking.
+  ///
+  /// In de, this message translates to:
+  /// **'Banking'**
+  String get accessCatBanking;
+
+  /// No description provided for @accessCatServer.
+  ///
+  /// In de, this message translates to:
+  /// **'Server / NAS'**
+  String get accessCatServer;
+
+  /// No description provided for @accessCatPartnerAccount.
+  ///
+  /// In de, this message translates to:
+  /// **'Partner-Zugang'**
+  String get accessCatPartnerAccount;
+
+  /// No description provided for @accessCatGeraet.
+  ///
+  /// In de, this message translates to:
+  /// **'Gerät'**
+  String get accessCatGeraet;
+
+  /// No description provided for @accessCatSonstiges.
+  ///
+  /// In de, this message translates to:
+  /// **'Sonstiges'**
+  String get accessCatSonstiges;
+
+  /// No description provided for @entryAccess.
+  ///
+  /// In de, this message translates to:
+  /// **'Zugang anlegen'**
+  String get entryAccess;
+
+  /// No description provided for @entryAccessSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Login ohne Vertrag (Router, Server, Partner …)'**
+  String get entryAccessSubtitle;
+
+  /// No description provided for @addAccessTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Zugang hinzufügen'**
+  String get addAccessTitle;
+
+  /// No description provided for @editAccessTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Zugang bearbeiten'**
+  String get editAccessTitle;
+
+  /// No description provided for @accessesTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Zugänge'**
+  String get accessesTitle;
+
+  /// No description provided for @segmentContracts.
+  ///
+  /// In de, this message translates to:
+  /// **'Verträge'**
+  String get segmentContracts;
+
+  /// No description provided for @segmentAccesses.
+  ///
+  /// In de, this message translates to:
+  /// **'Zugänge'**
+  String get segmentAccesses;
+
+  /// No description provided for @fieldAccessCategory.
+  ///
+  /// In de, this message translates to:
+  /// **'Art des Zugangs'**
+  String get fieldAccessCategory;
+
+  /// No description provided for @noAccessesTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keine Zugänge'**
+  String get noAccessesTitle;
+
+  /// No description provided for @noAccessesDefault.
+  ///
+  /// In de, this message translates to:
+  /// **'Lege Zugänge an, die deine Erben brauchen:\nRouter, Server, E-Mail-Konto.'**
+  String get noAccessesDefault;
+
   /// No description provided for @billingMonthly.
   ///
   /// In de, this message translates to:

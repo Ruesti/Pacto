@@ -22,11 +22,19 @@ class ContractListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final categoryFg =
-        AppColors.categoryFg[contract.category.name] ?? AppColors.primary;
-    final categoryBg =
-        AppColors.categoryBg[contract.category.name] ?? AppColors.primaryLight;
-    final subtitle = '${contract.category.localizedLabel(l)} · ${contract.provider}';
+    final isZugang = contract.entryType.isZugang;
+    final accessCat = contract.accessCategory ?? AccessCategory.sonstiges;
+
+    final fg = isZugang
+        ? (AppColors.accessCatFg[accessCat.name] ?? AppColors.primary)
+        : (AppColors.categoryFg[contract.category.name] ?? AppColors.primary);
+    final bg = isZugang
+        ? (AppColors.accessCatBg[accessCat.name] ?? AppColors.primaryLight)
+        : (AppColors.categoryBg[contract.category.name] ??
+            AppColors.primaryLight);
+    final subtitle = isZugang
+        ? '${accessCat.localizedLabel(l)} · ${contract.provider}'
+        : '${contract.category.localizedLabel(l)} · ${contract.provider}';
 
     return Material(
       color: Colors.transparent,
@@ -39,8 +47,9 @@ class ContractListTile extends StatelessWidget {
             children: [
               _Logo(
                 name: contract.name,
-                fg: categoryFg,
-                bg: categoryBg,
+                fg: fg,
+                bg: bg,
+                icon: isZugang ? Icons.vpn_key : null,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -64,32 +73,43 @@ class ContractListTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: formatCurrency(contract.monthlyCost),
-                          style: AppTextStyles.listAmount,
-                        ),
-                        TextSpan(
-                          text: ' ${l.perMonthSuffix}',
-                          style: AppTextStyles.listDate,
-                        ),
-                      ],
+              // Zugaenge haben keine Kosten/Verlaengerung — rechts steht nur
+              // ein Chevron-aehnlicher Hinweis bzw. nichts.
+              if (isZugang)
+                Icon(
+                  contract.loginPasswordCt != null
+                      ? Icons.lock_outline
+                      : Icons.chevron_right,
+                  size: 18,
+                  color: AppColors.textTertiary,
+                )
+              else
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: formatCurrency(contract.monthlyCost),
+                            style: AppTextStyles.listAmount,
+                          ),
+                          TextSpan(
+                            text: ' ${l.perMonthSuffix}',
+                            style: AppTextStyles.listDate,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  if (contract.nextRenewal != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      l.nextPayment(formatDate(contract.nextRenewal)),
-                      style: AppTextStyles.listDate,
-                    ),
+                    if (contract.nextRenewal != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        l.nextPayment(formatDate(contract.nextRenewal)),
+                        style: AppTextStyles.listDate,
+                      ),
+                    ],
                   ],
-                ],
-              ),
+                ),
             ],
           ),
         ),
@@ -102,8 +122,16 @@ class _Logo extends StatelessWidget {
   final String name;
   final Color fg;
   final Color bg;
+  // Wenn gesetzt, wird statt der Initiale dieses Icon gezeigt (z.B. fuer
+  // Zugaenge ein Schluessel).
+  final IconData? icon;
 
-  const _Logo({required this.name, required this.fg, required this.bg});
+  const _Logo({
+    required this.name,
+    required this.fg,
+    required this.bg,
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -116,14 +144,16 @@ class _Logo extends StatelessWidget {
         borderRadius: AppRadius.icon,
       ),
       alignment: Alignment.center,
-      child: Text(
-        initial,
-        style: TextStyle(
-          color: fg,
-          fontSize: 17,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
+      child: icon != null
+          ? Icon(icon, color: fg, size: 20)
+          : Text(
+              initial,
+              style: TextStyle(
+                color: fg,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
     );
   }
 }

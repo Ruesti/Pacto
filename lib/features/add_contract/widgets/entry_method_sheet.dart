@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/l10n/l10n_extension.dart';
 
-enum EntryMethod { library, manual, scan, webSearch }
+enum EntryMethod { library, manual, scan, webSearch, access }
 
 class EntryMethodSheet extends StatelessWidget {
   const EntryMethodSheet({super.key});
@@ -57,6 +57,14 @@ class EntryMethodSheet extends StatelessWidget {
               label: l.entryWebSearch,
               subtitle: l.entryWebSearchSubtitle,
               value: EntryMethod.webSearch,
+            ),
+            const Divider(height: 8, indent: 16, endIndent: 16),
+            _tile(
+              context,
+              icon: Icons.vpn_key_outlined,
+              label: l.entryAccess,
+              subtitle: l.entryAccessSubtitle,
+              value: EntryMethod.access,
             ),
           ],
         ),

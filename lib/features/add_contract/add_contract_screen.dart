@@ -16,8 +16,15 @@ import 'add_contract_provider.dart';
 class AddContractScreen extends ConsumerStatefulWidget {
   final Contract? existing;
   final ExtractionResult? initialExtraction;
+  // Nur fuer NEUE Eintraege relevant — bei bestehenden gilt existing.entryType.
+  final EntryType entryType;
 
-  const AddContractScreen({super.key, this.existing, this.initialExtraction});
+  const AddContractScreen({
+    super.key,
+    this.existing,
+    this.initialExtraction,
+    this.entryType = EntryType.vertrag,
+  });
 
   @override
   ConsumerState<AddContractScreen> createState() => _AddContractScreenState();
@@ -59,6 +66,14 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
         TextEditingController(text: e?.loginUsername ?? '');
     _loginPasswordCtrl = TextEditingController();
     _loginHintCtrl = TextEditingController(text: e?.loginHint ?? '');
+
+    // Neuer Zugang: entryType in den State seeden (bestehende Eintraege
+    // bringen ihren Typ ueber den `existing`-Konstruktor selbst mit).
+    if (widget.existing == null && widget.entryType != EntryType.vertrag) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _notifier.setEntryType(widget.entryType);
+      });
+    }
 
     if (widget.initialExtraction != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -164,7 +179,10 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     if (!await _passesFreemiumGate()) return;
     _syncControllersToState();
     final state = ref.read(addContractProvider(widget.existing));
-    _notifier.setMonthlyCostFromInput(_costCtrl.text, state.billingCycle);
+    // Zugaenge haben kein Kostenfeld — Kosten bleiben 0.
+    if (state.entryType.isVertrag) {
+      _notifier.setMonthlyCostFromInput(_costCtrl.text, state.billingCycle);
+    }
     final ok = await _notifier.save();
     if (ok && mounted) Navigator.of(context).pop();
   }
@@ -174,12 +192,16 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     final l = context.l10n;
     final state = ref.watch(addContractProvider(widget.existing));
     final isEdit = widget.existing != null;
+    final isZugang = state.entryType.isZugang;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? l.editContractTitle : l.addContractTitle),
+        title: Text(isEdit
+            ? (isZugang ? l.editAccessTitle : l.editContractTitle)
+            : (isZugang ? l.addAccessTitle : l.addContractTitle)),
         actions: [
-          if (!isEdit) ...[
+          // Bibliothek/Scan/Web ergeben fuer Zugaenge keinen Sinn.
+          if (!isEdit && !isZugang) ...[
             IconButton(
               icon: const Icon(Icons.list_alt_outlined),
               tooltip: l.entryLibrary,
@@ -228,18 +250,31 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
               onChanged: _notifier.setProvider,
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<ContractCategory>(
-              initialValue: state.category,
-              decoration: InputDecoration(labelText: l.fieldCategory),
-              items: ContractCategory.values
-                  .map((c) => DropdownMenuItem(
-                      value: c,
-                      child: Text(c.localizedLabel(l))))
-                  .toList(),
-              onChanged: (v) => _notifier.setCategory(v!),
-            ),
-            const SizedBox(height: 24),
-            _sectionHeader(l.sectionCost),
+            if (isZugang)
+              DropdownButtonFormField<AccessCategory>(
+                initialValue: state.accessCategory ?? AccessCategory.sonstiges,
+                decoration: InputDecoration(labelText: l.fieldAccessCategory),
+                items: AccessCategory.values
+                    .map((c) => DropdownMenuItem(
+                        value: c,
+                        child: Text(c.localizedLabel(l))))
+                    .toList(),
+                onChanged: (v) => _notifier.setAccessCategory(v!),
+              )
+            else
+              DropdownButtonFormField<ContractCategory>(
+                initialValue: state.category,
+                decoration: InputDecoration(labelText: l.fieldCategory),
+                items: ContractCategory.values
+                    .map((c) => DropdownMenuItem(
+                        value: c,
+                        child: Text(c.localizedLabel(l))))
+                    .toList(),
+                onChanged: (v) => _notifier.setCategory(v!),
+              ),
+            if (!isZugang) ...[
+              const SizedBox(height: 24),
+              _sectionHeader(l.sectionCost),
             Row(
               children: [
                 Expanded(
@@ -300,6 +335,7 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
               ),
               onChanged: _notifier.setCancellationInstructions,
             ),
+            ],
             const SizedBox(height: 24),
             _sectionHeader(l.sectionContact),
             TextFormField(
@@ -325,21 +361,23 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
                   labelText: l.fieldWebsite,
                   prefixIcon: const Icon(Icons.link_outlined)),
             ),
-            const SizedBox(height: 24),
-            _sectionHeader(l.sectionDuration),
-            _datePicker(
-              label: l.fieldContractStart,
-              date: state.contractStart,
-              onPicked: _notifier.setContractStart,
-              pickDateLabel: l.pickDate,
-            ),
-            const SizedBox(height: 12),
-            _datePicker(
-              label: l.fieldNextRenewal,
-              date: state.nextRenewal,
-              onPicked: _notifier.setNextRenewal,
-              pickDateLabel: l.pickDate,
-            ),
+            if (!isZugang) ...[
+              const SizedBox(height: 24),
+              _sectionHeader(l.sectionDuration),
+              _datePicker(
+                label: l.fieldContractStart,
+                date: state.contractStart,
+                onPicked: _notifier.setContractStart,
+                pickDateLabel: l.pickDate,
+              ),
+              const SizedBox(height: 12),
+              _datePicker(
+                label: l.fieldNextRenewal,
+                date: state.nextRenewal,
+                onPicked: _notifier.setNextRenewal,
+                pickDateLabel: l.pickDate,
+              ),
+            ],
             const SizedBox(height: 24),
             _loginSection(state, l),
             const SizedBox(height: 24),
@@ -431,6 +469,10 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     final policy =
         ref.watch(heirPasswordPolicyProvider).valueOrNull ??
             HeirPasswordPolicy.none;
+    // Bei einem eigenstaendigen Zugang ist das Passwort der Kern des Eintrags —
+    // es wird immer angeboten, auch wenn die Erben-Policy "none" ist.
+    final isZugang = state.entryType.isZugang;
+    final showPasswordFields = policy != HeirPasswordPolicy.none || isZugang;
     final hasExistingPw = state.loginPasswordCt != null;
     final lastVerified = state.loginLastVerifiedAt;
     final isStale = lastVerified != null &&
@@ -476,9 +518,9 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
             ],
           ),
         ),
-        // Wenn die Policy "none" ist, blenden wir die Passwort-Felder aus —
-        // dann ist nur das Hint-Feld sichtbar.
-        if (policy != HeirPasswordPolicy.none) ...[
+        // Wenn die Policy "none" ist (und es kein Zugang ist), blenden wir die
+        // Passwort-Felder aus — dann ist nur das Hint-Feld sichtbar.
+        if (showPasswordFields) ...[
           TextFormField(
             controller: _loginUsernameCtrl,
             decoration: InputDecoration(
