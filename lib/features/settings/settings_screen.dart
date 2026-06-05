@@ -7,6 +7,7 @@ import '../premium/premium_service.dart';
 import 'heir_password_policy_screen.dart';
 import 'supabase_sync_screen.dart';
 import 'vault_screen.dart';
+import 'verification_settings_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -47,6 +48,14 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const HeirPasswordPolicyScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.shield_outlined),
+            title: Text(l.settingsVerification),
+            subtitle: Text(l.settingsVerificationSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const VerificationSettingsScreen())),
           ),
           _section(l.settingsSectionApp),
           ListTile(

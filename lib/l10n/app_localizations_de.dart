@@ -123,6 +123,86 @@ class AppLocalizationsDe extends AppLocalizations {
       'Lege Zugänge an, die deine Erben brauchen:\nRouter, Server, E-Mail-Konto.';
 
   @override
+  String get settingsVerification => 'Passwort-Prüfungen';
+
+  @override
+  String get settingsVerificationSubtitle =>
+      'Erinnerung, Datenleck-Check, Stärke';
+
+  @override
+  String get verifyTitle => 'Passwort-Prüfungen';
+
+  @override
+  String get verifyIntro =>
+      'Wähle, wie Pacto dir hilft, gespeicherte Logins aktuell und sicher zu halten. Alles ist optional und läuft auf deinem Gerät.';
+
+  @override
+  String get verifyManualReminder => 'Bestätigungs-Erinnerung';
+
+  @override
+  String get verifyManualReminderSubtitle =>
+      'Markiert Logins, die du länger nicht bestätigt hast';
+
+  @override
+  String get verifyReminderInterval => 'Erinnerungs-Intervall';
+
+  @override
+  String verifyReminderMonths(int months) {
+    return '$months Monate';
+  }
+
+  @override
+  String get verifyBreachCheck => 'Datenleck-Prüfung';
+
+  @override
+  String get verifyBreachCheckSubtitle =>
+      'Über HaveIBeenPwned — nur ein Hash-Präfix verlässt das Gerät';
+
+  @override
+  String get verifyStrengthCheck => 'Passwort-Stärke';
+
+  @override
+  String get verifyStrengthCheckSubtitle =>
+      'Zeigt eine Stärke-Einschätzung beim Aufdecken an';
+
+  @override
+  String get breachCheckButton => 'Auf Datenleck prüfen';
+
+  @override
+  String get breachChecking => 'Prüfe …';
+
+  @override
+  String get breachClean => 'In keinem bekannten Datenleck gefunden';
+
+  @override
+  String breachFound(int count) {
+    return 'In $count Datenlecks gefunden — ändere dieses Passwort';
+  }
+
+  @override
+  String get breachError => 'Prüfung fehlgeschlagen — später erneut versuchen';
+
+  @override
+  String get strengthLabel => 'Stärke';
+
+  @override
+  String get strengthWeak => 'Schwach';
+
+  @override
+  String get strengthMedium => 'Mittel';
+
+  @override
+  String get strengthStrong => 'Stark';
+
+  @override
+  String get verifyReminderBannerTitle => 'Logins bestätigen';
+
+  @override
+  String verifyReminderBannerBody(int count) {
+    return '$count gespeicherte Logins sind länger nicht bestätigt worden.';
+  }
+
+  @override
   String get billingMonthly => 'Monatlich';
 
   @override

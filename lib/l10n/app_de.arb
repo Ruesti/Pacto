@@ -53,6 +53,39 @@
   "noAccessesTitle": "Noch keine Zugänge",
   "noAccessesDefault": "Lege Zugänge an, die deine Erben brauchen:\nRouter, Server, E-Mail-Konto.",
 
+  "settingsVerification": "Passwort-Prüfungen",
+  "settingsVerificationSubtitle": "Erinnerung, Datenleck-Check, Stärke",
+  "verifyTitle": "Passwort-Prüfungen",
+  "verifyIntro": "Wähle, wie Pacto dir hilft, gespeicherte Logins aktuell und sicher zu halten. Alles ist optional und läuft auf deinem Gerät.",
+  "verifyManualReminder": "Bestätigungs-Erinnerung",
+  "verifyManualReminderSubtitle": "Markiert Logins, die du länger nicht bestätigt hast",
+  "verifyReminderInterval": "Erinnerungs-Intervall",
+  "verifyReminderMonths": "{months} Monate",
+  "@verifyReminderMonths": {
+    "placeholders": { "months": {"type": "int"} }
+  },
+  "verifyBreachCheck": "Datenleck-Prüfung",
+  "verifyBreachCheckSubtitle": "Über HaveIBeenPwned — nur ein Hash-Präfix verlässt das Gerät",
+  "verifyStrengthCheck": "Passwort-Stärke",
+  "verifyStrengthCheckSubtitle": "Zeigt eine Stärke-Einschätzung beim Aufdecken an",
+  "breachCheckButton": "Auf Datenleck prüfen",
+  "breachChecking": "Prüfe …",
+  "breachClean": "In keinem bekannten Datenleck gefunden",
+  "breachFound": "In {count} Datenlecks gefunden — ändere dieses Passwort",
+  "@breachFound": {
+    "placeholders": { "count": {"type": "int"} }
+  },
+  "breachError": "Prüfung fehlgeschlagen — später erneut versuchen",
+  "strengthLabel": "Stärke",
+  "strengthWeak": "Schwach",
+  "strengthMedium": "Mittel",
+  "strengthStrong": "Stark",
+  "verifyReminderBannerTitle": "Logins bestätigen",
+  "verifyReminderBannerBody": "{count} gespeicherte Logins sind länger nicht bestätigt worden.",
+  "@verifyReminderBannerBody": {
+    "placeholders": { "count": {"type": "int"} }
+  },
+
   "billingMonthly": "Monatlich",
   "billingQuarterly": "Vierteljährlich",
   "billingYearly": "Jährlich",

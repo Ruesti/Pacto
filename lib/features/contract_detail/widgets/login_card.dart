@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/database/database.dart';
 import '../../../data/providers/database_provider.dart';
+import '../../../data/providers/verification_settings_provider.dart';
+import '../../../data/security/password_strength.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/l10n/l10n_extension.dart';
 import '../../../shared/theme/app_colors.dart';
@@ -26,11 +28,37 @@ class _LoginCardState extends ConsumerState<LoginCard> {
   String? _plainPassword;
   bool _busy = false;
   String? _revealError;
+  // Datenleck-Pruefung: null = noch nicht geprueft, -2 = laeuft, -1 = Fehler,
+  // >=0 = Trefferzahl.
+  int? _breachState;
 
   @override
   void dispose() {
     _plainPassword = null;
     super.dispose();
+  }
+
+  Future<void> _markVerifiedNow() async {
+    await ref.read(contractsDaoProvider).markVerified(widget.contract.id);
+    // Der Detail-Screen watcht den Vertrags-Stream → Karte baut sich mit
+    // frischem loginLastVerifiedAt neu auf.
+  }
+
+  Future<void> _runBreachCheck() async {
+    final ct = widget.contract.loginPasswordCt;
+    if (ct == null) return;
+    setState(() => _breachState = -2);
+    try {
+      final plain =
+          _plainPassword ?? await ref.read(cryptoServiceProvider).decryptString(ct);
+      final count =
+          await ref.read(breachCheckServiceProvider).pwnedCount(plain);
+      if (!mounted) return;
+      setState(() => _breachState = count);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _breachState = -1);
+    }
   }
 
   Future<void> _toggleReveal() async {
@@ -71,12 +99,17 @@ class _LoginCardState extends ConsumerState<LoginCard> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final c = widget.contract;
+    final settings = ref.watch(verificationSettingsProvider).valueOrNull ??
+        const VerificationSettings();
     final hasUsername = (c.loginUsername ?? '').isNotEmpty;
     final hasPassword = c.loginPasswordCt != null;
     final hasHint = (c.loginHint ?? '').isNotEmpty;
     final lastVerified = c.loginLastVerifiedAt;
+    final staleDays = settings.manualReminderEnabled
+        ? settings.staleThresholdDays
+        : 180;
     final isStale = lastVerified != null &&
-        DateTime.now().difference(lastVerified).inDays > 180;
+        DateTime.now().difference(lastVerified).inDays > staleDays;
 
     return Card(
       child: Padding(
@@ -111,6 +144,15 @@ class _LoginCardState extends ConsumerState<LoginCard> {
                       style: const TextStyle(
                           color: AppColors.statusRed, fontSize: 12)),
                 ),
+              if (settings.strengthCheckEnabled && _plainPassword != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: _strengthBar(l, _plainPassword!),
+                ),
+              if (settings.breachCheckEnabled) ...[
+                const SizedBox(height: 4),
+                _breachRow(l),
+              ],
             ],
             if (lastVerified != null) ...[
               const SizedBox(height: 8),
@@ -130,6 +172,19 @@ class _LoginCardState extends ConsumerState<LoginCard> {
                       style: const TextStyle(
                           fontSize: 12, color: AppColors.statusAmber)),
                 ),
+            ],
+            if (settings.manualReminderEnabled &&
+                (hasPassword || hasUsername || hasHint)) ...[
+              const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: _markVerifiedNow,
+                  icon: const Icon(Icons.check, size: 16),
+                  label: Text(l.loginConfirmNowButton,
+                      style: const TextStyle(fontSize: 12)),
+                ),
+              ),
             ],
             if (hasHint) ...[
               const SizedBox(height: 12),
@@ -195,6 +250,84 @@ class _LoginCardState extends ConsumerState<LoginCard> {
             ),
         ],
       ],
+    );
+  }
+
+  Widget _strengthBar(AppLocalizations l, String password) {
+    final strength = assessPasswordStrength(password);
+    final (color, label, fraction) = switch (strength) {
+      PasswordStrength.weak => (AppColors.statusRed, l.strengthWeak, 0.33),
+      PasswordStrength.medium =>
+        (AppColors.statusAmber, l.strengthMedium, 0.66),
+      PasswordStrength.strong =>
+        (AppColors.statusGreen, l.strengthStrong, 1.0),
+    };
+    return Row(
+      children: [
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(
+              value: fraction,
+              minHeight: 4,
+              backgroundColor: AppColors.surfaceBorder,
+              valueColor: AlwaysStoppedAnimation(color),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text('${l.strengthLabel}: $label',
+            style: TextStyle(fontSize: 11, color: color)),
+      ],
+    );
+  }
+
+  Widget _breachRow(AppLocalizations l) {
+    if (_breachState == -2) {
+      return Row(
+        children: [
+          const SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: 8),
+          Text(l.breachChecking,
+              style: const TextStyle(
+                  fontSize: 12, color: AppColors.textTertiary)),
+        ],
+      );
+    }
+    if (_breachState == null) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: _runBreachCheck,
+          icon: const Icon(Icons.shield_outlined, size: 16),
+          label: Text(l.breachCheckButton,
+              style: const TextStyle(fontSize: 12)),
+        ),
+      );
+    }
+    final (icon, color, text) = switch (_breachState!) {
+      -1 => (Icons.error_outline, AppColors.statusAmber, l.breachError),
+      0 => (Icons.verified_user_outlined, AppColors.statusGreen, l.breachClean),
+      final n => (Icons.warning_amber_outlined, AppColors.statusRed,
+          l.breachFound(n)),
+    };
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(text,
+                style: TextStyle(fontSize: 12, color: color)),
+          ),
+        ],
+      ),
     );
   }
 

@@ -43,6 +43,39 @@
   "noAccessesTitle": "No accesses yet",
   "noAccessesDefault": "Add the accesses your heirs will need:\nrouter, server, email account.",
 
+  "settingsVerification": "Password checks",
+  "settingsVerificationSubtitle": "Reminder, breach check, strength",
+  "verifyTitle": "Password checks",
+  "verifyIntro": "Choose how Pacto helps you keep stored logins current and secure. Everything is optional and runs on your device.",
+  "verifyManualReminder": "Confirmation reminder",
+  "verifyManualReminderSubtitle": "Flags logins you haven't confirmed in a while",
+  "verifyReminderInterval": "Reminder interval",
+  "verifyReminderMonths": "{months} months",
+  "@verifyReminderMonths": {
+    "placeholders": { "months": {"type": "int"} }
+  },
+  "verifyBreachCheck": "Breach check",
+  "verifyBreachCheckSubtitle": "Via HaveIBeenPwned — only a hash prefix leaves the device",
+  "verifyStrengthCheck": "Password strength",
+  "verifyStrengthCheckSubtitle": "Shows a strength estimate when revealing",
+  "breachCheckButton": "Check for breaches",
+  "breachChecking": "Checking …",
+  "breachClean": "Not found in any known breach",
+  "breachFound": "Found in {count} breaches — change this password",
+  "@breachFound": {
+    "placeholders": { "count": {"type": "int"} }
+  },
+  "breachError": "Check failed — try again later",
+  "strengthLabel": "Strength",
+  "strengthWeak": "Weak",
+  "strengthMedium": "Medium",
+  "strengthStrong": "Strong",
+  "verifyReminderBannerTitle": "Confirm logins",
+  "verifyReminderBannerBody": "{count} stored logins haven't been confirmed in a while.",
+  "@verifyReminderBannerBody": {
+    "placeholders": { "count": {"type": "int"} }
+  },
+
   "billingMonthly": "Monthly",
   "billingQuarterly": "Quarterly",
   "billingYearly": "Yearly",

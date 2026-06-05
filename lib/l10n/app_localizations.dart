@@ -314,6 +314,144 @@ abstract class AppLocalizations {
   /// **'Lege Zugänge an, die deine Erben brauchen:\nRouter, Server, E-Mail-Konto.'**
   String get noAccessesDefault;
 
+  /// No description provided for @settingsVerification.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort-Prüfungen'**
+  String get settingsVerification;
+
+  /// No description provided for @settingsVerificationSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Erinnerung, Datenleck-Check, Stärke'**
+  String get settingsVerificationSubtitle;
+
+  /// No description provided for @verifyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort-Prüfungen'**
+  String get verifyTitle;
+
+  /// No description provided for @verifyIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Wähle, wie Pacto dir hilft, gespeicherte Logins aktuell und sicher zu halten. Alles ist optional und läuft auf deinem Gerät.'**
+  String get verifyIntro;
+
+  /// No description provided for @verifyManualReminder.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätigungs-Erinnerung'**
+  String get verifyManualReminder;
+
+  /// No description provided for @verifyManualReminderSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Markiert Logins, die du länger nicht bestätigt hast'**
+  String get verifyManualReminderSubtitle;
+
+  /// No description provided for @verifyReminderInterval.
+  ///
+  /// In de, this message translates to:
+  /// **'Erinnerungs-Intervall'**
+  String get verifyReminderInterval;
+
+  /// No description provided for @verifyReminderMonths.
+  ///
+  /// In de, this message translates to:
+  /// **'{months} Monate'**
+  String verifyReminderMonths(int months);
+
+  /// No description provided for @verifyBreachCheck.
+  ///
+  /// In de, this message translates to:
+  /// **'Datenleck-Prüfung'**
+  String get verifyBreachCheck;
+
+  /// No description provided for @verifyBreachCheckSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Über HaveIBeenPwned — nur ein Hash-Präfix verlässt das Gerät'**
+  String get verifyBreachCheckSubtitle;
+
+  /// No description provided for @verifyStrengthCheck.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort-Stärke'**
+  String get verifyStrengthCheck;
+
+  /// No description provided for @verifyStrengthCheckSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Zeigt eine Stärke-Einschätzung beim Aufdecken an'**
+  String get verifyStrengthCheckSubtitle;
+
+  /// No description provided for @breachCheckButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf Datenleck prüfen'**
+  String get breachCheckButton;
+
+  /// No description provided for @breachChecking.
+  ///
+  /// In de, this message translates to:
+  /// **'Prüfe …'**
+  String get breachChecking;
+
+  /// No description provided for @breachClean.
+  ///
+  /// In de, this message translates to:
+  /// **'In keinem bekannten Datenleck gefunden'**
+  String get breachClean;
+
+  /// No description provided for @breachFound.
+  ///
+  /// In de, this message translates to:
+  /// **'In {count} Datenlecks gefunden — ändere dieses Passwort'**
+  String breachFound(int count);
+
+  /// No description provided for @breachError.
+  ///
+  /// In de, this message translates to:
+  /// **'Prüfung fehlgeschlagen — später erneut versuchen'**
+  String get breachError;
+
+  /// No description provided for @strengthLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Stärke'**
+  String get strengthLabel;
+
+  /// No description provided for @strengthWeak.
+  ///
+  /// In de, this message translates to:
+  /// **'Schwach'**
+  String get strengthWeak;
+
+  /// No description provided for @strengthMedium.
+  ///
+  /// In de, this message translates to:
+  /// **'Mittel'**
+  String get strengthMedium;
+
+  /// No description provided for @strengthStrong.
+  ///
+  /// In de, this message translates to:
+  /// **'Stark'**
+  String get strengthStrong;
+
+  /// No description provided for @verifyReminderBannerTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Logins bestätigen'**
+  String get verifyReminderBannerTitle;
+
+  /// No description provided for @verifyReminderBannerBody.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} gespeicherte Logins sind länger nicht bestätigt worden.'**
+  String verifyReminderBannerBody(int count);
+
   /// No description provided for @billingMonthly.
   ///
   /// In de, this message translates to:

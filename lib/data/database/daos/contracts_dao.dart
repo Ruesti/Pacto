@@ -43,6 +43,13 @@ class ContractsDao extends DatabaseAccessor<AppDatabase>
     ));
   }
 
+  /// Setzt `loginLastVerifiedAt` auf jetzt — der User hat bestaetigt, dass das
+  /// gespeicherte Login noch stimmt.
+  Future<int> markVerified(String id) =>
+      (update(contracts)..where((t) => t.id.equals(id))).write(
+        ContractsCompanion(loginLastVerifiedAt: Value(DateTime.now())),
+      );
+
   Future<int> countStoredLoginPasswords() async {
     final query = selectOnly(contracts)
       ..addColumns([contracts.id.count()])

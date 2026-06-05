@@ -123,6 +123,85 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add the accesses your heirs will need:\nrouter, server, email account.';
 
   @override
+  String get settingsVerification => 'Password checks';
+
+  @override
+  String get settingsVerificationSubtitle => 'Reminder, breach check, strength';
+
+  @override
+  String get verifyTitle => 'Password checks';
+
+  @override
+  String get verifyIntro =>
+      'Choose how Pacto helps you keep stored logins current and secure. Everything is optional and runs on your device.';
+
+  @override
+  String get verifyManualReminder => 'Confirmation reminder';
+
+  @override
+  String get verifyManualReminderSubtitle =>
+      'Flags logins you haven\'t confirmed in a while';
+
+  @override
+  String get verifyReminderInterval => 'Reminder interval';
+
+  @override
+  String verifyReminderMonths(int months) {
+    return '$months months';
+  }
+
+  @override
+  String get verifyBreachCheck => 'Breach check';
+
+  @override
+  String get verifyBreachCheckSubtitle =>
+      'Via HaveIBeenPwned — only a hash prefix leaves the device';
+
+  @override
+  String get verifyStrengthCheck => 'Password strength';
+
+  @override
+  String get verifyStrengthCheckSubtitle =>
+      'Shows a strength estimate when revealing';
+
+  @override
+  String get breachCheckButton => 'Check for breaches';
+
+  @override
+  String get breachChecking => 'Checking …';
+
+  @override
+  String get breachClean => 'Not found in any known breach';
+
+  @override
+  String breachFound(int count) {
+    return 'Found in $count breaches — change this password';
+  }
+
+  @override
+  String get breachError => 'Check failed — try again later';
+
+  @override
+  String get strengthLabel => 'Strength';
+
+  @override
+  String get strengthWeak => 'Weak';
+
+  @override
+  String get strengthMedium => 'Medium';
+
+  @override
+  String get strengthStrong => 'Strong';
+
+  @override
+  String get verifyReminderBannerTitle => 'Confirm logins';
+
+  @override
+  String verifyReminderBannerBody(int count) {
+    return '$count stored logins haven\'t been confirmed in a while.';
+  }
+
+  @override
   String get billingMonthly => 'Monthly';
 
   @override

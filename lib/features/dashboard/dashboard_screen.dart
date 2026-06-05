@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/database_provider.dart';
 import '../../data/providers/user_name_provider.dart';
+import '../../data/providers/verification_settings_provider.dart';
 import '../../shared/l10n/l10n_extension.dart';
 import '../../shared/theme/app_colors.dart';
+import '../../shared/theme/app_spacing.dart';
 import '../../shared/theme/app_text_styles.dart';
 import '../contract_detail/contract_detail_screen.dart';
 import 'widgets/contract_list_tile.dart';
@@ -62,6 +64,18 @@ class DashboardScreen extends ConsumerWidget {
     final recent = List<Contract>.of(contracts)
       ..sort((a, b) => (b.updatedAt).compareTo(a.updatedAt));
     final topRecent = recent.take(4).toList();
+
+    // Ueberfaellige Logins (nur wenn die Bestaetigungs-Erinnerung aktiv ist).
+    final verify = ref.watch(verificationSettingsProvider).valueOrNull ??
+        const VerificationSettings();
+    final overdueLogins = verify.manualReminderEnabled
+        ? allEntries.where((c) {
+            if (c.loginPasswordCt == null) return false;
+            final v = c.loginLastVerifiedAt;
+            return v == null ||
+                now.difference(v).inDays > verify.staleThresholdDays;
+          }).length
+        : 0;
 
     return Scaffold(
       body: CustomScrollView(
@@ -147,6 +161,17 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
             ),
+          if (overdueLogins > 0)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              sliver: SliverToBoxAdapter(
+                child: _ReminderBanner(
+                  title: l.verifyReminderBannerTitle,
+                  body: l.verifyReminderBannerBody(overdueLogins),
+                  onTap: onShowAllContracts,
+                ),
+              ),
+            ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
             sliver: SliverToBoxAdapter(
@@ -157,6 +182,61 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Hinweis-Banner auf dem Dashboard, wenn gespeicherte Logins laenger nicht
+/// bestaetigt wurden. Tippen fuehrt zur Vertragsliste.
+class _ReminderBanner extends StatelessWidget {
+  final String title;
+  final String body;
+  final VoidCallback onTap;
+
+  const _ReminderBanner({
+    required this.title,
+    required this.body,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: AppRadius.card,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.statusAmberBg,
+          borderRadius: AppRadius.card,
+          border: const Border(
+            left: BorderSide(color: AppColors.statusAmber, width: 3),
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.lock_clock_outlined,
+                color: AppColors.statusAmber, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary)),
+                  const SizedBox(height: 2),
+                  Text(body,
+                      style: const TextStyle(
+                          fontSize: 13, color: AppColors.textSecondary)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+          ],
+        ),
       ),
     );
   }

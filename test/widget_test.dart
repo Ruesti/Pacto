@@ -1,6 +1,7 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pacto/data/database/database.dart';
+import 'package:pacto/data/security/password_strength.dart';
 import 'package:pacto/data/sync/crypto_service.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -97,5 +98,27 @@ void main() {
     expect(heirs.length, 1);
     expect(heirs.first.name, 'Max Mustermann');
     expect(heirs.first.isActive, true);
+  });
+
+  test('Phase 2 – Zugang traegt entryType + accessCategory, keine Kosten',
+      () async {
+    final dao = db.contractsDao;
+    await dao.insertContract(ContractsCompanion.insert(
+      name: 'WLAN-Router',
+      provider: 'FRITZ!Box',
+      entryType: const Value(EntryType.zugang),
+      accessCategory: const Value(AccessCategory.router),
+    ));
+    final all = await dao.getAll();
+    expect(all.single.entryType, EntryType.zugang);
+    expect(all.single.accessCategory, AccessCategory.router);
+    expect(all.single.monthlyCost, 0.0);
+  });
+
+  test('Phase 3 – Passwort-Staerke-Heuristik', () {
+    expect(assessPasswordStrength('password'), PasswordStrength.weak);
+    expect(assessPasswordStrength('abc'), PasswordStrength.weak);
+    expect(assessPasswordStrength('Sommer2024'), PasswordStrength.medium);
+    expect(assessPasswordStrength(r'9xL!qT#7vR2&mZ'), PasswordStrength.strong);
   });
 }
