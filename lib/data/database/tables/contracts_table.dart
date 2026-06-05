@@ -3,10 +3,18 @@ import 'package:uuid/uuid.dart';
 import '../../../domain/models/contract_category.dart';
 import '../../../domain/models/cancellation_method.dart';
 import '../../../domain/models/billing_cycle.dart';
+import '../../../domain/models/entry_type.dart';
+import '../../../domain/models/access_category.dart';
 
 class Contracts extends Table {
   TextColumn get id => text().clientDefault(() => Uuid().v4())();
   TextColumn get name => text()();
+  // Diskriminator Vertrag vs. eigenstaendiger Zugang. Default vertrag, damit
+  // Bestandszeilen ohne Backfill korrekt sind.
+  TextColumn get entryType =>
+      textEnum<EntryType>().withDefault(const Constant('vertrag'))();
+  // Nur bei entryType == zugang relevant; sonst null.
+  TextColumn get accessCategory => textEnum<AccessCategory>().nullable()();
   TextColumn get category =>
       textEnum<ContractCategory>().withDefault(const Constant('sonstiges'))();
   TextColumn get provider => text()();

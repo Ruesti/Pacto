@@ -22,6 +22,20 @@ class $ContractsTable extends Contracts
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
+  late final GeneratedColumnWithTypeConverter<EntryType, String> entryType =
+      GeneratedColumn<String>('entry_type', aliasedName, false,
+              type: DriftSqlType.string,
+              requiredDuringInsert: false,
+              defaultValue: const Constant('vertrag'))
+          .withConverter<EntryType>($ContractsTable.$converterentryType);
+  @override
+  late final GeneratedColumnWithTypeConverter<AccessCategory?, String>
+      accessCategory = GeneratedColumn<String>(
+              'access_category', aliasedName, true,
+              type: DriftSqlType.string, requiredDuringInsert: false)
+          .withConverter<AccessCategory?>(
+              $ContractsTable.$converteraccessCategoryn);
+  @override
   late final GeneratedColumnWithTypeConverter<ContractCategory, String>
       category = GeneratedColumn<String>('category', aliasedName, false,
               type: DriftSqlType.string,
@@ -162,6 +176,8 @@ class $ContractsTable extends Contracts
   List<GeneratedColumn> get $columns => [
         id,
         name,
+        entryType,
+        accessCategory,
         category,
         provider,
         contactPhone,
@@ -310,6 +326,12 @@ class $ContractsTable extends Contracts
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      entryType: $ContractsTable.$converterentryType.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entry_type'])!),
+      accessCategory: $ContractsTable.$converteraccessCategoryn.fromSql(
+          attachedDatabase.typeMapping.read(
+              DriftSqlType.string, data['${effectivePrefix}access_category'])),
       category: $ContractsTable.$convertercategory.fromSql(attachedDatabase
           .typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}category'])!),
@@ -363,6 +385,14 @@ class $ContractsTable extends Contracts
     return $ContractsTable(attachedDatabase, alias);
   }
 
+  static JsonTypeConverter2<EntryType, String, String> $converterentryType =
+      const EnumNameConverter<EntryType>(EntryType.values);
+  static JsonTypeConverter2<AccessCategory, String, String>
+      $converteraccessCategory =
+      const EnumNameConverter<AccessCategory>(AccessCategory.values);
+  static JsonTypeConverter2<AccessCategory?, String?, String?>
+      $converteraccessCategoryn =
+      JsonTypeConverter2.asNullable($converteraccessCategory);
   static JsonTypeConverter2<ContractCategory, String, String>
       $convertercategory =
       const EnumNameConverter<ContractCategory>(ContractCategory.values);
@@ -377,6 +407,8 @@ class $ContractsTable extends Contracts
 class Contract extends DataClass implements Insertable<Contract> {
   final String id;
   final String name;
+  final EntryType entryType;
+  final AccessCategory? accessCategory;
   final ContractCategory category;
   final String provider;
   final String? contactPhone;
@@ -400,6 +432,8 @@ class Contract extends DataClass implements Insertable<Contract> {
   const Contract(
       {required this.id,
       required this.name,
+      required this.entryType,
+      this.accessCategory,
       required this.category,
       required this.provider,
       this.contactPhone,
@@ -425,6 +459,14 @@ class Contract extends DataClass implements Insertable<Contract> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
+    {
+      map['entry_type'] = Variable<String>(
+          $ContractsTable.$converterentryType.toSql(entryType));
+    }
+    if (!nullToAbsent || accessCategory != null) {
+      map['access_category'] = Variable<String>(
+          $ContractsTable.$converteraccessCategoryn.toSql(accessCategory));
+    }
     {
       map['category'] =
           Variable<String>($ContractsTable.$convertercategory.toSql(category));
@@ -483,6 +525,10 @@ class Contract extends DataClass implements Insertable<Contract> {
     return ContractsCompanion(
       id: Value(id),
       name: Value(name),
+      entryType: Value(entryType),
+      accessCategory: accessCategory == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accessCategory),
       category: Value(category),
       provider: Value(provider),
       contactPhone: contactPhone == null && nullToAbsent
@@ -532,6 +578,10 @@ class Contract extends DataClass implements Insertable<Contract> {
     return Contract(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      entryType: $ContractsTable.$converterentryType
+          .fromJson(serializer.fromJson<String>(json['entryType'])),
+      accessCategory: $ContractsTable.$converteraccessCategoryn
+          .fromJson(serializer.fromJson<String?>(json['accessCategory'])),
       category: $ContractsTable.$convertercategory
           .fromJson(serializer.fromJson<String>(json['category'])),
       provider: serializer.fromJson<String>(json['provider']),
@@ -565,6 +615,10 @@ class Contract extends DataClass implements Insertable<Contract> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
+      'entryType': serializer.toJson<String>(
+          $ContractsTable.$converterentryType.toJson(entryType)),
+      'accessCategory': serializer.toJson<String?>(
+          $ContractsTable.$converteraccessCategoryn.toJson(accessCategory)),
       'category': serializer
           .toJson<String>($ContractsTable.$convertercategory.toJson(category)),
       'provider': serializer.toJson<String>(provider),
@@ -596,6 +650,8 @@ class Contract extends DataClass implements Insertable<Contract> {
   Contract copyWith(
           {String? id,
           String? name,
+          EntryType? entryType,
+          Value<AccessCategory?> accessCategory = const Value.absent(),
           ContractCategory? category,
           String? provider,
           Value<String?> contactPhone = const Value.absent(),
@@ -619,6 +675,9 @@ class Contract extends DataClass implements Insertable<Contract> {
       Contract(
         id: id ?? this.id,
         name: name ?? this.name,
+        entryType: entryType ?? this.entryType,
+        accessCategory:
+            accessCategory.present ? accessCategory.value : this.accessCategory,
         category: category ?? this.category,
         provider: provider ?? this.provider,
         contactPhone:
@@ -654,6 +713,10 @@ class Contract extends DataClass implements Insertable<Contract> {
     return Contract(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
+      entryType: data.entryType.present ? data.entryType.value : this.entryType,
+      accessCategory: data.accessCategory.present
+          ? data.accessCategory.value
+          : this.accessCategory,
       category: data.category.present ? data.category.value : this.category,
       provider: data.provider.present ? data.provider.value : this.provider,
       contactPhone: data.contactPhone.present
@@ -707,6 +770,8 @@ class Contract extends DataClass implements Insertable<Contract> {
     return (StringBuffer('Contract(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('entryType: $entryType, ')
+          ..write('accessCategory: $accessCategory, ')
           ..write('category: $category, ')
           ..write('provider: $provider, ')
           ..write('contactPhone: $contactPhone, ')
@@ -735,6 +800,8 @@ class Contract extends DataClass implements Insertable<Contract> {
   int get hashCode => Object.hashAll([
         id,
         name,
+        entryType,
+        accessCategory,
         category,
         provider,
         contactPhone,
@@ -762,6 +829,8 @@ class Contract extends DataClass implements Insertable<Contract> {
       (other is Contract &&
           other.id == this.id &&
           other.name == this.name &&
+          other.entryType == this.entryType &&
+          other.accessCategory == this.accessCategory &&
           other.category == this.category &&
           other.provider == this.provider &&
           other.contactPhone == this.contactPhone &&
@@ -787,6 +856,8 @@ class Contract extends DataClass implements Insertable<Contract> {
 class ContractsCompanion extends UpdateCompanion<Contract> {
   final Value<String> id;
   final Value<String> name;
+  final Value<EntryType> entryType;
+  final Value<AccessCategory?> accessCategory;
   final Value<ContractCategory> category;
   final Value<String> provider;
   final Value<String?> contactPhone;
@@ -811,6 +882,8 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
   const ContractsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.entryType = const Value.absent(),
+    this.accessCategory = const Value.absent(),
     this.category = const Value.absent(),
     this.provider = const Value.absent(),
     this.contactPhone = const Value.absent(),
@@ -836,6 +909,8 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
   ContractsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
+    this.entryType = const Value.absent(),
+    this.accessCategory = const Value.absent(),
     this.category = const Value.absent(),
     required String provider,
     this.contactPhone = const Value.absent(),
@@ -862,6 +937,8 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
   static Insertable<Contract> custom({
     Expression<String>? id,
     Expression<String>? name,
+    Expression<String>? entryType,
+    Expression<String>? accessCategory,
     Expression<String>? category,
     Expression<String>? provider,
     Expression<String>? contactPhone,
@@ -887,6 +964,8 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (entryType != null) 'entry_type': entryType,
+      if (accessCategory != null) 'access_category': accessCategory,
       if (category != null) 'category': category,
       if (provider != null) 'provider': provider,
       if (contactPhone != null) 'contact_phone': contactPhone,
@@ -916,6 +995,8 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
   ContractsCompanion copyWith(
       {Value<String>? id,
       Value<String>? name,
+      Value<EntryType>? entryType,
+      Value<AccessCategory?>? accessCategory,
       Value<ContractCategory>? category,
       Value<String>? provider,
       Value<String?>? contactPhone,
@@ -940,6 +1021,8 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
     return ContractsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      entryType: entryType ?? this.entryType,
+      accessCategory: accessCategory ?? this.accessCategory,
       category: category ?? this.category,
       provider: provider ?? this.provider,
       contactPhone: contactPhone ?? this.contactPhone,
@@ -973,6 +1056,15 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (entryType.present) {
+      map['entry_type'] = Variable<String>(
+          $ContractsTable.$converterentryType.toSql(entryType.value));
+    }
+    if (accessCategory.present) {
+      map['access_category'] = Variable<String>($ContractsTable
+          .$converteraccessCategoryn
+          .toSql(accessCategory.value));
     }
     if (category.present) {
       map['category'] = Variable<String>(
@@ -1051,6 +1143,8 @@ class ContractsCompanion extends UpdateCompanion<Contract> {
     return (StringBuffer('ContractsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('entryType: $entryType, ')
+          ..write('accessCategory: $accessCategory, ')
           ..write('category: $category, ')
           ..write('provider: $provider, ')
           ..write('contactPhone: $contactPhone, ')
@@ -2044,6 +2138,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$ContractsTableCreateCompanionBuilder = ContractsCompanion Function({
   Value<String> id,
   required String name,
+  Value<EntryType> entryType,
+  Value<AccessCategory?> accessCategory,
   Value<ContractCategory> category,
   required String provider,
   Value<String?> contactPhone,
@@ -2069,6 +2165,8 @@ typedef $$ContractsTableCreateCompanionBuilder = ContractsCompanion Function({
 typedef $$ContractsTableUpdateCompanionBuilder = ContractsCompanion Function({
   Value<String> id,
   Value<String> name,
+  Value<EntryType> entryType,
+  Value<AccessCategory?> accessCategory,
   Value<ContractCategory> category,
   Value<String> provider,
   Value<String?> contactPhone,
@@ -2106,6 +2204,16 @@ class $$ContractsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<EntryType, EntryType, String> get entryType =>
+      $composableBuilder(
+          column: $table.entryType,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnWithTypeConverterFilters<AccessCategory?, AccessCategory, String>
+      get accessCategory => $composableBuilder(
+          column: $table.accessCategory,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnWithTypeConverterFilters<ContractCategory, ContractCategory, String>
       get category => $composableBuilder(
@@ -2191,6 +2299,13 @@ class $$ContractsTableOrderingComposer
 
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entryType => $composableBuilder(
+      column: $table.entryType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accessCategory => $composableBuilder(
+      column: $table.accessCategory,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get category => $composableBuilder(
       column: $table.category, builder: (column) => ColumnOrderings(column));
@@ -2278,6 +2393,13 @@ class $$ContractsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<EntryType, String> get entryType =>
+      $composableBuilder(column: $table.entryType, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<AccessCategory?, String>
+      get accessCategory => $composableBuilder(
+          column: $table.accessCategory, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<ContractCategory, String> get category =>
       $composableBuilder(column: $table.category, builder: (column) => column);
@@ -2367,6 +2489,8 @@ class $$ContractsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> name = const Value.absent(),
+            Value<EntryType> entryType = const Value.absent(),
+            Value<AccessCategory?> accessCategory = const Value.absent(),
             Value<ContractCategory> category = const Value.absent(),
             Value<String> provider = const Value.absent(),
             Value<String?> contactPhone = const Value.absent(),
@@ -2392,6 +2516,8 @@ class $$ContractsTableTableManager extends RootTableManager<
               ContractsCompanion(
             id: id,
             name: name,
+            entryType: entryType,
+            accessCategory: accessCategory,
             category: category,
             provider: provider,
             contactPhone: contactPhone,
@@ -2417,6 +2543,8 @@ class $$ContractsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<String> id = const Value.absent(),
             required String name,
+            Value<EntryType> entryType = const Value.absent(),
+            Value<AccessCategory?> accessCategory = const Value.absent(),
             Value<ContractCategory> category = const Value.absent(),
             required String provider,
             Value<String?> contactPhone = const Value.absent(),
@@ -2442,6 +2570,8 @@ class $$ContractsTableTableManager extends RootTableManager<
               ContractsCompanion.insert(
             id: id,
             name: name,
+            entryType: entryType,
+            accessCategory: accessCategory,
             category: category,
             provider: provider,
             contactPhone: contactPhone,
