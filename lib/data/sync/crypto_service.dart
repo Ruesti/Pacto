@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pointycastle/export.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,19 +11,40 @@ class CryptoService {
   static const _macTagBits = 128;
 
   static final Random _rng = Random.secure();
+  static const _secure = FlutterSecureStorage();
+
+  // Einmal geladener AES-Key, danach im Speicher gecacht (CryptoService ist ein
+  // Provider-Singleton). Vermeidet wiederholte secure-storage-Reads.
+  Uint8List? _cachedKey;
 
   static Uint8List _randomBytes(int len) =>
       Uint8List.fromList(List.generate(len, (_) => _rng.nextInt(256)));
 
+  /// Laedt den AES-Sync-Key. Liegt er noch in den (unsicheren)
+  /// SharedPreferences einer aelteren Version, wird sein **Wert unveraendert**
+  /// in flutter_secure_storage uebernommen — sonst liessen sich bereits
+  /// gespeicherte `loginPasswordCt` nicht mehr entschluesseln.
   Future<Uint8List> _loadOrCreateKey() async {
-    final prefs = await SharedPreferences.getInstance();
-    final existing = prefs.getString(_keyEncryptionKey);
-    if (existing != null && existing.isNotEmpty) {
-      return base64Decode(existing);
+    if (_cachedKey != null) return _cachedKey!;
+
+    final fromSecure = await _secure.read(key: _keyEncryptionKey);
+    if (fromSecure != null && fromSecure.isNotEmpty) {
+      return _cachedKey = base64Decode(fromSecure);
     }
+
+    // Migration: alten Wert aus SharedPreferences uebernehmen (Wert erhalten!).
+    final prefs = await SharedPreferences.getInstance();
+    final legacy = prefs.getString(_keyEncryptionKey);
+    if (legacy != null && legacy.isNotEmpty) {
+      await _secure.write(key: _keyEncryptionKey, value: legacy);
+      await prefs.remove(_keyEncryptionKey);
+      return _cachedKey = base64Decode(legacy);
+    }
+
+    // Frischer Key.
     final key = _randomBytes(32);
-    await prefs.setString(_keyEncryptionKey, base64Encode(key));
-    return key;
+    await _secure.write(key: _keyEncryptionKey, value: base64Encode(key));
+    return _cachedKey = key;
   }
 
   Future<String> encryptJson(Map<String, dynamic> payload) async {
@@ -62,8 +84,8 @@ class CryptoService {
     if (bytes.length != 32) {
       throw const FormatException('Schlüssel muss 32 Byte / 256 Bit lang sein');
     }
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyEncryptionKey, base64Key);
+    await _secure.write(key: _keyEncryptionKey, value: base64Key);
+    _cachedKey = bytes;
   }
 
   // ────────── String-Helpers ──────────

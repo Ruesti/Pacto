@@ -1,4 +1,5 @@
 import 'package:drift/native.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pacto/data/database/database.dart';
 import 'package:pacto/data/security/password_strength.dart';
@@ -8,7 +9,40 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 AppDatabase openTestDatabase() => AppDatabase(NativeDatabase.memory());
 
+/// In-Memory-Mock fuer flutter_secure_storage, damit CryptoService den
+/// AES-Key im Unit-Test laden/schreiben kann (kein nativer Keystore).
+void _mockSecureStorage() {
+  const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  final store = <String, String>{};
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(channel, (call) async {
+    switch (call.method) {
+      case 'read':
+        return store[call.arguments['key'] as String];
+      case 'write':
+        store[call.arguments['key'] as String] =
+            call.arguments['value'] as String;
+        return null;
+      case 'delete':
+        store.remove(call.arguments['key'] as String);
+        return null;
+      case 'readAll':
+        return Map<String, String>.from(store);
+      case 'deleteAll':
+        store.clear();
+        return null;
+      case 'containsKey':
+        return store.containsKey(call.arguments['key'] as String);
+      default:
+        return null;
+    }
+  });
+}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  _mockSecureStorage();
+
   late AppDatabase db;
 
   setUp(() => db = openTestDatabase());
