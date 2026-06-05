@@ -202,6 +202,64 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsAppLock => 'App lock';
+
+  @override
+  String get settingsAppLockSubtitle => 'Biometrics & PIN on open';
+
+  @override
+  String get appLockTitle => 'App lock';
+
+  @override
+  String get appLockEnable => 'App lock on';
+
+  @override
+  String get appLockEnableSubtitle => 'Require biometrics or a PIN to open';
+
+  @override
+  String get appLockChangePin => 'Change PIN';
+
+  @override
+  String get appLockBiometricReveal => 'Re-check when revealing';
+
+  @override
+  String get appLockBiometricRevealSubtitle =>
+      'Biometrics/PIN before passwords become visible';
+
+  @override
+  String get appLockPinPrompt => 'PIN';
+
+  @override
+  String get appLockSetPinTitle => 'Set PIN';
+
+  @override
+  String get appLockConfirmPinTitle => 'Confirm PIN';
+
+  @override
+  String get appLockPinTooShort => 'At least 4 digits';
+
+  @override
+  String get appLockPinMismatch => 'PINs don\'t match';
+
+  @override
+  String get lockScreenTitle => 'Unlock Pacto';
+
+  @override
+  String get lockUnlockButton => 'Unlock';
+
+  @override
+  String get lockUseBiometrics => 'Use biometrics';
+
+  @override
+  String get lockWrongPin => 'Wrong PIN';
+
+  @override
+  String get lockReason => 'Unlock Pacto';
+
+  @override
+  String get revealReason => 'Reveal password';
+
+  @override
   String get billingMonthly => 'Monthly';
 
   @override

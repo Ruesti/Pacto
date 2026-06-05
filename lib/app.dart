@@ -7,6 +7,8 @@ import 'data/sync/vault_service.dart';
 import 'features/home/home_shell.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/scan/share_import_screen.dart';
+import 'features/security/app_lock_service.dart';
+import 'features/security/lock_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'shared/locale_provider.dart';
 import 'shared/theme/app_theme.dart';
@@ -43,6 +45,10 @@ class _Root extends StatefulWidget {
 
 class _RootState extends State<_Root> with WidgetsBindingObserver {
   bool? _onboardingDone;
+  // App-Sperre: null = noch nicht geladen.
+  bool? _lockEnabled;
+  bool _unlocked = false;
+  final AppLockService _lock = AppLockService();
   StreamSubscription<List<SharedMediaFile>>? _shareSub;
 
   @override
@@ -51,6 +57,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     isOnboardingDone().then((v) {
       if (mounted) setState(() => _onboardingDone = v);
+    });
+    _lock.isEnabled().then((v) {
+      if (mounted) setState(() => _lockEnabled = v);
     });
     _initShareHandler();
     // Beim ersten Start ein Lebenszeichen senden, damit die confirmed_at
@@ -70,6 +79,15 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       unawaited(VaultService.heartbeat());
+      // Sperr-Status neu laden (kann in den Einstellungen geaendert worden
+      // sein, waehrend die App im Hintergrund war).
+      _lock.isEnabled().then((v) {
+        if (mounted) setState(() => _lockEnabled = v);
+      });
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      // Beim Verlassen wieder sperren.
+      if (_unlocked) setState(() => _unlocked = false);
     }
   }
 
@@ -121,13 +139,17 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    if (_onboardingDone == null) {
+    if (_onboardingDone == null || _lockEnabled == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_onboardingDone == false) {
       return OnboardingScreen(
         onDone: () => setState(() => _onboardingDone = true),
       );
+    }
+    // Sperre kommt NACH dem Onboarding und VOR der App.
+    if (_lockEnabled == true && !_unlocked) {
+      return LockScreen(onUnlocked: () => setState(() => _unlocked = true));
     }
     return const HomeShell();
   }

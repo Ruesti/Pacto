@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pacto/data/database/database.dart';
 import 'package:pacto/data/security/password_strength.dart';
 import 'package:pacto/data/sync/crypto_service.dart';
+import 'package:pacto/features/security/app_lock_service.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -154,5 +155,16 @@ void main() {
     expect(assessPasswordStrength('abc'), PasswordStrength.weak);
     expect(assessPasswordStrength('Sommer2024'), PasswordStrength.medium);
     expect(assessPasswordStrength(r'9xL!qT#7vR2&mZ'), PasswordStrength.strong);
+  });
+
+  test('Phase 5 – App-Lock PIN setzen + verifizieren (gesalzen)', () async {
+    final svc = AppLockService();
+    await svc.clear();
+    await svc.setPin('2468');
+    expect(await svc.hasPin(), true);
+    expect(await svc.verifyPin('2468'), true);
+    expect(await svc.verifyPin('1234'), false);
+    await svc.clear();
+    expect(await svc.hasPin(), false);
   });
 }

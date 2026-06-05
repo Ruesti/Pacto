@@ -452,6 +452,120 @@ abstract class AppLocalizations {
   /// **'{count} gespeicherte Logins sind länger nicht bestätigt worden.'**
   String verifyReminderBannerBody(int count);
 
+  /// No description provided for @settingsAppLock.
+  ///
+  /// In de, this message translates to:
+  /// **'App-Sperre'**
+  String get settingsAppLock;
+
+  /// No description provided for @settingsAppLockSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Biometrie & PIN beim Öffnen'**
+  String get settingsAppLockSubtitle;
+
+  /// No description provided for @appLockTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'App-Sperre'**
+  String get appLockTitle;
+
+  /// No description provided for @appLockEnable.
+  ///
+  /// In de, this message translates to:
+  /// **'App-Sperre aktiv'**
+  String get appLockEnable;
+
+  /// No description provided for @appLockEnableSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Beim Öffnen Biometrie oder PIN verlangen'**
+  String get appLockEnableSubtitle;
+
+  /// No description provided for @appLockChangePin.
+  ///
+  /// In de, this message translates to:
+  /// **'PIN ändern'**
+  String get appLockChangePin;
+
+  /// No description provided for @appLockBiometricReveal.
+  ///
+  /// In de, this message translates to:
+  /// **'Beim Aufdecken erneut prüfen'**
+  String get appLockBiometricReveal;
+
+  /// No description provided for @appLockBiometricRevealSubtitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Biometrie/PIN, bevor Passwörter sichtbar werden'**
+  String get appLockBiometricRevealSubtitle;
+
+  /// No description provided for @appLockPinPrompt.
+  ///
+  /// In de, this message translates to:
+  /// **'PIN'**
+  String get appLockPinPrompt;
+
+  /// No description provided for @appLockSetPinTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'PIN festlegen'**
+  String get appLockSetPinTitle;
+
+  /// No description provided for @appLockConfirmPinTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'PIN bestätigen'**
+  String get appLockConfirmPinTitle;
+
+  /// No description provided for @appLockPinTooShort.
+  ///
+  /// In de, this message translates to:
+  /// **'Mindestens 4 Ziffern'**
+  String get appLockPinTooShort;
+
+  /// No description provided for @appLockPinMismatch.
+  ///
+  /// In de, this message translates to:
+  /// **'PINs stimmen nicht überein'**
+  String get appLockPinMismatch;
+
+  /// No description provided for @lockScreenTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Pacto entsperren'**
+  String get lockScreenTitle;
+
+  /// No description provided for @lockUnlockButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Entsperren'**
+  String get lockUnlockButton;
+
+  /// No description provided for @lockUseBiometrics.
+  ///
+  /// In de, this message translates to:
+  /// **'Biometrie verwenden'**
+  String get lockUseBiometrics;
+
+  /// No description provided for @lockWrongPin.
+  ///
+  /// In de, this message translates to:
+  /// **'Falscher PIN'**
+  String get lockWrongPin;
+
+  /// No description provided for @lockReason.
+  ///
+  /// In de, this message translates to:
+  /// **'Entsperre Pacto'**
+  String get lockReason;
+
+  /// No description provided for @revealReason.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort aufdecken'**
+  String get revealReason;
+
   /// No description provided for @billingMonthly.
   ///
   /// In de, this message translates to:

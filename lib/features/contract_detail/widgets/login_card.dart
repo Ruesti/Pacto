@@ -6,6 +6,7 @@ import '../../../data/database/database.dart';
 import '../../../data/providers/database_provider.dart';
 import '../../../data/providers/verification_settings_provider.dart';
 import '../../../data/security/password_strength.dart';
+import '../../../features/security/app_lock_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/l10n/l10n_extension.dart';
 import '../../../shared/theme/app_colors.dart';
@@ -47,6 +48,9 @@ class _LoginCardState extends ConsumerState<LoginCard> {
   Future<void> _runBreachCheck() async {
     final ct = widget.contract.loginPasswordCt;
     if (ct == null) return;
+    // Wenn wir den Klartext erst entschluesseln muessen, gilt derselbe Guard
+    // wie beim Aufdecken.
+    if (_plainPassword == null && !await _passRevealGuard()) return;
     setState(() => _breachState = -2);
     try {
       final plain =
@@ -61,6 +65,18 @@ class _LoginCardState extends ConsumerState<LoginCard> {
     }
   }
 
+  /// Wenn App-Sperre + "beim Aufdecken erneut prüfen" aktiv sind, vor dem
+  /// Entschluesseln Biometrie/PIN verlangen.
+  Future<bool> _passRevealGuard() async {
+    final svc = ref.read(appLockServiceProvider);
+    if (!await svc.isEnabled() || !await svc.isBiometricRevealEnabled()) {
+      return true;
+    }
+    if (!await svc.canUseBiometrics()) return true;
+    if (!mounted) return false;
+    return svc.authenticateBiometric(context.l10n.revealReason);
+  }
+
   Future<void> _toggleReveal() async {
     if (_plainPassword != null) {
       setState(() {
@@ -71,6 +87,7 @@ class _LoginCardState extends ConsumerState<LoginCard> {
     }
     final ct = widget.contract.loginPasswordCt;
     if (ct == null) return;
+    if (!await _passRevealGuard()) return;
     setState(() {
       _busy = true;
       _revealError = null;

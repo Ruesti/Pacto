@@ -4,6 +4,7 @@ import '../../shared/l10n/l10n_extension.dart';
 import '../../shared/locale_provider.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../premium/premium_service.dart';
+import 'app_lock_screen.dart';
 import 'heir_password_policy_screen.dart';
 import 'supabase_sync_screen.dart';
 import 'vault_screen.dart';
@@ -56,6 +57,14 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const VerificationSettingsScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.lock_outline),
+            title: Text(l.settingsAppLock),
+            subtitle: Text(l.settingsAppLockSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const AppLockScreen())),
           ),
           _section(l.settingsSectionApp),
           ListTile(

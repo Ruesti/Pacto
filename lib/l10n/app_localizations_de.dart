@@ -203,6 +203,65 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get settingsAppLock => 'App-Sperre';
+
+  @override
+  String get settingsAppLockSubtitle => 'Biometrie & PIN beim Öffnen';
+
+  @override
+  String get appLockTitle => 'App-Sperre';
+
+  @override
+  String get appLockEnable => 'App-Sperre aktiv';
+
+  @override
+  String get appLockEnableSubtitle =>
+      'Beim Öffnen Biometrie oder PIN verlangen';
+
+  @override
+  String get appLockChangePin => 'PIN ändern';
+
+  @override
+  String get appLockBiometricReveal => 'Beim Aufdecken erneut prüfen';
+
+  @override
+  String get appLockBiometricRevealSubtitle =>
+      'Biometrie/PIN, bevor Passwörter sichtbar werden';
+
+  @override
+  String get appLockPinPrompt => 'PIN';
+
+  @override
+  String get appLockSetPinTitle => 'PIN festlegen';
+
+  @override
+  String get appLockConfirmPinTitle => 'PIN bestätigen';
+
+  @override
+  String get appLockPinTooShort => 'Mindestens 4 Ziffern';
+
+  @override
+  String get appLockPinMismatch => 'PINs stimmen nicht überein';
+
+  @override
+  String get lockScreenTitle => 'Pacto entsperren';
+
+  @override
+  String get lockUnlockButton => 'Entsperren';
+
+  @override
+  String get lockUseBiometrics => 'Biometrie verwenden';
+
+  @override
+  String get lockWrongPin => 'Falscher PIN';
+
+  @override
+  String get lockReason => 'Entsperre Pacto';
+
+  @override
+  String get revealReason => 'Passwort aufdecken';
+
+  @override
   String get billingMonthly => 'Monatlich';
 
   @override
