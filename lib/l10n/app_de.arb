@@ -253,7 +253,7 @@
   "createManually": "Manuell anlegen",
 
   "webSearchHint": "Suche oder URL eingeben",
-  "webSearchImportButton": "Einpflegen",
+  "webSearchImportButton": "Übernehmen",
   "webSearchImportTooltip": "Diese Seite per KI auswerten",
   "urlProcessingTitle": "Seite analysieren",
   "urlProcessingLoading": "KI analysiert die Webseite…",

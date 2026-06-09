@@ -7,6 +7,8 @@ import '../../shared/l10n/l10n_extension.dart';
 import '../../shared/theme/app_colors.dart';
 import '../add_contract/add_contract_screen.dart';
 import '../add_contract/widgets/entry_method_sheet.dart';
+import '../provider_library/provider_library_data.dart';
+import '../provider_library/provider_library_screen.dart';
 import '../contracts/contracts_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../heirs/heirs_screen.dart';
@@ -56,6 +58,19 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
     switch (method) {
       case EntryMethod.library:
+        // Direkt die Bibliotheks-Liste zeigen; nach Auswahl oeffnet sich das
+        // bereits vorgefuellte Formular. Bricht der User ab, passiert nichts.
+        final template = await Navigator.of(context).push<ProviderTemplate>(
+          MaterialPageRoute(builder: (_) => const ProviderLibraryScreen()),
+        );
+        if (template != null && mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => AddContractScreen(initialTemplate: template),
+            ),
+          );
+        }
+        break;
       case EntryMethod.manual:
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const AddContractScreen()),

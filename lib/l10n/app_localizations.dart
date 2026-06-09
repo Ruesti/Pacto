@@ -1247,7 +1247,7 @@ abstract class AppLocalizations {
   /// No description provided for @webSearchImportButton.
   ///
   /// In de, this message translates to:
-  /// **'Einpflegen'**
+  /// **'Übernehmen'**
   String get webSearchImportButton;
 
   /// No description provided for @webSearchImportTooltip.

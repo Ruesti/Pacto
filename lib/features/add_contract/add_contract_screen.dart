@@ -7,6 +7,7 @@ import '../../shared/l10n/enum_labels.dart';
 import '../../shared/l10n/l10n_extension.dart';
 import '../../shared/theme/app_colors.dart';
 import '../premium/premium_service.dart';
+import '../provider_library/provider_library_data.dart';
 import '../provider_library/provider_library_screen.dart';
 import '../scan/extraction_result.dart';
 import '../scan/scan_controller.dart';
@@ -16,6 +17,9 @@ import 'add_contract_provider.dart';
 class AddContractScreen extends ConsumerStatefulWidget {
   final Contract? existing;
   final ExtractionResult? initialExtraction;
+  // Vorausgewaehlte Bibliotheks-Vorlage — fuellt beim Oeffnen alle bekannten
+  // Standardfelder (Name, Anbieter, Kategorie, Kuendigung, Kontakt) vor.
+  final ProviderTemplate? initialTemplate;
   // Nur fuer NEUE Eintraege relevant — bei bestehenden gilt existing.entryType.
   final EntryType entryType;
 
@@ -23,6 +27,7 @@ class AddContractScreen extends ConsumerStatefulWidget {
     super.key,
     this.existing,
     this.initialExtraction,
+    this.initialTemplate,
     this.entryType = EntryType.vertrag,
   });
 
@@ -85,6 +90,12 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
         if (mounted) _applyExtractionResult(widget.initialExtraction!);
       });
     }
+
+    if (widget.initialTemplate != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _applyTemplate(widget.initialTemplate!);
+      });
+    }
   }
 
   @override
@@ -126,9 +137,16 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
   }
 
   Future<void> _openLibrary() async {
-    final template = await Navigator.of(context).push<dynamic>(
+    final template = await Navigator.of(context).push<ProviderTemplate>(
         MaterialPageRoute(builder: (_) => const ProviderLibraryScreen()));
     if (template == null) return;
+    _applyTemplate(template);
+  }
+
+  // Uebernimmt eine Bibliotheks-Vorlage in State + Controller. Preis/Zyklus
+  // sind in der Bibliothek bewusst nicht hinterlegt (variieren je Tarif) — die
+  // tippt der Nutzer, ebenso Benutzername/Passwort.
+  void _applyTemplate(ProviderTemplate template) {
     _notifier.prefillFromTemplate(template);
     final state = ref.read(addContractProvider(widget.existing));
     _nameCtrl.text = state.name;

@@ -625,7 +625,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get webSearchHint => 'Suche oder URL eingeben';
 
   @override
-  String get webSearchImportButton => 'Einpflegen';
+  String get webSearchImportButton => 'Übernehmen';
 
   @override
   String get webSearchImportTooltip => 'Diese Seite per KI auswerten';

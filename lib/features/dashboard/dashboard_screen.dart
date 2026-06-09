@@ -81,7 +81,11 @@ class DashboardScreen extends ConsumerWidget {
         : 0;
 
     return Scaffold(
-      body: CustomScrollView(
+      // SafeArea oben, damit Hamburger/Glocke beim Scrollen nicht hinter die
+      // Statusleiste (Uhr/Akku) wandern, sondern an der sicheren Kante clippen.
+      body: SafeArea(
+        bottom: false,
+        child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
             child: DashboardHero(
@@ -185,6 +189,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }
