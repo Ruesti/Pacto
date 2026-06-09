@@ -3,13 +3,39 @@
 Praxis-Anleitung zum **Bauen & Aufspielen**, zur **Beta-Verteilung mit Vollzugang**
 und zum **Testen des Erben-Mailversands**.
 
+**Zwei Zielgruppen — nicht verwechseln:**
+- **Du (Entwickler):** baust die App und spielst sie auf dein eigenes Testgerät (Abschnitt 1,
+  adb/Flutter) bzw. deployst Edge Functions und testest den Erben-Versand (Abschnitte 3–4).
+- **Der Beta-Tester (beliebiges Gerät):** bekommt nur eine fertige APK oder eine Play-Einladung
+  und installiert ohne adb/Flutter — siehe **Abschnitt 0**.
+
 Projekt-Referenzen:
 - Supabase-Projekt: `dxsjgajavgvjlksjawer` → Basis-URL `https://dxsjgajavgvjlksjawer.supabase.co`
-- S22-Test-Gerät (USB-Serial): `R5CTA24VVKT`
+- Beispiel-Testgerät (deine S22, USB-Serial): `R5CTA24VVKT` — bei anderen Geräten den eigenen
+  Serial via `adb devices` ermitteln und überall einsetzen.
 
 ---
 
-## 1. Build & Aufspielen aufs Testgerät
+## 0. Für den Beta-Tester (beliebiges Android-Gerät, ohne adb)
+
+Der Tester braucht **kein** Flutter/adb. Du baust eine APK (Abschnitt 1) und gibst sie weiter.
+
+1. **APK erhalten** (per Mail/Cloud-Link). Empfehlung: universelle APK (läuft auf jedem Gerät).
+2. Datei auf dem Handy öffnen → Android fragt nach **„Unbekannte Apps installieren"** →
+   für die jeweilige Quelle (z. B. Dateien/Browser) **erlauben** → installieren.
+3. App öffnen.
+4. **Vollzugang freischalten** (ohne Kauf): Einstellungen → Eintrag **„Version"** **7× antippen**.
+   SnackBar bestätigt „Tester-Vollzugang aktiviert". (Erneutes 7×-Tippen schaltet wieder ab.)
+
+> Alternative ohne APK-Datei: Tester über **Play Internal Testing** einladen (Abschnitt 2,
+> Weg A) — nötig, wenn der echte Kauf-/RevenueCat-Flow getestet werden soll.
+
+---
+
+## 1. Build & Aufspielen auf DEIN Testgerät (Entwickler)
+
+> Dieser Abschnitt ist für dich auf der Entwicklermaschine. Ein Beta-Tester macht das nicht —
+> für ihn gilt Abschnitt 0.
 
 ```bash
 export ANDROID_HOME=$HOME/Android/Sdk
