@@ -4,6 +4,7 @@ import '../../../domain/models/contract_category.dart';
 import '../../../domain/models/cancellation_method.dart';
 import '../../../domain/models/billing_cycle.dart';
 import '../../../domain/models/entry_type.dart';
+import '../../../domain/models/contract_kind.dart';
 import '../../../domain/models/access_category.dart';
 
 class Contracts extends Table {
@@ -13,6 +14,10 @@ class Contracts extends Table {
   // Bestandszeilen ohne Backfill korrekt sind.
   TextColumn get entryType =>
       textEnum<EntryType>().withDefault(const Constant('vertrag'))();
+  // Nutzer-Einordnung Vertrag vs. Abo (nur bei entryType == vertrag relevant).
+  // Default 'vertrag'; Migration v4 backfillt Bestand per Zyklus-Heuristik.
+  TextColumn get contractKind =>
+      textEnum<ContractKind>().withDefault(const Constant('vertrag'))();
   // Nur bei entryType == zugang relevant; sonst null.
   TextColumn get accessCategory => textEnum<AccessCategory>().nullable()();
   TextColumn get category =>

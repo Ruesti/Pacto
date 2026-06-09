@@ -238,36 +238,49 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
             if (_extractionConfidence != null)
               _confidenceBanner(_extractionConfidence!, l),
             _sectionHeader(l.sectionBasic),
+            // Vertrag vs. Abo waehlt der Nutzer selbst (nur fuer Vertraege,
+            // nicht fuer eigenstaendige Zugaenge).
+            if (!isZugang) ...[
+              SegmentedButton<ContractKind>(
+                segments: [
+                  ButtonSegment(
+                    value: ContractKind.vertrag,
+                    label: Text(l.kindVertrag),
+                    icon: const Icon(Icons.description_outlined),
+                  ),
+                  ButtonSegment(
+                    value: ContractKind.abo,
+                    label: Text(l.kindAbo),
+                    icon: const Icon(Icons.autorenew),
+                  ),
+                ],
+                selected: {state.contractKind},
+                onSelectionChanged: (s) =>
+                    _notifier.setContractKind(s.first),
+              ),
+              const SizedBox(height: 12),
+            ],
             TextFormField(
               controller: _nameCtrl,
               decoration: InputDecoration(
-                  labelText: '${l.fieldName} *'),
+                  labelText: isZugang ? l.fieldAccessName : '${l.fieldName} *'),
               validator: (v) =>
                   v?.isEmpty ?? true ? l.validationNameRequired : null,
               onChanged: _notifier.setName,
             ),
             const SizedBox(height: 12),
-            TextFormField(
-              controller: _providerCtrl,
-              decoration: InputDecoration(
-                  labelText: '${l.fieldProvider} *'),
-              validator: (v) =>
-                  v?.isEmpty ?? true ? l.validationProviderRequired : null,
-              onChanged: _notifier.setProvider,
-            ),
-            const SizedBox(height: 12),
-            if (isZugang)
-              DropdownButtonFormField<AccessCategory>(
-                initialValue: state.accessCategory ?? AccessCategory.sonstiges,
-                decoration: InputDecoration(labelText: l.fieldAccessCategory),
-                items: AccessCategory.values
-                    .map((c) => DropdownMenuItem(
-                        value: c,
-                        child: Text(c.localizedLabel(l))))
-                    .toList(),
-                onChanged: (v) => _notifier.setAccessCategory(v!),
-              )
-            else
+            // Anbieter + Kategorie sind nur fuer Vertraege/Abos relevant — ein
+            // Zugang braucht nur Name, Benutzername und Passwort.
+            if (!isZugang) ...[
+              TextFormField(
+                controller: _providerCtrl,
+                decoration: InputDecoration(
+                    labelText: '${l.fieldProvider} *'),
+                validator: (v) =>
+                    v?.isEmpty ?? true ? l.validationProviderRequired : null,
+                onChanged: _notifier.setProvider,
+              ),
+              const SizedBox(height: 12),
               DropdownButtonFormField<ContractCategory>(
                 initialValue: state.category,
                 decoration: InputDecoration(labelText: l.fieldCategory),
@@ -278,6 +291,7 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
                     .toList(),
                 onChanged: (v) => _notifier.setCategory(v!),
               ),
+            ],
             if (!isZugang) ...[
               const SizedBox(height: 24),
               _sectionHeader(l.sectionCost),
@@ -342,31 +356,35 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
               onChanged: _notifier.setCancellationInstructions,
             ),
             ],
-            const SizedBox(height: 24),
-            _sectionHeader(l.sectionContact),
-            TextFormField(
-              controller: _phoneCtrl,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                  labelText: l.fieldPhone,
-                  prefixIcon: const Icon(Icons.phone_outlined)),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                  labelText: l.fieldEmail,
-                  prefixIcon: const Icon(Icons.email_outlined)),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _urlCtrl,
-              keyboardType: TextInputType.url,
-              decoration: InputDecoration(
-                  labelText: l.fieldWebsite,
-                  prefixIcon: const Icon(Icons.link_outlined)),
-            ),
+            // Kontaktdaten gehoeren zum Anbieter eines Vertrags — fuer einen
+            // Zugang nicht relevant.
+            if (!isZugang) ...[
+              const SizedBox(height: 24),
+              _sectionHeader(l.sectionContact),
+              TextFormField(
+                controller: _phoneCtrl,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                    labelText: l.fieldPhone,
+                    prefixIcon: const Icon(Icons.phone_outlined)),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                    labelText: l.fieldEmail,
+                    prefixIcon: const Icon(Icons.email_outlined)),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _urlCtrl,
+                keyboardType: TextInputType.url,
+                decoration: InputDecoration(
+                    labelText: l.fieldWebsite,
+                    prefixIcon: const Icon(Icons.link_outlined)),
+              ),
+            ],
             if (!isZugang) ...[
               const SizedBox(height: 24),
               _sectionHeader(l.sectionDuration),

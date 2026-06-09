@@ -34,7 +34,7 @@ class ContractListTile extends StatelessWidget {
             AppColors.primaryLight);
     final subtitle = isZugang
         ? '${accessCat.localizedLabel(l)} · ${contract.provider}'
-        : '${contract.category.localizedLabel(l)} · ${contract.provider}';
+        : '${contract.contractKind.localizedLabel(l)} · ${contract.category.localizedLabel(l)} · ${contract.provider}';
 
     return Material(
       color: Colors.transparent,

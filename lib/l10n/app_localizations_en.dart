@@ -478,7 +478,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldName => 'Name';
 
   @override
+  String get fieldAccessName => 'Name / label';
+
+  @override
   String get fieldProvider => 'Provider';
+
+  @override
+  String get kindVertrag => 'Contract';
+
+  @override
+  String get kindAbo => 'Subscription';
 
   @override
   String get fieldCategory => 'Category';

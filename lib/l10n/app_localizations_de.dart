@@ -480,7 +480,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get fieldName => 'Name';
 
   @override
+  String get fieldAccessName => 'Name / Bezeichnung';
+
+  @override
   String get fieldProvider => 'Anbieter';
+
+  @override
+  String get kindVertrag => 'Vertrag';
+
+  @override
+  String get kindAbo => 'Abo';
 
   @override
   String get fieldCategory => 'Kategorie';

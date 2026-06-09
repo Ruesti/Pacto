@@ -57,11 +57,11 @@ class DashboardScreen extends ConsumerWidget {
       final diff = r.difference(now).inDays;
       return diff >= 0 && diff <= 30;
     }).length;
-    final subscriptions = contracts
-        .where((c) => c.billingCycle == BillingCycle.monthly)
-        .length;
-    // "Verträge" und "Abos" schließen sich gegenseitig aus, damit ein Eintrag
-    // nicht in beiden Kacheln gezählt wird: Abos = monatlich, Verträge = Rest.
+    // "Verträge" und "Abos" schließen sich gegenseitig aus und folgen der
+    // Nutzer-Einordnung (contractKind), nicht mehr dem Abrechnungszyklus — eine
+    // monatlich gezahlte Versicherung kann so ein Vertrag bleiben.
+    final subscriptions =
+        contracts.where((c) => c.contractKind.isAbo).length;
     final nonSubscriptionContracts = contracts.length - subscriptions;
 
     final recent = List<Contract>.of(contracts)

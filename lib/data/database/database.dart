@@ -14,6 +14,7 @@ import '../../domain/models/cancellation_method.dart';
 import '../../domain/models/billing_cycle.dart';
 import '../../domain/models/heir_access.dart';
 import '../../domain/models/entry_type.dart';
+import '../../domain/models/contract_kind.dart';
 import '../../domain/models/access_category.dart';
 import 'tables/contracts_table.dart';
 import 'tables/heirs_table.dart';
@@ -26,6 +27,7 @@ export '../../domain/models/cancellation_method.dart';
 export '../../domain/models/billing_cycle.dart';
 export '../../domain/models/heir_access.dart';
 export '../../domain/models/entry_type.dart';
+export '../../domain/models/contract_kind.dart';
 export '../../domain/models/access_category.dart';
 export 'tables/contracts_table.dart';
 export 'tables/heirs_table.dart';
@@ -41,7 +43,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -59,6 +61,17 @@ class AppDatabase extends _$AppDatabase {
             // Bestandszeilen zu Vertraegen — kein Backfill noetig.
             await m.addColumn(contracts, contracts.entryType);
             await m.addColumn(contracts, contracts.accessCategory);
+          }
+          if (from < 4) {
+            // v4: Nutzer-Einordnung Vertrag vs. Abo. Spalten-Default 'vertrag';
+            // Bestand per bisheriger Heuristik backfillen (monatlich = Abo),
+            // damit das Dashboard unveraendert aussieht und der Nutzer einzelne
+            // Eintraege danach umsortieren kann.
+            await m.addColumn(contracts, contracts.contractKind);
+            await m.database.customStatement(
+              "UPDATE contracts SET contract_kind = 'abo' "
+              "WHERE entry_type = 'vertrag' AND billing_cycle = 'monthly'",
+            );
           }
         },
       );

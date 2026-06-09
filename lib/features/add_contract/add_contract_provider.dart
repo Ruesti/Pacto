@@ -13,6 +13,8 @@ class AddContractState {
   // Vertrag vs. eigenstaendiger Zugang. Steuert welche Formular-Sektionen
   // sichtbar sind und ob category oder accessCategory gilt.
   final EntryType entryType;
+  // Nutzer-Einordnung Vertrag vs. Abo (nur bei entryType == vertrag).
+  final ContractKind contractKind;
   final AccessCategory? accessCategory;
   final ContractCategory category;
   final double monthlyCost;
@@ -49,6 +51,7 @@ class AddContractState {
     this.name = '',
     this.provider = '',
     this.entryType = EntryType.vertrag,
+    this.contractKind = ContractKind.vertrag,
     this.accessCategory,
     this.category = ContractCategory.sonstiges,
     this.monthlyCost = 0.0,
@@ -75,6 +78,7 @@ class AddContractState {
     String? name,
     String? provider,
     EntryType? entryType,
+    ContractKind? contractKind,
     AccessCategory? accessCategory,
     ContractCategory? category,
     double? monthlyCost,
@@ -100,6 +104,7 @@ class AddContractState {
         name: name ?? this.name,
         provider: provider ?? this.provider,
         entryType: entryType ?? this.entryType,
+        contractKind: contractKind ?? this.contractKind,
         accessCategory: accessCategory ?? this.accessCategory,
         category: category ?? this.category,
         monthlyCost: monthlyCost ?? this.monthlyCost,
@@ -125,7 +130,9 @@ class AddContractState {
         error: error,
       );
 
-  bool get isValid => name.isNotEmpty && provider.isNotEmpty;
+  // Ein Zugang braucht keinen Anbieter — dort reicht ein Name.
+  bool get isValid =>
+      name.isNotEmpty && (entryType.isZugang || provider.isNotEmpty);
 }
 
 const _absent = Object();
@@ -146,6 +153,7 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
                 name: existing.name,
                 provider: existing.provider,
                 entryType: existing.entryType,
+                contractKind: existing.contractKind,
                 accessCategory: existing.accessCategory,
                 category: existing.category,
                 monthlyCost: existing.monthlyCost,
@@ -201,6 +209,8 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
   void setName(String v) => state = state.copyWith(name: v);
   void setProvider(String v) => state = state.copyWith(provider: v);
   void setEntryType(EntryType v) => state = state.copyWith(entryType: v);
+  void setContractKind(ContractKind v) =>
+      state = state.copyWith(contractKind: v);
   void setAccessCategory(AccessCategory v) =>
       state = state.copyWith(accessCategory: v);
   void setCategory(ContractCategory v) => state = state.copyWith(category: v);
@@ -274,6 +284,7 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
           name: Value(state.name),
           provider: Value(state.provider),
           entryType: Value(state.entryType),
+          contractKind: Value(state.contractKind),
           accessCategory: Value(accessCat),
           category: Value(state.category),
           monthlyCost: Value(cost),
@@ -298,6 +309,7 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
           name: state.name,
           provider: state.provider,
           entryType: Value(state.entryType),
+          contractKind: Value(state.contractKind),
           accessCategory: Value(accessCat),
           category: Value(state.category),
           monthlyCost: Value(cost),

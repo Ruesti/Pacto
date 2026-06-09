@@ -2,6 +2,7 @@ import '../../domain/models/access_category.dart';
 import '../../domain/models/billing_cycle.dart';
 import '../../domain/models/cancellation_method.dart';
 import '../../domain/models/contract_category.dart';
+import '../../domain/models/contract_kind.dart';
 import '../../domain/models/heir_access.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -28,6 +29,13 @@ extension AccessCategoryL10n on AccessCategory {
         AccessCategory.partnerAccount => l.accessCatPartnerAccount,
         AccessCategory.geraet => l.accessCatGeraet,
         AccessCategory.sonstiges => l.accessCatSonstiges,
+      };
+}
+
+extension ContractKindL10n on ContractKind {
+  String localizedLabel(AppLocalizations l) => switch (this) {
+        ContractKind.vertrag => l.kindVertrag,
+        ContractKind.abo => l.kindAbo,
       };
 }
 

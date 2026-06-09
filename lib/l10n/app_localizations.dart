@@ -962,11 +962,29 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get fieldName;
 
+  /// No description provided for @fieldAccessName.
+  ///
+  /// In de, this message translates to:
+  /// **'Name / Bezeichnung'**
+  String get fieldAccessName;
+
   /// No description provided for @fieldProvider.
   ///
   /// In de, this message translates to:
   /// **'Anbieter'**
   String get fieldProvider;
+
+  /// No description provided for @kindVertrag.
+  ///
+  /// In de, this message translates to:
+  /// **'Vertrag'**
+  String get kindVertrag;
+
+  /// No description provided for @kindAbo.
+  ///
+  /// In de, this message translates to:
+  /// **'Abo'**
+  String get kindAbo;
 
   /// No description provided for @fieldCategory.
   ///
