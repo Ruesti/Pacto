@@ -202,6 +202,7 @@ const List<ProviderTemplate> providerLibrary = [
     category: ContractCategory.internet,
     provider: 'Deutsche Telekom AG',
     contactPhone: '0800 330 1000',
+    contactUrl: 'https://www.telekom.de/hilfe/festnetz-internet/vertrag/kuendigung',
     cancellationMethod: CancellationMethod.brief,
     cancellationInstructions:
         'Kündigung schriftlich oder über Mein-Telekom-Portal.',
