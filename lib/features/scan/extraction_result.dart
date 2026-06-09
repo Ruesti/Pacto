@@ -38,25 +38,42 @@ class ExtractionResult {
   });
 
   factory ExtractionResult.fromJson(Map<String, dynamic> json) {
-    final filled = ['name', 'provider', 'monthlyCost', 'cancellationMethod']
-        .where((f) => json[f] != null)
-        .length;
+    // Robust gegen beide Server-Versionen:
+    //  - NEU: `amount` = Preis exakt wie auf dem Dokument fuer den genannten
+    //    Zeitraum. Hier deterministisch auf einen Monatsbetrag normalisieren.
+    //  - LEGACY: `monthlyCost` ist bereits ein Monatsbetrag (alter Prompt hat
+    //    serverseitig durch 12 geteilt) -> NICHT noch einmal teilen.
+    // So wird die fruehere Doppel-Division (Faktor 12 bzw. 3 daneben) vermieden.
+    final amountNum = json['amount'] as num?;
+    final legacyMonthlyNum = json['monthlyCost'] as num?;
+    final filled = [
+      json['name'],
+      json['provider'],
+      amountNum ?? legacyMonthlyNum,
+      json['cancellationMethod'],
+    ].where((f) => f != null).length;
     final confidence = switch (filled) {
       4 => ExtractionConfidence.high,
       2 || 3 => ExtractionConfidence.medium,
       _ => ExtractionConfidence.low,
     };
 
-    final rawCost = (json['monthlyCost'] as num?)?.toDouble() ?? 0.0;
     final billingStr = json['billingCycle'] as String? ?? 'monthly';
     final cycle = BillingCycle.values
         .where((e) => e.name == billingStr)
         .firstOrNull ?? BillingCycle.monthly;
-    final monthly = cycle == BillingCycle.yearly
-        ? rawCost / 12
-        : cycle == BillingCycle.quarterly
-            ? rawCost / 3
-            : rawCost;
+    final double monthly;
+    if (amountNum != null) {
+      final raw = amountNum.toDouble();
+      monthly = switch (cycle) {
+        BillingCycle.yearly => raw / 12,
+        BillingCycle.quarterly => raw / 3,
+        BillingCycle.weekly => raw * 52 / 12,
+        BillingCycle.monthly => raw,
+      };
+    } else {
+      monthly = legacyMonthlyNum?.toDouble() ?? 0.0;
+    }
 
     return ExtractionResult(
       name: json['name'] as String? ?? '',

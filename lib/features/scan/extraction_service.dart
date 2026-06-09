@@ -23,6 +23,9 @@ class ExtractionService {
     _supabaseAnonKey = anonKey;
   }
 
+  // Hinweis: Die Edge Function nutzt ihre EIGENE Prompt-Konstante (SYSTEM_PROMPT
+  // in supabase/functions/extract-contract/index.ts). Diese hier dient der
+  // Dokumentation/Konsistenz und muss inhaltlich identisch gehalten werden.
   static const _systemPrompt = '''
 Du bist ein Datenextraktions-Assistent für Verträge und Abonnements.
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt. Kein Kommentar, kein Markdown.
@@ -30,7 +33,7 @@ Felder: {
   "name": "Produktname / Abo-Name",
   "provider": "Unternehmensname",
   "category": "streaming|versicherung|handy|internet|software|fitness|zeitung|sonstiges",
-  "monthlyCost": 9.99,
+  "amount": 9.99,
   "billingCycle": "monthly|quarterly|yearly|weekly",
   "contactPhone": "+49...",
   "contactEmail": "kuendigung@...",
@@ -41,7 +44,11 @@ Felder: {
   "nextRenewal": "YYYY-MM-DD oder null",
   "notes": "Besonderheiten, Sonderkündigungsrecht etc."
 }
-Fehlende Felder als null. monthlyCost immer als Monatsbetrag (Jahresbetrag ÷ 12).
+Fehlende Felder als null.
+"amount" ist der Preis GENAU SO wie auf dem Dokument — NICHT umrechnen, nicht durch 12 teilen.
+"billingCycle" ist der zu diesem Betrag gehörende Zeitraum (119,88 €/Jahr => amount 119.88, yearly).
+Dezimaltrennzeichen ist ein Punkt; "1.234,56 €" bedeutet amount 1234.56.
+Bei mehreren Preisen den wiederkehrenden Abo-/Vertragspreis wählen (keine Einmalgebühren).
 ''';
 
   // Basis-URL des Supabase-Projekts, abgeleitet aus der Edge-Function-URL

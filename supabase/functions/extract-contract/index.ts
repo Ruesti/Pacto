@@ -12,7 +12,7 @@ Felder:
   "name": "Produktname / Abo-Name",
   "provider": "Unternehmensname",
   "category": "streaming|versicherung|handy|internet|software|fitness|zeitung|sonstiges",
-  "monthlyCost": 9.99,
+  "amount": 9.99,
   "billingCycle": "monthly|quarterly|yearly|weekly",
   "contactPhone": "+49...",
   "contactEmail": "kuendigung@...",
@@ -23,7 +23,17 @@ Felder:
   "nextRenewal": "YYYY-MM-DD oder null",
   "notes": "Besonderheiten, Sonderkündigungsrecht etc."
 }
-Fehlende Felder als null. monthlyCost immer als Monatsbetrag (Jahresbetrag ÷ 12).`;
+Fehlende Felder als null.
+
+WICHTIG zum Betrag:
+- "amount" ist der Preis GENAU SO, wie er auf dem Dokument steht — NICHT umrechnen, NICHT durch 12 teilen, nicht runden.
+- "billingCycle" ist der Abrechnungszeitraum, der zu genau diesem Betrag gehört.
+  Beispiel: "119,88 € / Jahr" => "amount": 119.88, "billingCycle": "yearly".
+  Beispiel: "9,99 € monatlich" => "amount": 9.99, "billingCycle": "monthly".
+- Verwende einen Punkt als Dezimaltrennzeichen. Die deutsche Schreibweise "1.234,56 €"
+  bedeutet "amount": 1234.56 (Punkt = Tausender, Komma = Dezimal).
+- Stehen mehrere Preise im Dokument, wähle den regelmäßig wiederkehrenden Abo-/Vertragspreis.
+  Ignoriere einmalige Posten wie Anschlussgebühr, Pfand, Versand, Aktionsrabatte oder Vormonats-Beträge.`;
 
 // Aktueller Scan-Zaehler des Users fuer den angegebenen Monat ('YYYY-MM').
 async function getScanCount(
@@ -162,6 +172,27 @@ Deno.serve(async (req: Request) => {
         ],
       });
     } else if (imageBase64) {
+      // PDFs muessen als 'document'-Block gesendet werden — ein 'image'-Block
+      // akzeptiert nur Bild-Medientypen, ein als Bild getarntes PDF wuerde von
+      // der API abgelehnt bzw. fehlinterpretiert.
+      const isPdf = mediaType === 'application/pdf';
+      const docBlock = isPdf
+        ? {
+            type: 'document',
+            source: {
+              type: 'base64',
+              media_type: 'application/pdf',
+              data: imageBase64,
+            },
+          }
+        : {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
+              data: imageBase64,
+            },
+          };
       message = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
@@ -169,15 +200,9 @@ Deno.serve(async (req: Request) => {
         messages: [
           {
             role: 'user',
+            // deno-lint-ignore no-explicit-any
             content: [
-              {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
-                  data: imageBase64,
-                },
-              },
+              docBlock as any,
               {
                 type: 'text',
                 text: 'Extrahiere die Vertragsdaten aus diesem Dokument.',
