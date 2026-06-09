@@ -130,17 +130,19 @@ function daysSince(iso: string): number {
   return (Date.now() - then) / (1000 * 60 * 60 * 24);
 }
 
-async function processOne(s: VaultSetting): Promise<string> {
+// `force` = Testmodus: sendet sofort an die Erben, unabhaengig vom Timing, und
+// setzt `heir_notified_at` NICHT — so ist der Test beliebig wiederholbar.
+async function processOne(s: VaultSetting, force = false): Promise<string> {
   const elapsed = daysSince(s.confirmed_at);
   const interval = s.interval_days;
   const warningPoint = interval * 0.8;
   const triggerPoint = interval + 14;
 
-  // 1. Erben wurden schon benachrichtigt — nichts mehr tun.
-  if (s.heir_notified_at) return 'already_notified';
+  // 1. Erben wurden schon benachrichtigt — nichts mehr tun (im Test ignoriert).
+  if (!force && s.heir_notified_at) return 'already_notified';
 
-  // 2. Trigger erreicht — Erben informieren.
-  if (elapsed >= triggerPoint) {
+  // 2. Trigger erreicht (oder Test erzwungen) — Erben informieren.
+  if (force || elapsed >= triggerPoint) {
     const payloads = await fetchPayloads(s.device_id);
     if (payloads.length === 0) {
       await log(s.device_id, 'heir_sent', 'No payloads stored, skipped');
@@ -151,7 +153,7 @@ async function processOne(s: VaultSetting): Promise<string> {
     for (const p of payloads) {
       const result = await sendEmail({
         to: p.heir_email,
-        subject: `Pacto-Uebersicht von ${s.owner_name ?? 'einem Pacto-Nutzer'}`,
+        subject: `${force ? '[TEST] ' : ''}Pacto-Uebersicht von ${s.owner_name ?? 'einem Pacto-Nutzer'}`,
         text: p.body,
         attachments: p.pdf_b64
           ? [{ filename: 'pacto.pdf', content: p.pdf_b64 }]
@@ -160,13 +162,16 @@ async function processOne(s: VaultSetting): Promise<string> {
       if (result.sent) sent++;
       else errors.push(`${p.heir_email}: ${result.error}`);
     }
-    await mark(s.device_id, { heir_notified_at: new Date().toISOString() });
+    // Im Testmodus den Zustand nicht verbrennen.
+    if (!force) {
+      await mark(s.device_id, { heir_notified_at: new Date().toISOString() });
+    }
     await log(
       s.device_id,
-      'heir_sent',
-      `sent=${sent} errors=${errors.join(' | ')}`,
+      force ? 'heir_test' : 'heir_sent',
+      `${force ? 'TEST ' : ''}sent=${sent} errors=${errors.join(' | ')}`,
     );
-    return `heirs_notified (${sent}/${payloads.length})`;
+    return `${force ? 'test_' : ''}heirs_notified (${sent}/${payloads.length})`;
   }
 
   // 3. Vorwarnung bei 80 % — nur einmal pro Intervall.
@@ -203,11 +208,26 @@ Deno.serve(async (req: Request) => {
     return new Response('Unauthorized', { status: 401, headers: corsHeaders });
   }
   try {
-    const settings = await fetchSettings();
+    // Optionaler Test-Body: { force: true, deviceId?: "..." } sendet sofort,
+    // ohne auf das Inaktivitaets-Intervall zu warten. Ohne Body laeuft der
+    // normale Cron-Durchlauf.
+    let force = false;
+    let onlyDevice: string | null = null;
+    try {
+      const body = await req.json();
+      force = body?.force === true;
+      onlyDevice = typeof body?.deviceId === 'string' ? body.deviceId : null;
+    } catch (_) {
+      // kein/ungueltiger Body → normaler Lauf
+    }
+
+    const all = await fetchSettings();
+    const settings =
+        onlyDevice == null ? all : all.filter((s) => s.device_id === onlyDevice);
     const summary: Record<string, string> = {};
     for (const s of settings) {
       try {
-        summary[s.device_id] = await processOne(s);
+        summary[s.device_id] = await processOne(s, force);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         summary[s.device_id] = `error: ${msg}`;
