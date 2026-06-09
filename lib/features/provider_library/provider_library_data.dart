@@ -9,8 +9,12 @@ class ProviderTemplate {
   final String? contactEmail;
   final String? contactUrl;
   final CancellationMethod cancellationMethod;
+  // Beschreibende Texte sind primär Deutsch; die *En-Varianten liefern Englisch,
+  // wenn die App auf Englisch steht. Fehlt eine Übersetzung, bleibt Deutsch.
   final String cancellationInstructions;
+  final String? cancellationInstructionsEn;
   final String noticePeriod;
+  final String? noticePeriodEn;
   // Primärdomain ohne Schema/`www.`, z. B. "netflix.com" — wird gegen
   // Uri.parse(url).host gematcht (auch Sub-Domains wie account.netflix.com).
   final String? domain;
@@ -27,10 +31,21 @@ class ProviderTemplate {
     this.contactUrl,
     required this.cancellationMethod,
     required this.cancellationInstructions,
+    this.cancellationInstructionsEn,
     required this.noticePeriod,
+    this.noticePeriodEn,
     this.domain,
     this.domainAliases = const [],
   });
+
+  /// Kündigungsanleitung in der App-Sprache (`lang` = ISO-Code, z. B. 'en').
+  String cancellationInstructionsFor(String lang) => lang == 'en'
+      ? (cancellationInstructionsEn ?? cancellationInstructions)
+      : cancellationInstructions;
+
+  /// Kündigungsfrist in der App-Sprache.
+  String noticePeriodFor(String lang) =>
+      lang == 'en' ? (noticePeriodEn ?? noticePeriod) : noticePeriod;
 
   Iterable<String> get _allDomains sync* {
     if (domain != null) yield domain!;
@@ -74,7 +89,11 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationInstructions:
         'Einloggen auf netflix.com → Konto → Mitgliedschaft kündigen. '
         'Kündigung wirkt zum Ende des aktuellen Abrechnungszeitraums.',
+    cancellationInstructionsEn:
+        'Sign in at netflix.com → Account → Cancel Membership. '
+        'Cancellation takes effect at the end of the current billing period.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungsmonats',
+    noticePeriodEn: 'Anytime, effective end of billing month',
     domain: 'netflix.com',
   ),
   ProviderTemplate(
@@ -85,7 +104,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'Einloggen auf spotify.com → Konto → Premium kündigen.',
+    cancellationInstructionsEn:
+        'Sign in at spotify.com → Account → Cancel Premium.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungsmonats',
+    noticePeriodEn: 'Anytime, effective end of billing month',
     domain: 'spotify.com',
   ),
   ProviderTemplate(
@@ -96,7 +118,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'amazon.de → Konto → Prime-Mitgliedschaft → Mitgliedschaft kündigen.',
+    cancellationInstructionsEn:
+        'amazon.de → Account → Prime Membership → Cancel membership.',
     noticePeriod: 'Jederzeit, Zugang bis Periodenende',
+    noticePeriodEn: 'Anytime, access until end of period',
     domain: 'amazon.de',
   ),
   ProviderTemplate(
@@ -107,7 +132,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'disneyplus.com → Konto → Abonnement verwalten → Kündigen.',
+    cancellationInstructionsEn:
+        'disneyplus.com → Account → Manage Subscription → Cancel.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'disneyplus.com',
   ),
   ProviderTemplate(
@@ -118,7 +146,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'Einstellungen → Apple ID → Abonnements → Apple One → Kündigen.',
+    cancellationInstructionsEn:
+        'Settings → Apple ID → Subscriptions → Apple One → Cancel.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'apple.com',
   ),
   ProviderTemplate(
@@ -130,7 +161,11 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationInstructions:
         'dazn.com → Konto → Abonnement → Kündigen. '
         'Kündigung mind. 30 Tage vor Verlängerung.',
+    cancellationInstructionsEn:
+        'dazn.com → Account → Subscription → Cancel. '
+        'Cancel at least 30 days before renewal.',
     noticePeriod: '30 Tage vor Verlängerungsdatum',
+    noticePeriodEn: '30 days before renewal date',
     domain: 'dazn.com',
   ),
   ProviderTemplate(
@@ -143,7 +178,11 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationInstructions:
         'rundfunkbeitrag.de → Formulare → Abmeldung. '
         'Alternativ Brief an: Beitragsservice, 50656 Köln.',
+    cancellationInstructionsEn:
+        'rundfunkbeitrag.de → Forms → Deregistration (Abmeldung). '
+        'Alternatively, send a letter to: Beitragsservice, 50656 Köln.',
     noticePeriod: 'Quartalsweise zum Quartalsende',
+    noticePeriodEn: 'Quarterly, effective end of quarter',
     domain: 'rundfunkbeitrag.de',
   ),
   ProviderTemplate(
@@ -156,7 +195,11 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationInstructions:
         'Kündigung schriftlich per Brief oder über Mein-Telekom-Portal. '
         'Adresse: Telekom Deutschland GmbH, 53172 Bonn.',
+    cancellationInstructionsEn:
+        'Cancel in writing by letter or via the Mein Telekom portal. '
+        'Address: Telekom Deutschland GmbH, 53172 Bonn.',
     noticePeriod: '3 Monate zum Ende der Mindestlaufzeit, dann monatlich',
+    noticePeriodEn: '3 months before end of minimum term, then monthly',
     domain: 'telekom.de',
   ),
   ProviderTemplate(
@@ -169,7 +212,11 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationInstructions:
         'Kündigung per Brief: Vodafone GmbH, 40547 Düsseldorf. '
         'Oder über MeinVodafone-App/Portal.',
+    cancellationInstructionsEn:
+        'Cancel by letter: Vodafone GmbH, 40547 Düsseldorf. '
+        'Or via the MeinVodafone app/portal.',
     noticePeriod: '3 Monate zum Ende der Mindestlaufzeit, dann monatlich',
+    noticePeriodEn: '3 months before end of minimum term, then monthly',
     domain: 'vodafone.de',
   ),
   ProviderTemplate(
@@ -182,7 +229,11 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationInstructions:
         'Mein O2 → Vertrag → Kündigen. '
         'Oder Brief: Telefónica Germany, 90345 Nürnberg.',
+    cancellationInstructionsEn:
+        'Mein O2 → Contract → Cancel. '
+        'Or by letter: Telefónica Germany, 90345 Nürnberg.',
     noticePeriod: '3 Monate zum Ende der Mindestlaufzeit',
+    noticePeriodEn: '3 months before end of minimum term',
     domain: 'o2online.de',
   ),
   ProviderTemplate(
@@ -194,7 +245,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.brief,
     cancellationInstructions:
         'Kündigung per Brief: 1&1 Telecom GmbH, 56203 Höhr-Grenzhausen.',
+    cancellationInstructionsEn:
+        'Cancel by letter: 1&1 Telecom GmbH, 56203 Höhr-Grenzhausen.',
     noticePeriod: '3 Monate zum Ende der Mindestlaufzeit',
+    noticePeriodEn: '3 months before end of minimum term',
     domain: '1und1.de',
   ),
   ProviderTemplate(
@@ -206,7 +260,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.brief,
     cancellationInstructions:
         'Kündigung schriftlich oder über Mein-Telekom-Portal.',
+    cancellationInstructionsEn:
+        'Cancel in writing or via the Mein Telekom portal.',
     noticePeriod: '3 Monate zum Ende der Mindestlaufzeit',
+    noticePeriodEn: '3 months before end of minimum term',
   ),
   ProviderTemplate(
     name: 'HUK-COBURG Kfz-Versicherung',
@@ -218,7 +275,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.brief,
     cancellationInstructions:
         'Kündigung per Brief bis 30. November: HUK-COBURG, 96444 Coburg.',
+    cancellationInstructionsEn:
+        'Cancel by letter by 30 November: HUK-COBURG, 96444 Coburg.',
     noticePeriod: '1 Monat vor Ablauf (30. November)',
+    noticePeriodEn: '1 month before expiry (30 November)',
     domain: 'huk.de',
   ),
   ProviderTemplate(
@@ -230,7 +290,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.brief,
     cancellationInstructions:
         'Kündigung per Brief oder E-Mail an den zuständigen Regionalclub.',
+    cancellationInstructionsEn:
+        'Cancel by letter or email to your responsible regional club.',
     noticePeriod: '3 Monate zum Jahresende (30. September)',
+    noticePeriodEn: '3 months before year end (30 September)',
     domain: 'adac.de',
   ),
   ProviderTemplate(
@@ -242,7 +305,11 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationInstructions:
         'adobe.com → Konto → Plan verwalten → Abo kündigen. '
         'Jahresmitgliedschaft: Gebühr für vorzeitige Kündigung beachten.',
+    cancellationInstructionsEn:
+        'adobe.com → Account → Manage plan → Cancel plan. '
+        'Annual plan: note the early termination fee.',
     noticePeriod: 'Jederzeit (Jahresplan: Gebühr bis Periodenende)',
+    noticePeriodEn: 'Anytime (annual plan: fee until end of period)',
     domain: 'adobe.com',
   ),
   ProviderTemplate(
@@ -253,7 +320,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'account.microsoft.com → Dienste → Microsoft 365 → Abonnement kündigen.',
+    cancellationInstructionsEn:
+        'account.microsoft.com → Services → Microsoft 365 → Cancel subscription.',
     noticePeriod: 'Jederzeit, Zugang bis Periodenende',
+    noticePeriodEn: 'Anytime, access until end of period',
     domain: 'microsoft.com',
   ),
   ProviderTemplate(
@@ -265,7 +335,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.brief,
     cancellationInstructions:
         'Kündigung per eingeschriebenem Brief an das Studio mit Mitgliedsnummer.',
+    cancellationInstructionsEn:
+        'Cancel by registered letter to the studio, including your membership number.',
     noticePeriod: '3 Monate zum Monatsende',
+    noticePeriodEn: '3 months, effective end of month',
     domain: 'mcfit.com',
   ),
   ProviderTemplate(
@@ -276,7 +349,9 @@ const List<ProviderTemplate> providerLibrary = [
     contactUrl: 'https://www.spiegel.de/abo/',
     cancellationMethod: CancellationMethod.email,
     cancellationInstructions: 'Kündigung per E-Mail an abo@spiegel.de.',
+    cancellationInstructionsEn: 'Cancel by email to abo@spiegel.de.',
     noticePeriod: 'Monatlich zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Monthly, effective end of billing period',
     domain: 'spiegel.de',
   ),
   ProviderTemplate(
@@ -287,7 +362,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'youtube.com → Konto → Mitgliedschaften → YouTube Premium → Kündigen.',
+    cancellationInstructionsEn:
+        'youtube.com → Account → Memberships → YouTube Premium → Cancel.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'youtube.com',
   ),
   ProviderTemplate(
@@ -298,7 +376,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'twitch.tv → Einstellungen → Abonnements → Kündigen.',
+    cancellationInstructionsEn:
+        'twitch.tv → Settings → Subscriptions → Cancel.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungsmonats',
+    noticePeriodEn: 'Anytime, effective end of billing month',
     domain: 'twitch.tv',
   ),
   // ─── SaaS / AI / Productivity ─────────────────────────────────────────
@@ -311,7 +392,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'claude.ai → Einstellungen → Abrechnung → Plan verwalten → Kündigen.',
+    cancellationInstructionsEn:
+        'claude.ai → Settings → Billing → Manage plan → Cancel.',
     noticePeriod: 'Monatlich zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Monthly, effective end of billing period',
     domain: 'claude.ai',
     domainAliases: ['claude.com', 'anthropic.com'],
   ),
@@ -324,7 +408,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'chatgpt.com → Einstellungen → Abonnement → Mein Abo verwalten → Kündigen.',
+    cancellationInstructionsEn:
+        'chatgpt.com → Settings → Subscription → Manage my subscription → Cancel.',
     noticePeriod: 'Monatlich zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Monthly, effective end of billing period',
     domain: 'openai.com',
     domainAliases: ['chatgpt.com', 'chat.openai.com'],
   ),
@@ -336,7 +423,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'github.com → Settings → Billing and plans → Plans → Copilot → Cancel.',
+    cancellationInstructionsEn:
+        'github.com → Settings → Billing and plans → Plans → Copilot → Cancel.',
     noticePeriod: 'Monatlich zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Monthly, effective end of billing period',
     domain: 'github.com',
   ),
   ProviderTemplate(
@@ -348,7 +438,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'notion.so → Einstellungen → Plans → Downgrade auf Free.',
+    cancellationInstructionsEn:
+        'notion.so → Settings → Plans → Downgrade to Free.',
     noticePeriod: 'Jederzeit, Zugang bis Periodenende',
+    noticePeriodEn: 'Anytime, access until end of period',
     domain: 'notion.so',
   ),
   ProviderTemplate(
@@ -360,7 +453,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'figma.com → Settings → Plans & billing → Cancel plan.',
+    cancellationInstructionsEn:
+        'figma.com → Settings → Plans & billing → Cancel plan.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'figma.com',
   ),
   ProviderTemplate(
@@ -371,7 +467,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'slack.com → Einstellungen → Abrechnung → Abo kündigen.',
+    cancellationInstructionsEn:
+        'slack.com → Settings → Billing → Cancel subscription.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'slack.com',
   ),
   ProviderTemplate(
@@ -382,7 +481,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'zoom.us → Profil → Abrechnung → Aktuelle Pläne → Abo kündigen.',
+    cancellationInstructionsEn:
+        'zoom.us → Profile → Billing → Current Plans → Cancel subscription.',
     noticePeriod: 'Monatlich zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Monthly, effective end of billing period',
     domain: 'zoom.us',
   ),
   ProviderTemplate(
@@ -393,7 +495,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'dropbox.com → Konto → Plan → Plan kündigen.',
+    cancellationInstructionsEn:
+        'dropbox.com → Account → Plan → Cancel plan.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'dropbox.com',
   ),
   ProviderTemplate(
@@ -404,7 +509,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'canva.com → Konto → Abrechnung & Pläne → Pro Plan → Testversion kündigen / Abo beenden.',
+    cancellationInstructionsEn:
+        'canva.com → Account → Billing & plans → Pro plan → Cancel trial / end subscription.',
     noticePeriod: 'Jederzeit, Zugang bis Periodenende',
+    noticePeriodEn: 'Anytime, access until end of period',
     domain: 'canva.com',
   ),
   ProviderTemplate(
@@ -415,7 +523,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'linkedin.com → Mich → Premium-Konto → Premium kündigen.',
+    cancellationInstructionsEn:
+        'linkedin.com → Me → Premium account → Cancel Premium.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'linkedin.com',
   ),
   ProviderTemplate(
@@ -427,7 +538,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'audible.de → Konto → Mitgliedschaftsdetails → Mitgliedschaft beenden.',
+    cancellationInstructionsEn:
+        'audible.de → Account → Membership details → End membership.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'audible.de',
   ),
   ProviderTemplate(
@@ -438,7 +552,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'Einstellungen → Apple ID → iCloud → Speicher → Speicherplan ändern → Downgrade.',
+    cancellationInstructionsEn:
+        'Settings → Apple ID → iCloud → Storage → Change Storage Plan → Downgrade.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'icloud.com',
   ),
   ProviderTemplate(
@@ -449,7 +566,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'one.google.com → Einstellungen → Abo verwalten → Abo kündigen.',
+    cancellationInstructionsEn:
+        'one.google.com → Settings → Manage subscription → Cancel subscription.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'google.com',
   ),
   ProviderTemplate(
@@ -460,7 +580,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'PlayStation Store → Konto → Abonnements → PS Plus → Automatische Verlängerung deaktivieren.',
+    cancellationInstructionsEn:
+        'PlayStation Store → Account → Subscriptions → PS Plus → Turn off auto-renewal.',
     noticePeriod: 'Jederzeit (deaktivieren der Verlängerung)',
+    noticePeriodEn: 'Anytime (turn off auto-renewal)',
     domain: 'playstation.com',
   ),
   ProviderTemplate(
@@ -471,7 +594,10 @@ const List<ProviderTemplate> providerLibrary = [
     cancellationMethod: CancellationMethod.online,
     cancellationInstructions:
         'account.microsoft.com → Dienste & Abonnements → Game Pass → Kündigen.',
+    cancellationInstructionsEn:
+        'account.microsoft.com → Services & subscriptions → Game Pass → Cancel.',
     noticePeriod: 'Jederzeit zum Ende des Abrechnungszeitraums',
+    noticePeriodEn: 'Anytime, effective end of billing period',
     domain: 'xbox.com',
   ),
 ];

@@ -147,7 +147,8 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
   // sind in der Bibliothek bewusst nicht hinterlegt (variieren je Tarif) — die
   // tippt der Nutzer, ebenso Benutzername/Passwort.
   void _applyTemplate(ProviderTemplate template) {
-    _notifier.prefillFromTemplate(template);
+    final lang = Localizations.localeOf(context).languageCode;
+    _notifier.prefillFromTemplate(template, lang: lang);
     final state = ref.read(addContractProvider(widget.existing));
     _nameCtrl.text = state.name;
     _providerCtrl.text = state.provider;

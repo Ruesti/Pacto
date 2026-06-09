@@ -174,14 +174,14 @@ class AddContractNotifier extends StateNotifier<AddContractState> {
               )
             : const AddContractState());
 
-  void prefillFromTemplate(ProviderTemplate t) {
+  void prefillFromTemplate(ProviderTemplate t, {String lang = 'de'}) {
     state = state.copyWith(
       name: t.name,
       provider: t.provider,
       category: t.category,
       cancellationMethod: t.cancellationMethod,
-      cancellationInstructions: t.cancellationInstructions,
-      noticePeriod: t.noticePeriod,
+      cancellationInstructions: t.cancellationInstructionsFor(lang),
+      noticePeriod: t.noticePeriodFor(lang),
       contactPhone: t.contactPhone,
       contactEmail: t.contactEmail,
       contactUrl: t.contactUrl,
