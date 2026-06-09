@@ -1790,6 +1790,18 @@ abstract class AppLocalizations {
   /// **'Version'**
   String get settingsVersion;
 
+  /// No description provided for @testerUnlockOn.
+  ///
+  /// In de, this message translates to:
+  /// **'Tester-Vollzugang aktiviert'**
+  String get testerUnlockOn;
+
+  /// No description provided for @testerUnlockOff.
+  ///
+  /// In de, this message translates to:
+  /// **'Tester-Vollzugang deaktiviert'**
+  String get testerUnlockOff;
+
   /// No description provided for @settingsPrivacy.
   ///
   /// In de, this message translates to:

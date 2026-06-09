@@ -328,6 +328,8 @@
   "settingsSectionApp": "App",
   "settingsReplay": "Replay introduction",
   "settingsVersion": "Version",
+  "testerUnlockOn": "Tester full access enabled",
+  "testerUnlockOff": "Tester full access disabled",
   "settingsPrivacy": "Privacy",
   "settingsPrivacySubtitle": "Data stays local on your device",
   "settingsSectionFreemium": "Freemium",

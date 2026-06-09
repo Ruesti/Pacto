@@ -10,6 +10,10 @@ import 'supabase_sync_screen.dart';
 import 'vault_screen.dart';
 import 'verification_settings_screen.dart';
 
+// Tap-Zähler für die versteckte Tester-Freischaltung am Version-Eintrag.
+// Bewusst datei-lokal, damit er Widget-Rebuilds übersteht (ConsumerWidget).
+int _versionTapCount = 0;
+
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -95,6 +99,23 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.info_outline),
             title: Text(l.settingsVersion),
             subtitle: const Text('1.0.0'),
+            // Versteckte Geste: 7× tippen schaltet die Tester-Vollfreischaltung
+            // um (Beta-Tester ohne Store-Kauf).
+            onTap: () async {
+              _versionTapCount++;
+              if (_versionTapCount < 7) return;
+              _versionTapCount = 0;
+              final on =
+                  await ref.read(premiumProvider.notifier).toggleTesterUnlock();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content:
+                        Text(on ? l.testerUnlockOn : l.testerUnlockOff),
+                  ),
+                );
+              }
+            },
           ),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),

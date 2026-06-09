@@ -13,6 +13,11 @@ bool get iapSupported => Platform.isAndroid || Platform.isIOS;
 
 const _keyDesktopPurchased = 'pacto.premium.purchased';
 
+// Lokale Tester-Freischaltung (alle Plattformen) — schaltet Premium ohne
+// Store-Kauf frei. Per versteckter Geste in den Einstellungen umschaltbar.
+// Nur fuer Beta/Tests gedacht.
+const _keyTesterUnlock = 'pacto.premium.tester_unlock';
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Initialisiert das RevenueCat SDK. Nur auf Android/iOS aufrufen.
@@ -67,14 +72,26 @@ class PremiumNotifier extends AsyncNotifier<bool> {
     await prefs.setBool(_keyDesktopPurchased, v);
     state = AsyncData(v);
   }
+
+  /// Schaltet die lokale Tester-Freischaltung um (alle Plattformen) und gibt den
+  /// neuen Zustand zurück. Versteckte Geste in den Einstellungen ruft das auf.
+  Future<bool> toggleTesterUnlock() async {
+    final prefs = await SharedPreferences.getInstance();
+    final next = !(prefs.getBool(_keyTesterUnlock) ?? false);
+    await prefs.setBool(_keyTesterUnlock, next);
+    state = AsyncData(await _isPurchased());
+    return next;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 Future<bool> _isPurchased() async {
+  // Lokale Tester-Freischaltung hat Vorrang (alle Plattformen).
+  final prefs = await SharedPreferences.getInstance();
+  if (prefs.getBool(_keyTesterUnlock) ?? false) return true;
   if (!iapSupported) {
     // Desktop: lokales Flag aus SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_keyDesktopPurchased) ?? false;
   }
   try {

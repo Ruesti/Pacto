@@ -83,12 +83,19 @@ static const googleApiKey  = 'goog_…';   // ← echter Key
 static const appleApiKey   = 'appl_…';   // ← echter Key
 ```
 
-### Weg B — Schnelle Tester-Freischaltung (ohne Store)
+### Weg B — Schnelle Tester-Freischaltung (ohne Store) ✅ implementiert
 
-Noch **nicht** implementiert. Bei Bedarf: lokales Premium-Flag (analog zum bestehenden
-Desktop-Fallback `setDesktopPurchased` in `premium_service.dart`) auch auf Mobile
-zulassen, ausgelöst über eine versteckte Geste in den Einstellungen. Vorteil: Vollzugang
-per sideloaded APK, ohne Play/RevenueCat.
+Setzt ein lokales Premium-Flag (alle Plattformen), das Premium ohne Store-Kauf
+freischaltet — funktioniert auch per **sideloaded APK** (kein Play/RevenueCat nötig).
+
+**Aktivieren am Gerät:** Einstellungen → Eintrag **„Version"** **7× antippen**.
+Eine SnackBar bestätigt „Tester-Vollzugang aktiviert". Erneutes 7×-Tippen schaltet
+wieder ab.
+
+Technik: `PremiumNotifier.toggleTesterUnlock()` setzt `pacto.premium.tester_unlock`
+in den SharedPreferences; `_isPurchased()` prüft dieses Flag mit Vorrang
+(`lib/features/premium/premium_service.dart`). Versteckte Geste:
+`lib/features/settings/settings_screen.dart`.
 
 ---
 

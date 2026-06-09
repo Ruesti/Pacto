@@ -936,6 +936,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsVersion => 'Version';
 
   @override
+  String get testerUnlockOn => 'Tester full access enabled';
+
+  @override
+  String get testerUnlockOff => 'Tester full access disabled';
+
+  @override
   String get settingsPrivacy => 'Privacy';
 
   @override

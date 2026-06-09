@@ -940,6 +940,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsVersion => 'Version';
 
   @override
+  String get testerUnlockOn => 'Tester-Vollzugang aktiviert';
+
+  @override
+  String get testerUnlockOff => 'Tester-Vollzugang deaktiviert';
+
+  @override
   String get settingsPrivacy => 'Datenschutz';
 
   @override
