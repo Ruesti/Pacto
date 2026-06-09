@@ -230,7 +230,10 @@ class ShareExportService {
           : <List<String>>[
               ['Anbieter', c.provider],
               ['Kategorie', c.category.label],
-              ['Kosten', formatMonthlyCost(c.monthlyCost)],
+              [
+                'Kosten',
+                '${formatBilledAmount(c.monthlyCost, c.billingCycle)} ${c.billingCycle.label}'
+              ],
               ['Kuendigung', c.cancellationMethod.label],
               if (c.noticePeriod.isNotEmpty) ['Frist', c.noticePeriod],
               if (c.nextRenewal != null)
@@ -444,7 +447,8 @@ class ShareExportService {
       } else {
         buffer.writeln('Anbieter:     ${c.provider}');
         buffer.writeln('Kategorie:    ${c.category.label}');
-        buffer.writeln('Kosten:       ${formatMonthlyCost(c.monthlyCost)}');
+        buffer.writeln(
+            'Kosten:       ${formatBilledAmount(c.monthlyCost, c.billingCycle)} ${c.billingCycle.label}');
         buffer.writeln('Kündigung:    ${c.cancellationMethod.label}');
         if (c.noticePeriod.isNotEmpty) {
           buffer.writeln('Frist:        ${c.noticePeriod}');

@@ -160,6 +160,9 @@
     }
   },
   "perMonthSuffix": "/ month",
+  "perQuarterSuffix": "/ quarter",
+  "perYearSuffix": "/ year",
+  "perWeekSuffix": "/ week",
   "monthlyCosts": "Monthly expenses",
   "perYear": "{amount} per year",
   "contractsLabel": "{count, plural, one{contract} other{contracts}}",

@@ -420,6 +420,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get perMonthSuffix => '/ month';
 
   @override
+  String get perQuarterSuffix => '/ quarter';
+
+  @override
+  String get perYearSuffix => '/ year';
+
+  @override
+  String get perWeekSuffix => '/ week';
+
+  @override
   String get monthlyCosts => 'Monthly expenses';
 
   @override

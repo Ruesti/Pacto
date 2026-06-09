@@ -119,7 +119,9 @@ class _DetailView extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(formatMonthlyCost(contract.monthlyCost),
+                    Text(
+                        formatBilledAmount(
+                            contract.monthlyCost, contract.billingCycle),
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     Text(contract.billingCycle.localizedLabel(l),

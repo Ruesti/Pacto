@@ -31,6 +31,16 @@ extension AccessCategoryL10n on AccessCategory {
       };
 }
 
+extension BillingCycleSuffixL10n on BillingCycle {
+  /// Lokalisiertes Suffix fuer den als-gezahlt-Betrag, z.B. "/ Jahr".
+  String amountSuffix(AppLocalizations l) => switch (this) {
+        BillingCycle.monthly => l.perMonthSuffix,
+        BillingCycle.quarterly => l.perQuarterSuffix,
+        BillingCycle.yearly => l.perYearSuffix,
+        BillingCycle.weekly => l.perWeekSuffix,
+      };
+}
+
 extension BillingCycleL10n on BillingCycle {
   String localizedLabel(AppLocalizations l) => switch (this) {
         BillingCycle.monthly => l.billingMonthly,

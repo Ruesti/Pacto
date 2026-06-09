@@ -866,6 +866,24 @@ abstract class AppLocalizations {
   /// **'/ Monat'**
   String get perMonthSuffix;
 
+  /// No description provided for @perQuarterSuffix.
+  ///
+  /// In de, this message translates to:
+  /// **'/ Quartal'**
+  String get perQuarterSuffix;
+
+  /// No description provided for @perYearSuffix.
+  ///
+  /// In de, this message translates to:
+  /// **'/ Jahr'**
+  String get perYearSuffix;
+
+  /// No description provided for @perWeekSuffix.
+  ///
+  /// In de, this message translates to:
+  /// **'/ Woche'**
+  String get perWeekSuffix;
+
   /// No description provided for @monthlyCosts.
   ///
   /// In de, this message translates to:

@@ -422,6 +422,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get perMonthSuffix => '/ Monat';
 
   @override
+  String get perQuarterSuffix => '/ Quartal';
+
+  @override
+  String get perYearSuffix => '/ Jahr';
+
+  @override
+  String get perWeekSuffix => '/ Woche';
+
+  @override
   String get monthlyCosts => 'Monatliche Ausgaben';
 
   @override

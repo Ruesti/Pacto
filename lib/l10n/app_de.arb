@@ -175,6 +175,9 @@
     }
   },
   "perMonthSuffix": "/ Monat",
+  "perQuarterSuffix": "/ Quartal",
+  "perYearSuffix": "/ Jahr",
+  "perWeekSuffix": "/ Woche",
   "monthlyCosts": "Monatliche Ausgaben",
   "perYear": "{amount} pro Jahr",
   "@perYear": {

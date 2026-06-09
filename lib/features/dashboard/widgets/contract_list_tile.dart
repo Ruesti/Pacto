@@ -91,11 +91,12 @@ class ContractListTile extends StatelessWidget {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: formatCurrency(contract.monthlyCost),
+                            text: formatBilledAmount(
+                                contract.monthlyCost, contract.billingCycle),
                             style: AppTextStyles.listAmount,
                           ),
                           TextSpan(
-                            text: ' ${l.perMonthSuffix}',
+                            text: ' ${contract.billingCycle.amountSuffix(l)}',
                             style: AppTextStyles.listDate,
                           ),
                         ],

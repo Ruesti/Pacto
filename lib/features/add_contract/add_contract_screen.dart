@@ -53,8 +53,13 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     final e = widget.existing;
     _nameCtrl = TextEditingController(text: e?.name ?? '');
     _providerCtrl = TextEditingController(text: e?.provider ?? '');
+    // Das Feld zeigt den Betrag pro Abrechnungsintervall (wie gezahlt), nicht
+    // den normalisierten Monatsbetrag — sonst wuerde setMonthlyCostFromInput
+    // beim Speichern einen Jahres-/Quartalsvertrag erneut durch 12/3 teilen.
     _costCtrl = TextEditingController(
-        text: e != null ? e.monthlyCost.toStringAsFixed(2) : '');
+        text: e != null
+            ? e.billingCycle.billedFrom(e.monthlyCost).toStringAsFixed(2)
+            : '');
     _cancInstructCtrl =
         TextEditingController(text: e?.cancellationInstructions ?? '');
     _noticePeriodCtrl = TextEditingController(text: e?.noticePeriod ?? '');
@@ -154,8 +159,9 @@ class _AddContractScreenState extends ConsumerState<AddContractScreen> {
     final state = ref.read(addContractProvider(widget.existing));
     _nameCtrl.text = state.name;
     _providerCtrl.text = state.provider;
-    _costCtrl.text =
-        state.monthlyCost > 0 ? state.monthlyCost.toStringAsFixed(2) : '';
+    _costCtrl.text = state.monthlyCost > 0
+        ? state.billingCycle.billedFrom(state.monthlyCost).toStringAsFixed(2)
+        : '';
     _cancInstructCtrl.text = state.cancellationInstructions;
     _noticePeriodCtrl.text = state.noticePeriod;
     _phoneCtrl.text = state.contactPhone ?? '';
