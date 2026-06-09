@@ -1148,6 +1148,12 @@ abstract class AppLocalizations {
   /// **'Die KI extrahiert automatisch Vertragsdetails.'**
   String get scanHint;
 
+  /// No description provided for @scanFromCamera.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit Kamera aufnehmen'**
+  String get scanFromCamera;
+
   /// No description provided for @scanFromGallery.
   ///
   /// In de, this message translates to:

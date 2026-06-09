@@ -235,6 +235,7 @@
   "scanTitle": "Dokument scannen",
   "scanChooseSource": "Wähle eine Quelle",
   "scanHint": "Die KI extrahiert automatisch Vertragsdetails.",
+  "scanFromCamera": "Mit Kamera aufnehmen",
   "scanFromGallery": "Foto aus Galerie",
   "scanFromFile": "Datei / PDF auswählen",
   "scanLoading": "KI analysiert Dokument…",

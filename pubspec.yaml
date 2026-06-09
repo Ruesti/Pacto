@@ -33,6 +33,7 @@ dependencies:
 
   # File handling
   file_picker: ^8.3.0
+  image_picker: ^1.2.2
   url_launcher: ^6.3.0
   webview_flutter: ^4.10.0
   pdf: ^3.11.0

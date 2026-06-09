@@ -60,6 +60,9 @@ class DashboardScreen extends ConsumerWidget {
     final subscriptions = contracts
         .where((c) => c.billingCycle == BillingCycle.monthly)
         .length;
+    // "Verträge" und "Abos" schließen sich gegenseitig aus, damit ein Eintrag
+    // nicht in beiden Kacheln gezählt wird: Abos = monatlich, Verträge = Rest.
+    final nonSubscriptionContracts = contracts.length - subscriptions;
 
     final recent = List<Contract>.of(contracts)
       ..sort((a, b) => (b.updatedAt).compareTo(a.updatedAt));
@@ -92,7 +95,7 @@ class DashboardScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
             sliver: SliverToBoxAdapter(
               child: OverviewStatsCard(
-                contracts: contracts.length,
+                contracts: nonSubscriptionContracts,
                 cancellationsSoon: cancellationsSoon,
                 subscriptions: subscriptions,
                 heirs: heirs.length,

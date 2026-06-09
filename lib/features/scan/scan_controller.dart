@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../shared/l10n/l10n_extension.dart';
 import 'extraction_enricher.dart';
 import 'extraction_result.dart';
@@ -13,6 +14,14 @@ class ScanController {
   final ExtractionService _service = ExtractionService();
 
   Future<File?> pickImage(ScanSource source) async {
+    if (source == ScanSource.camera) {
+      final xfile = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+      );
+      if (xfile == null) return null;
+      return File(xfile.path);
+    }
     final result = await FilePicker.platform.pickFiles(
       type: source == ScanSource.file ? FileType.any : FileType.image,
       allowMultiple: false,
@@ -106,6 +115,12 @@ class _ScanScreenState extends State<ScanScreen> {
                     style: const TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 32),
+                  _button(
+                    icon: Icons.photo_camera_outlined,
+                    label: l.scanFromCamera,
+                    onTap: () => _scan(ScanSource.camera),
+                  ),
+                  const SizedBox(height: 12),
                   _button(
                     icon: Icons.photo_library_outlined,
                     label: l.scanFromGallery,

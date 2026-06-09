@@ -210,6 +210,7 @@
   "scanTitle": "Scan document",
   "scanChooseSource": "Choose a source",
   "scanHint": "AI automatically extracts contract details.",
+  "scanFromCamera": "Take a photo",
   "scanFromGallery": "Photo from gallery",
   "scanFromFile": "Select file / PDF",
   "scanLoading": "AI is analyzing document…",

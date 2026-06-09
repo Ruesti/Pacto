@@ -577,6 +577,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get scanHint => 'Die KI extrahiert automatisch Vertragsdetails.';
 
   @override
+  String get scanFromCamera => 'Mit Kamera aufnehmen';
+
+  @override
   String get scanFromGallery => 'Foto aus Galerie';
 
   @override

@@ -4,6 +4,8 @@
 	<dict>
 		<key>NSFaceIDUsageDescription</key>
 		<string>Pacto nutzt Face ID, um die App und deine gespeicherten Passwörter zu schützen.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Pacto nutzt die Kamera, um Verträge zu fotografieren und automatisch auszulesen.</string>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>
