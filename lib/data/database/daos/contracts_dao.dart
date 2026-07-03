@@ -18,6 +18,19 @@ class ContractsDao extends DatabaseAccessor<AppDatabase>
   Future<void> insertContract(ContractsCompanion entry) =>
       into(contracts).insert(entry);
 
+  /// Loescht alle vorhandenen Vertraege und ersetzt sie durch [entries] —
+  /// genutzt beim Account-Recovery-Restore (siehe AccountVaultService).
+  /// Laeuft in einer Transaktion, damit ein Fehler mitten im Import nicht
+  /// eine halb-geleerte Tabelle hinterlaesst.
+  Future<void> replaceAll(List<ContractsCompanion> entries) {
+    return transaction(() async {
+      await delete(contracts).go();
+      for (final entry in entries) {
+        await into(contracts).insert(entry);
+      }
+    });
+  }
+
   Future<bool> updateContract(ContractsCompanion entry) =>
       update(contracts).replace(entry);
 
