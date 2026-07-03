@@ -1228,4 +1228,42 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get webSearchUnsupportedPlatform =>
       'Die Web-Suche ist nur auf Mobilgeräten (Android, iOS) und macOS verfügbar.\n\nAuf dem Desktop kannst du Verträge manuell einpflegen.';
+
+  @override
+  String get accountSectionTitle => 'Konto';
+
+  @override
+  String get accountNotLoggedInText =>
+      'Sichere deine Daten mit einem Konto, um sie nach einem Geräteverlust wiederherzustellen.';
+
+  @override
+  String get accountRegisterButton => 'Registrieren';
+
+  @override
+  String get accountLoginButton => 'Einloggen';
+
+  @override
+  String accountLoggedInAs(String email) {
+    return 'Eingeloggt als $email';
+  }
+
+  @override
+  String get accountLogoutButton => 'Abmelden';
+
+  @override
+  String get accountRestoreButton => 'Cloud-Backup wiederherstellen';
+
+  @override
+  String get accountRestoreConfirmTitle => 'Backup wiederherstellen?';
+
+  @override
+  String get accountRestoreConfirmBody =>
+      'Ersetzt deine aktuellen lokalen Daten durch das Cloud-Backup. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get accountRestoreNeedsPasswordTitle => 'Passwort bestätigen';
+
+  @override
+  String get accountRestoreNeedsPasswordBody =>
+      'Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln.';
 }

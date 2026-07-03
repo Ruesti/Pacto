@@ -424,5 +424,22 @@
   "onboarding3Title": "Just in case",
   "onboarding3Body": "Register heirs with PIN access. So someone always knows what to do — calm, secure, only accessible when needed.",
 
-  "webSearchUnsupportedPlatform": "Web search is only available on mobile devices (Android, iOS) and macOS.\n\nOn desktop, you can add contracts manually."
+  "webSearchUnsupportedPlatform": "Web search is only available on mobile devices (Android, iOS) and macOS.\n\nOn desktop, you can add contracts manually.",
+
+  "accountSectionTitle": "Account",
+  "accountNotLoggedInText": "Secure your data with an account so you can restore it after losing your device.",
+  "accountRegisterButton": "Register",
+  "accountLoginButton": "Log in",
+  "accountLoggedInAs": "Logged in as {email}",
+  "@accountLoggedInAs": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "accountLogoutButton": "Log out",
+  "accountRestoreButton": "Restore cloud backup",
+  "accountRestoreConfirmTitle": "Restore backup?",
+  "accountRestoreConfirmBody": "Replaces your current local data with the cloud backup. This cannot be undone.",
+  "accountRestoreNeedsPasswordTitle": "Confirm password",
+  "accountRestoreNeedsPasswordBody": "Enter your password again to decrypt the cloud key."
 }

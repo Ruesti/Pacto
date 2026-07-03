@@ -1223,4 +1223,42 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get webSearchUnsupportedPlatform =>
       'Web search is only available on mobile devices (Android, iOS) and macOS.\n\nOn desktop, you can add contracts manually.';
+
+  @override
+  String get accountSectionTitle => 'Account';
+
+  @override
+  String get accountNotLoggedInText =>
+      'Secure your data with an account so you can restore it after losing your device.';
+
+  @override
+  String get accountRegisterButton => 'Register';
+
+  @override
+  String get accountLoginButton => 'Log in';
+
+  @override
+  String accountLoggedInAs(String email) {
+    return 'Logged in as $email';
+  }
+
+  @override
+  String get accountLogoutButton => 'Log out';
+
+  @override
+  String get accountRestoreButton => 'Restore cloud backup';
+
+  @override
+  String get accountRestoreConfirmTitle => 'Restore backup?';
+
+  @override
+  String get accountRestoreConfirmBody =>
+      'Replaces your current local data with the cloud backup. This cannot be undone.';
+
+  @override
+  String get accountRestoreNeedsPasswordTitle => 'Confirm password';
+
+  @override
+  String get accountRestoreNeedsPasswordBody =>
+      'Enter your password again to decrypt the cloud key.';
 }

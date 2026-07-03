@@ -468,5 +468,22 @@
   "onboarding3Title": "Für den Fall der Fälle",
   "onboarding3Body": "Hinterlege Erben mit PIN-Zugang. So weiß im Ernstfall sofort jemand Bescheid — ruhig, sicher, nur dann zugänglich, wenn nötig.",
 
-  "webSearchUnsupportedPlatform": "Die Web-Suche ist nur auf Mobilgeräten (Android, iOS) und macOS verfügbar.\n\nAuf dem Desktop kannst du Verträge manuell einpflegen."
+  "webSearchUnsupportedPlatform": "Die Web-Suche ist nur auf Mobilgeräten (Android, iOS) und macOS verfügbar.\n\nAuf dem Desktop kannst du Verträge manuell einpflegen.",
+
+  "accountSectionTitle": "Konto",
+  "accountNotLoggedInText": "Sichere deine Daten mit einem Konto, um sie nach einem Geräteverlust wiederherzustellen.",
+  "accountRegisterButton": "Registrieren",
+  "accountLoginButton": "Einloggen",
+  "accountLoggedInAs": "Eingeloggt als {email}",
+  "@accountLoggedInAs": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "accountLogoutButton": "Abmelden",
+  "accountRestoreButton": "Cloud-Backup wiederherstellen",
+  "accountRestoreConfirmTitle": "Backup wiederherstellen?",
+  "accountRestoreConfirmBody": "Ersetzt deine aktuellen lokalen Daten durch das Cloud-Backup. Das kann nicht rückgängig gemacht werden.",
+  "accountRestoreNeedsPasswordTitle": "Passwort bestätigen",
+  "accountRestoreNeedsPasswordBody": "Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln."
 }

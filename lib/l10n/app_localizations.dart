@@ -2317,6 +2317,72 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Die Web-Suche ist nur auf Mobilgeräten (Android, iOS) und macOS verfügbar.\n\nAuf dem Desktop kannst du Verträge manuell einpflegen.'**
   String get webSearchUnsupportedPlatform;
+
+  /// No description provided for @accountSectionTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Konto'**
+  String get accountSectionTitle;
+
+  /// No description provided for @accountNotLoggedInText.
+  ///
+  /// In de, this message translates to:
+  /// **'Sichere deine Daten mit einem Konto, um sie nach einem Geräteverlust wiederherzustellen.'**
+  String get accountNotLoggedInText;
+
+  /// No description provided for @accountRegisterButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Registrieren'**
+  String get accountRegisterButton;
+
+  /// No description provided for @accountLoginButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Einloggen'**
+  String get accountLoginButton;
+
+  /// No description provided for @accountLoggedInAs.
+  ///
+  /// In de, this message translates to:
+  /// **'Eingeloggt als {email}'**
+  String accountLoggedInAs(String email);
+
+  /// No description provided for @accountLogoutButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Abmelden'**
+  String get accountLogoutButton;
+
+  /// No description provided for @accountRestoreButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Cloud-Backup wiederherstellen'**
+  String get accountRestoreButton;
+
+  /// No description provided for @accountRestoreConfirmTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Backup wiederherstellen?'**
+  String get accountRestoreConfirmTitle;
+
+  /// No description provided for @accountRestoreConfirmBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Ersetzt deine aktuellen lokalen Daten durch das Cloud-Backup. Das kann nicht rückgängig gemacht werden.'**
+  String get accountRestoreConfirmBody;
+
+  /// No description provided for @accountRestoreNeedsPasswordTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort bestätigen'**
+  String get accountRestoreNeedsPasswordTitle;
+
+  /// No description provided for @accountRestoreNeedsPasswordBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln.'**
+  String get accountRestoreNeedsPasswordBody;
 }
 
 class _AppLocalizationsDelegate
