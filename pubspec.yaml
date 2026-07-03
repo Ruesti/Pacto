@@ -30,6 +30,7 @@ dependencies:
 
   # Network
   http: ^1.2.0
+  supabase_flutter: ^2.8.0
 
   # File handling
   file_picker: ^8.3.0
