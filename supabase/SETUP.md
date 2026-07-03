@@ -194,3 +194,14 @@ eine echte **anonyme User-Session** (für die User-ID des Rate-Limits) und
 antwortet sonst mit `401`. Nötig ist eine kleine Ergänzung: beim App-Start
 anonym anmelden (`signInAnonymously`) und das Session-Token statt des
 anon-Keys an die Function schicken.
+
+## Passwort-Reset-E-Mail-Template fuer OTP-Flow
+
+Damit "Passwort vergessen" ohne Deep-Link funktioniert (App zeigt ein Eingabefeld fuer
+einen 6-stelligen Code statt einen Klick-Link zu erwarten), muss das Supabase-
+E-Mail-Template angepasst werden:
+
+Supabase Dashboard → Authentication → Email Templates → **Reset Password** →
+sicherstellen, dass der Text `{{ .Token }}` enthaelt (z.B. "Dein Code: {{ .Token }}"),
+zusaetzlich zum Standard-Link. Ohne diese Anpassung sieht der Nutzer keinen Code in der
+Mail und der OTP-Flow in `ForgotPasswordScreen` schlaegt fehl.

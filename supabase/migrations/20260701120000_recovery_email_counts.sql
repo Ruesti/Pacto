@@ -1,0 +1,7 @@
+-- Placeholder: this migration was applied directly against the live
+-- Supabase project outside of the git-tracked migration workflow (created
+-- table public.recovery_email_counts, a rate-limit counter table for
+-- password-recovery emails, analogous to scan_counts). No SQL to run here —
+-- the table already exists on the remote database. This file exists only so
+-- the local migration history matches the remote history table
+-- (supabase_migrations.schema_migrations); see `supabase migration list`.
