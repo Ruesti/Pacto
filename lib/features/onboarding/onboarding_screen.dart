@@ -163,7 +163,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _namePage(AppLocalizations l, ColorScheme scheme) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
