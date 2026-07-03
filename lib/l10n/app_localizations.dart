@@ -1658,6 +1658,48 @@ abstract class AppLocalizations {
   /// **'z. B. \"siehe 1Password\" / \"Notizbuch im Schreibtisch\"'**
   String get fieldLoginHintHint;
 
+  /// No description provided for @registerTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Konto erstellen'**
+  String get registerTitle;
+
+  /// No description provided for @registerPasswordLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort'**
+  String get registerPasswordLabel;
+
+  /// No description provided for @registerPasswordConfirmLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort bestätigen'**
+  String get registerPasswordConfirmLabel;
+
+  /// No description provided for @registerSubmitButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Registrieren'**
+  String get registerSubmitButton;
+
+  /// No description provided for @registerPasswordMismatch.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwörter stimmen nicht überein'**
+  String get registerPasswordMismatch;
+
+  /// No description provided for @registerPasswordTooShort.
+  ///
+  /// In de, this message translates to:
+  /// **'Mindestens 8 Zeichen'**
+  String get registerPasswordTooShort;
+
+  /// No description provided for @registerSuccessMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätige deine E-Mail über den Link, den wir dir geschickt haben — danach kannst du dich einloggen.'**
+  String get registerSuccessMessage;
+
   /// No description provided for @loginLastVerifiedNever.
   ///
   /// In de, this message translates to:

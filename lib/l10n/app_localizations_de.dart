@@ -867,6 +867,28 @@ class AppLocalizationsDe extends AppLocalizations {
       'z. B. \"siehe 1Password\" / \"Notizbuch im Schreibtisch\"';
 
   @override
+  String get registerTitle => 'Konto erstellen';
+
+  @override
+  String get registerPasswordLabel => 'Passwort';
+
+  @override
+  String get registerPasswordConfirmLabel => 'Passwort bestätigen';
+
+  @override
+  String get registerSubmitButton => 'Registrieren';
+
+  @override
+  String get registerPasswordMismatch => 'Passwörter stimmen nicht überein';
+
+  @override
+  String get registerPasswordTooShort => 'Mindestens 8 Zeichen';
+
+  @override
+  String get registerSuccessMessage =>
+      'Bestätige deine E-Mail über den Link, den wir dir geschickt haben — danach kannst du dich einloggen.';
+
+  @override
   String get loginLastVerifiedNever => 'Noch nicht bestätigt';
 
   @override
