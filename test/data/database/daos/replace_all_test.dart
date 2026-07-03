@@ -49,7 +49,15 @@ void main() {
     expect(restored.single.id, 'c1');
     expect(restored.single.category, ContractCategory.streaming);
     expect(restored.single.monthlyCost, 17.99);
-    expect(restored.single.nextRenewal, DateTime.utc(2026, 8, 1));
+    // Drift's dateTime() columns return local-time DateTime objects on
+    // read even when a UTC DateTime was stored — the instant is preserved
+    // correctly, only the isUtc flag differs, and Dart's DateTime.==
+    // considers that flag part of equality. Compare instants directly.
+    expect(restored.single.nextRenewal, isNotNull);
+    expect(
+      restored.single.nextRenewal!.isAtSameMomentAs(DateTime.utc(2026, 8, 1)),
+      isTrue,
+    );
   });
 
   test('replaceAll clears previously existing contracts first', () async {
