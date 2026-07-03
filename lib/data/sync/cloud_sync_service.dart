@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../../config/supabase_config.dart';
 import '../database/database.dart';
+import 'account_vault_service.dart';
 import 'backup_payload_mapper.dart';
 import 'crypto_service.dart';
 
@@ -21,8 +23,9 @@ class SyncConfig {
 class CloudSyncService {
   final AppDatabase _db;
   final CryptoService _crypto;
+  final AccountVaultService _accountVault;
 
-  CloudSyncService(this._db, this._crypto);
+  CloudSyncService(this._db, this._crypto, this._accountVault);
 
   static Future<String> _deviceId() async {
     final prefs = await SharedPreferences.getInstance();
@@ -48,6 +51,13 @@ class CloudSyncService {
   }
 
   Future<void> pushAll() async {
+    if (Supabase.instance.client.auth.currentSession != null) {
+      // Eingeloggt: Backup laeuft ueber das Account-Vault (siehe
+      // AccountVaultService), nicht ueber den anonymen device_id-Pfad.
+      await _accountVault.pushPayloadOnly();
+      return;
+    }
+
     final cfg = await loadConfig();
     if (!cfg.isComplete) {
       throw Exception('Sync nicht konfiguriert — bitte Supabase-URL und Anon Key hinterlegen.');
