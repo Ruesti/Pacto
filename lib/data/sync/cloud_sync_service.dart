@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../../config/supabase_config.dart';
 import '../database/database.dart';
+import 'backup_payload_mapper.dart';
 import 'crypto_service.dart';
 
 const _keyDeviceId = 'pacto.sync.device_id';
@@ -46,39 +47,6 @@ class CloudSyncService {
     return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
   }
 
-  Map<String, dynamic> _contractToMap(Contract c) => {
-        'id': c.id,
-        'name': c.name,
-        'entryType': c.entryType.name,
-        'accessCategory': c.accessCategory?.name,
-        'category': c.category.name,
-        'provider': c.provider,
-        'contactPhone': c.contactPhone,
-        'contactEmail': c.contactEmail,
-        'contactUrl': c.contactUrl,
-        'cancellationMethod': c.cancellationMethod.name,
-        'cancellationInstructions': c.cancellationInstructions,
-        'noticePeriod': c.noticePeriod,
-        'monthlyCost': c.monthlyCost,
-        'billingCycle': c.billingCycle.name,
-        'documentPath': c.documentPath,
-        'notes': c.notes,
-        'contractStart': c.contractStart?.toIso8601String(),
-        'nextRenewal': c.nextRenewal?.toIso8601String(),
-        'createdAt': c.createdAt.toIso8601String(),
-        'updatedAt': c.updatedAt.toIso8601String(),
-      };
-
-  Map<String, dynamic> _heirToMap(Heir h) => {
-        'id': h.id,
-        'name': h.name,
-        'email': h.email,
-        'pinHash': h.pinHash,
-        'accessLevel': h.accessLevel.name,
-        'isActive': h.isActive,
-        'createdAt': h.createdAt.toIso8601String(),
-      };
-
   Future<void> pushAll() async {
     final cfg = await loadConfig();
     if (!cfg.isComplete) {
@@ -88,12 +56,7 @@ class CloudSyncService {
     final contracts = await _db.contractsDao.getAll();
     final heirs = await _db.heirsDao.getAll();
 
-    final payload = {
-      'version': 1,
-      'exported_at': DateTime.now().toIso8601String(),
-      'contracts': contracts.map(_contractToMap).toList(),
-      'heirs': heirs.map(_heirToMap).toList(),
-    };
+    final payload = buildBackupPayload(contracts: contracts, heirs: heirs);
 
     final encrypted = await _crypto.encryptJson(payload);
     final deviceId = await _deviceId();
