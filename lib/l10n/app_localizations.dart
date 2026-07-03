@@ -2276,6 +2276,12 @@ abstract class AppLocalizations {
   /// **'Lieber anonym bleiben'**
   String get onboardingNameSkip;
 
+  /// No description provided for @onboardingHaveAccountLink.
+  ///
+  /// In de, this message translates to:
+  /// **'Schon ein Pacto-Konto? Daten wiederherstellen'**
+  String get onboardingHaveAccountLink;
+
   /// No description provided for @onboarding1Title.
   ///
   /// In de, this message translates to:

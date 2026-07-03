@@ -417,6 +417,7 @@
   "onboardingNameBody": "Pacto will greet you personally.",
   "onboardingNameHint": "Your first name",
   "onboardingNameSkip": "Stay anonymous",
+  "onboardingHaveAccountLink": "Already have a Pacto account? Restore your data",
   "onboarding1Title": "Do you really know what you pay each month?",
   "onboarding1Body": "Pacto collects all your subscriptions and contracts in one place — with costs, notice periods, and cancellation instructions.",
   "onboarding2Title": "Photo in — data out",

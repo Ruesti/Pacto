@@ -1205,6 +1205,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get onboardingNameSkip => 'Lieber anonym bleiben';
 
   @override
+  String get onboardingHaveAccountLink =>
+      'Schon ein Pacto-Konto? Daten wiederherstellen';
+
+  @override
   String get onboarding1Title => 'Weißt du wirklich was du jeden Monat zahlst?';
 
   @override

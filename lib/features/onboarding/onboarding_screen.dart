@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/l10n/l10n_extension.dart';
+import '../account/login_screen.dart';
 
 const _keyOnboardingDone = 'pacto.onboarding.done';
 const _keyUserName = 'pacto.user.name';
@@ -203,6 +204,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               onPressed: () => _finish(name: _nameCtrl.text),
               child: Text(l.onboardingStart),
             ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final restored = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      const LoginScreen(autoRestoreOnSuccess: true),
+                ),
+              );
+              if (restored == true) {
+                _finish(name: _nameCtrl.text.isNotEmpty ? _nameCtrl.text : null);
+              }
+            },
+            child: Text(l.onboardingHaveAccountLink),
           ),
           TextButton(
             onPressed: () => _finish(),
