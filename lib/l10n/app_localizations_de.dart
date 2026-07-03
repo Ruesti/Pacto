@@ -889,6 +889,54 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bestätige deine E-Mail über den Link, den wir dir geschickt haben — danach kannst du dich einloggen.';
 
   @override
+  String get loginTitle => 'Einloggen';
+
+  @override
+  String get loginSubmitButton => 'Einloggen';
+
+  @override
+  String get loginForgotPasswordLink => 'Passwort vergessen?';
+
+  @override
+  String get loginNoAccountLink => 'Noch kein Konto? Registrieren';
+
+  @override
+  String get forgotPasswordTitle => 'Passwort vergessen';
+
+  @override
+  String get forgotPasswordEmailStepBody =>
+      'Gib deine E-Mail ein, wir schicken dir einen Code.';
+
+  @override
+  String get forgotPasswordSendCodeButton => 'Code senden';
+
+  @override
+  String get forgotPasswordCodeSentMessage =>
+      'Code verschickt — bitte E-Mail prüfen.';
+
+  @override
+  String get forgotPasswordOtpLabel => 'Code aus der E-Mail';
+
+  @override
+  String get forgotPasswordNewPasswordLabel => 'Neues Passwort';
+
+  @override
+  String get forgotPasswordSubmitButton => 'Passwort setzen';
+
+  @override
+  String get forgotPasswordSuccessMessage => 'Passwort geändert.';
+
+  @override
+  String get loginRestoringMessage => 'Daten werden wiederhergestellt …';
+
+  @override
+  String get loginRestoreSuccess => 'Daten wiederhergestellt.';
+
+  @override
+  String get loginNoBackupFound =>
+      'Noch kein Backup für dieses Konto vorhanden.';
+
+  @override
   String get loginLastVerifiedNever => 'Noch nicht bestätigt';
 
   @override

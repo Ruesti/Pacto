@@ -885,6 +885,53 @@ class AppLocalizationsEn extends AppLocalizations {
       'Confirm your email using the link we sent you — then you can log in.';
 
   @override
+  String get loginTitle => 'Log in';
+
+  @override
+  String get loginSubmitButton => 'Log in';
+
+  @override
+  String get loginForgotPasswordLink => 'Forgot password?';
+
+  @override
+  String get loginNoAccountLink => 'No account yet? Register';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot password';
+
+  @override
+  String get forgotPasswordEmailStepBody =>
+      'Enter your email, we\'ll send you a code.';
+
+  @override
+  String get forgotPasswordSendCodeButton => 'Send code';
+
+  @override
+  String get forgotPasswordCodeSentMessage =>
+      'Code sent — please check your email.';
+
+  @override
+  String get forgotPasswordOtpLabel => 'Code from the email';
+
+  @override
+  String get forgotPasswordNewPasswordLabel => 'New password';
+
+  @override
+  String get forgotPasswordSubmitButton => 'Set password';
+
+  @override
+  String get forgotPasswordSuccessMessage => 'Password changed.';
+
+  @override
+  String get loginRestoringMessage => 'Restoring your data …';
+
+  @override
+  String get loginRestoreSuccess => 'Data restored.';
+
+  @override
+  String get loginNoBackupFound => 'No backup found for this account yet.';
+
+  @override
   String get loginLastVerifiedNever => 'Never verified';
 
   @override

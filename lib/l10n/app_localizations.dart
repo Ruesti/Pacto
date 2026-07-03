@@ -1700,6 +1700,96 @@ abstract class AppLocalizations {
   /// **'Bestätige deine E-Mail über den Link, den wir dir geschickt haben — danach kannst du dich einloggen.'**
   String get registerSuccessMessage;
 
+  /// No description provided for @loginTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Einloggen'**
+  String get loginTitle;
+
+  /// No description provided for @loginSubmitButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Einloggen'**
+  String get loginSubmitButton;
+
+  /// No description provided for @loginForgotPasswordLink.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort vergessen?'**
+  String get loginForgotPasswordLink;
+
+  /// No description provided for @loginNoAccountLink.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch kein Konto? Registrieren'**
+  String get loginNoAccountLink;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort vergessen'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordEmailStepBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Gib deine E-Mail ein, wir schicken dir einen Code.'**
+  String get forgotPasswordEmailStepBody;
+
+  /// No description provided for @forgotPasswordSendCodeButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Code senden'**
+  String get forgotPasswordSendCodeButton;
+
+  /// No description provided for @forgotPasswordCodeSentMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Code verschickt — bitte E-Mail prüfen.'**
+  String get forgotPasswordCodeSentMessage;
+
+  /// No description provided for @forgotPasswordOtpLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Code aus der E-Mail'**
+  String get forgotPasswordOtpLabel;
+
+  /// No description provided for @forgotPasswordNewPasswordLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Neues Passwort'**
+  String get forgotPasswordNewPasswordLabel;
+
+  /// No description provided for @forgotPasswordSubmitButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort setzen'**
+  String get forgotPasswordSubmitButton;
+
+  /// No description provided for @forgotPasswordSuccessMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort geändert.'**
+  String get forgotPasswordSuccessMessage;
+
+  /// No description provided for @loginRestoringMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Daten werden wiederhergestellt …'**
+  String get loginRestoringMessage;
+
+  /// No description provided for @loginRestoreSuccess.
+  ///
+  /// In de, this message translates to:
+  /// **'Daten wiederhergestellt.'**
+  String get loginRestoreSuccess;
+
+  /// No description provided for @loginNoBackupFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch kein Backup für dieses Konto vorhanden.'**
+  String get loginNoBackupFound;
+
   /// No description provided for @loginLastVerifiedNever.
   ///
   /// In de, this message translates to:
