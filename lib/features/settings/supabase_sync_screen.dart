@@ -5,6 +5,7 @@ import '../../data/providers/database_provider.dart';
 import '../../data/sync/cloud_sync_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/l10n/l10n_extension.dart';
+import '../account/account_screen.dart';
 
 const _keySyncEnabled = 'pacto.sync.enabled';
 
@@ -89,6 +90,8 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                const AccountScreen(),
+                const SizedBox(height: 20),
                 Card(
                   color: Theme.of(context).colorScheme.primaryContainer,
                   child: Padding(

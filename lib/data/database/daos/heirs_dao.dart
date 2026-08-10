@@ -17,6 +17,17 @@ class HeirsDao extends DatabaseAccessor<AppDatabase> with _$HeirsDaoMixin {
   Future<void> insertHeir(HeirsCompanion entry) =>
       into(heirs).insert(entry);
 
+  /// Loescht alle vorhandenen Erben und ersetzt sie durch [entries] — genutzt
+  /// beim Account-Recovery-Restore (siehe AccountVaultService).
+  Future<void> replaceAll(List<HeirsCompanion> entries) {
+    return transaction(() async {
+      await delete(heirs).go();
+      for (final entry in entries) {
+        await into(heirs).insert(entry);
+      }
+    });
+  }
+
   Future<bool> updateHeir(HeirsCompanion entry) =>
       update(heirs).replace(entry);
 

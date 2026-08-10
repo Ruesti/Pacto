@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:workmanager/workmanager.dart';
 import 'app.dart';
 import 'config/supabase_config.dart';
@@ -25,6 +26,11 @@ void callbackDispatcher() {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: SupabaseConfig.projectUrl,
+    anonKey: SupabaseConfig.anonKey,
+  );
 
   // KI-Scan + Cloud-Sync nutzen das fest eingebaute Pacto-Supabase-Projekt —
   // keine Einrichtung durch den Nutzer noetig.

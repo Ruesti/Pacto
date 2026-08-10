@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/l10n/l10n_extension.dart';
+import '../account/login_screen.dart';
 
 const _keyOnboardingDone = 'pacto.onboarding.done';
 const _keyUserName = 'pacto.user.name';
@@ -45,7 +46,17 @@ List<_Slide> _buildSlides(AppLocalizations l) => [
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onDone;
-  const OnboardingScreen({super.key, required this.onDone});
+
+  /// Wiederholungs-Modus (aus den Einstellungen aufgerufen): zeigt nur die
+  /// Info-Slides, überspringt die Namens-/Konto-Seite und lässt den
+  /// vorhandenen Namen unangetastet.
+  final bool isReplay;
+
+  const OnboardingScreen({
+    super.key,
+    required this.onDone,
+    this.isReplay = false,
+  });
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -73,8 +84,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final slides = _buildSlides(l);
-    final totalPages = slides.length + 1; // +1 für Name-Slide
-    final isNamePage = _page == slides.length;
+    // Im Wiederholungs-Modus entfällt die Namens-/Konto-Seite.
+    final totalPages = widget.isReplay ? slides.length : slides.length + 1;
+    final isNamePage = !widget.isReplay && _page == slides.length;
+    final isLastSlide = _page == slides.length - 1;
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -84,7 +97,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () => _finish(),
+                onPressed: widget.isReplay ? widget.onDone : () => _finish(),
                 child: Text(l.onboardingSkip),
               ),
             ),
@@ -147,11 +160,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: () => _controller.nextPage(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeOut,
-                    ),
-                    child: Text(l.onboardingNext),
+                    onPressed: (widget.isReplay && isLastSlide)
+                        ? widget.onDone
+                        : () => _controller.nextPage(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOut,
+                            ),
+                    child: Text((widget.isReplay && isLastSlide)
+                        ? l.onboardingStart
+                        : l.onboardingNext),
                   ),
                 ),
               ),
@@ -163,7 +180,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _namePage(AppLocalizations l, ColorScheme scheme) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -203,6 +220,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               onPressed: () => _finish(name: _nameCtrl.text),
               child: Text(l.onboardingStart),
             ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final restored = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      const LoginScreen(autoRestoreOnSuccess: true),
+                ),
+              );
+              if (restored == true) {
+                _finish(name: _nameCtrl.text.isNotEmpty ? _nameCtrl.text : null);
+              }
+            },
+            child: Text(l.onboardingHaveAccountLink),
           ),
           TextButton(
             onPressed: () => _finish(),

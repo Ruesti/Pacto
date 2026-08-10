@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,9 +8,19 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// android/key.properties enthält die Upload-Keystore-Secrets und ist gitignored.
+// Fehlt die Datei (z.B. bei Mitentwicklern ohne Keystore), fällt der Release-Build
+// nachvollziehbar (Warnung im Build-Log) auf die Debug-Signatur zurück.
+val keystorePropertiesFile = rootProject.file("key.properties")
+val hasKeystoreProperties = keystorePropertiesFile.exists()
+val keystoreProperties = Properties()
+if (hasKeystoreProperties) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.softbrewstudio.pacto"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -26,16 +39,30 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // local_auth + flutter_secure_storage (v10) verlangen mind. API 23.
         minSdk = maxOf(23, flutter.minSdkVersion)
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasKeystoreProperties) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasKeystoreProperties) {
+                signingConfigs.getByName("release")
+            } else {
+                logger.warn("android/key.properties fehlt — Release-Build wird mit dem Debug-Key signiert (nicht Play-Store-fähig).")
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

@@ -345,6 +345,31 @@
   "fieldLoginPasswordHintExisting": "Leer lassen, um das gespeicherte Passwort zu behalten.",
   "fieldLoginHint": "Hinweis (falls kein Passwort gespeichert ist)",
   "fieldLoginHintHint": "z. B. \"siehe 1Password\" / \"Notizbuch im Schreibtisch\"",
+
+  "registerTitle": "Konto erstellen",
+  "registerPasswordLabel": "Passwort",
+  "registerPasswordConfirmLabel": "Passwort bestätigen",
+  "registerSubmitButton": "Registrieren",
+  "registerPasswordMismatch": "Passwörter stimmen nicht überein",
+  "registerPasswordTooShort": "Mindestens 8 Zeichen",
+  "registerSuccessMessage": "Bestätige deine E-Mail über den Link, den wir dir geschickt haben — danach kannst du dich einloggen.",
+
+  "loginTitle": "Einloggen",
+  "loginSubmitButton": "Einloggen",
+  "loginForgotPasswordLink": "Passwort vergessen?",
+  "loginNoAccountLink": "Noch kein Konto? Registrieren",
+
+  "forgotPasswordTitle": "Passwort vergessen",
+  "forgotPasswordEmailStepBody": "Gib deine E-Mail ein, wir schicken dir einen Code.",
+  "forgotPasswordSendCodeButton": "Code senden",
+  "forgotPasswordCodeSentMessage": "Code verschickt — bitte E-Mail prüfen.",
+  "forgotPasswordOtpLabel": "Code aus der E-Mail",
+  "forgotPasswordNewPasswordLabel": "Neues Passwort",
+  "forgotPasswordSubmitButton": "Passwort setzen",
+  "forgotPasswordSuccessMessage": "Passwort geändert.",
+  "loginRestoringMessage": "Daten werden wiederhergestellt …",
+  "loginRestoreSuccess": "Daten wiederhergestellt.",
+  "loginNoBackupFound": "Noch kein Backup für dieses Konto vorhanden.",
   "loginLastVerifiedNever": "Noch nicht bestätigt",
   "loginLastVerifiedRecent": "Bestätigt am {date}",
   "@loginLastVerifiedRecent": { "placeholders": { "date": {} } },
@@ -436,6 +461,7 @@
   "onboardingNameBody": "So kann Pacto dich persönlich begrüßen.",
   "onboardingNameHint": "Dein Vorname",
   "onboardingNameSkip": "Lieber anonym bleiben",
+  "onboardingHaveAccountLink": "Schon ein Pacto-Konto? Daten wiederherstellen",
   "onboarding1Title": "Weißt du wirklich was du jeden Monat zahlst?",
   "onboarding1Body": "Pacto sammelt alle deine Abos und Verträge an einem Ort — mit Kosten, Kündigungsfristen und Anleitung zur Beendigung.",
   "onboarding2Title": "Foto rein — Daten raus",
@@ -443,5 +469,22 @@
   "onboarding3Title": "Für den Fall der Fälle",
   "onboarding3Body": "Hinterlege Erben mit PIN-Zugang. So weiß im Ernstfall sofort jemand Bescheid — ruhig, sicher, nur dann zugänglich, wenn nötig.",
 
-  "webSearchUnsupportedPlatform": "Die Web-Suche ist nur auf Mobilgeräten (Android, iOS) und macOS verfügbar.\n\nAuf dem Desktop kannst du Verträge manuell einpflegen."
+  "webSearchUnsupportedPlatform": "Die Web-Suche ist nur auf Mobilgeräten (Android, iOS) und macOS verfügbar.\n\nAuf dem Desktop kannst du Verträge manuell einpflegen.",
+
+  "accountSectionTitle": "Konto",
+  "accountNotLoggedInText": "Sichere deine Daten mit einem Konto, um sie nach einem Geräteverlust wiederherzustellen.",
+  "accountRegisterButton": "Registrieren",
+  "accountLoginButton": "Einloggen",
+  "accountLoggedInAs": "Eingeloggt als {email}",
+  "@accountLoggedInAs": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "accountLogoutButton": "Abmelden",
+  "accountRestoreButton": "Cloud-Backup wiederherstellen",
+  "accountRestoreConfirmTitle": "Backup wiederherstellen?",
+  "accountRestoreConfirmBody": "Ersetzt deine aktuellen lokalen Daten durch das Cloud-Backup. Das kann nicht rückgängig gemacht werden.",
+  "accountRestoreNeedsPasswordTitle": "Passwort bestätigen",
+  "accountRestoreNeedsPasswordBody": "Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln."
 }

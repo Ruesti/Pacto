@@ -11,6 +11,7 @@ import '../provider_library/provider_library_data.dart';
 import '../provider_library/provider_library_screen.dart';
 import '../contracts/contracts_screen.dart';
 import '../dashboard/dashboard_screen.dart';
+import '../heirs/heir_detail_screen.dart';
 import '../heirs/heirs_screen.dart';
 import '../premium/premium_service.dart';
 import '../scan/extraction_result.dart';
@@ -48,6 +49,19 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     if (contracts.length < freeTierLimit) return true;
     if (!mounted) return false;
     return showPurchaseDialog(context, ref);
+  }
+
+  Future<void> _onFabPressed() async {
+    // Auf dem Erben-Tab hat der eingebettete HeirsScreen keinen erreichbaren
+    // eigenen FAB (liegt hinter der aeusseren BottomAppBar) — das globale "+"
+    // uebernimmt hier deshalb das Hinzufuegen eines Erben statt eines Vertrags.
+    if (_tab == 2) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const HeirDetailScreen()),
+      );
+      return;
+    }
+    await _addContract();
   }
 
   Future<void> _addContract() async {
@@ -116,7 +130,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
         onManageHeirs: _openHeirs,
       ),
       const ContractsScreen(),
-      const HeirsScreen(),
+      const HeirsScreen(showFab: false),
       const SettingsScreen(),
     ];
 
@@ -125,12 +139,16 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       body: IndexedStack(index: _tab, children: tabs),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: _addContract,
+        onPressed: _onFabPressed,
         backgroundColor: AppColors.primary,
         elevation: 0,
         highlightElevation: 0,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
+        child: Icon(
+          _tab == 2 ? Icons.person_add_outlined : Icons.add,
+          color: Colors.white,
+          size: 28,
+        ),
       ),
       bottomNavigationBar: _BottomBar(
         index: _tab,

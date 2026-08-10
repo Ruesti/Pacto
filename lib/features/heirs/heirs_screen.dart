@@ -10,7 +10,12 @@ import 'heir_detail_screen.dart';
 import 'share_export_service.dart';
 
 class HeirsScreen extends ConsumerWidget {
-  const HeirsScreen({super.key});
+  // false, wenn der Screen als eingebetteter Tab in HomeShell laeuft — dort
+  // uebernimmt das globale, tab-abhaengige FAB das Hinzufuegen eines Erben,
+  // weil ein eigener FAB hier hinter der aeusseren BottomAppBar verschwaende.
+  final bool showFab;
+
+  const HeirsScreen({super.key, this.showFab = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,12 +50,14 @@ class HeirsScreen extends ConsumerWidget {
                 ],
               ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => const HeirDetailScreen())),
-        icon: const Icon(Icons.person_add_outlined),
-        label: Text(l.heirAddFab),
-      ),
+      floatingActionButton: showFab
+          ? FloatingActionButton.extended(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const HeirDetailScreen())),
+              icon: const Icon(Icons.person_add_outlined),
+              label: Text(l.heirAddFab),
+            )
+          : null,
     );
   }
 

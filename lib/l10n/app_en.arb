@@ -305,6 +305,32 @@
   "fieldLoginPasswordHintExisting": "Leave empty to keep the saved password.",
   "fieldLoginHint": "Hint (if no password is stored)",
   "fieldLoginHintHint": "e.g. \"see 1Password\" / \"notebook on the desk\"",
+
+  "registerTitle": "Create account",
+  "registerPasswordLabel": "Password",
+  "registerPasswordConfirmLabel": "Confirm password",
+  "registerSubmitButton": "Register",
+  "registerPasswordMismatch": "Passwords do not match",
+  "registerPasswordTooShort": "At least 8 characters",
+  "registerSuccessMessage": "Confirm your email using the link we sent you — then you can log in.",
+
+  "loginTitle": "Log in",
+  "loginSubmitButton": "Log in",
+  "loginForgotPasswordLink": "Forgot password?",
+  "loginNoAccountLink": "No account yet? Register",
+
+  "forgotPasswordTitle": "Forgot password",
+  "forgotPasswordEmailStepBody": "Enter your email, we'll send you a code.",
+  "forgotPasswordSendCodeButton": "Send code",
+  "forgotPasswordCodeSentMessage": "Code sent — please check your email.",
+  "forgotPasswordOtpLabel": "Code from the email",
+  "forgotPasswordNewPasswordLabel": "New password",
+  "forgotPasswordSubmitButton": "Set password",
+  "forgotPasswordSuccessMessage": "Password changed.",
+  "loginRestoringMessage": "Restoring your data …",
+  "loginRestoreSuccess": "Data restored.",
+  "loginNoBackupFound": "No backup found for this account yet.",
+
   "loginLastVerifiedNever": "Never verified",
   "loginLastVerifiedRecent": "Verified on {date}",
   "@loginLastVerifiedRecent": { "placeholders": { "date": {} } },
@@ -391,6 +417,7 @@
   "onboardingNameBody": "Pacto will greet you personally.",
   "onboardingNameHint": "Your first name",
   "onboardingNameSkip": "Stay anonymous",
+  "onboardingHaveAccountLink": "Already have a Pacto account? Restore your data",
   "onboarding1Title": "Do you really know what you pay each month?",
   "onboarding1Body": "Pacto collects all your subscriptions and contracts in one place — with costs, notice periods, and cancellation instructions.",
   "onboarding2Title": "Photo in — data out",
@@ -398,5 +425,22 @@
   "onboarding3Title": "Just in case",
   "onboarding3Body": "Register heirs with PIN access. So someone always knows what to do — calm, secure, only accessible when needed.",
 
-  "webSearchUnsupportedPlatform": "Web search is only available on mobile devices (Android, iOS) and macOS.\n\nOn desktop, you can add contracts manually."
+  "webSearchUnsupportedPlatform": "Web search is only available on mobile devices (Android, iOS) and macOS.\n\nOn desktop, you can add contracts manually.",
+
+  "accountSectionTitle": "Account",
+  "accountNotLoggedInText": "Secure your data with an account so you can restore it after losing your device.",
+  "accountRegisterButton": "Register",
+  "accountLoginButton": "Log in",
+  "accountLoggedInAs": "Logged in as {email}",
+  "@accountLoggedInAs": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "accountLogoutButton": "Log out",
+  "accountRestoreButton": "Restore cloud backup",
+  "accountRestoreConfirmTitle": "Restore backup?",
+  "accountRestoreConfirmBody": "Replaces your current local data with the cloud backup. This cannot be undone.",
+  "accountRestoreNeedsPasswordTitle": "Confirm password",
+  "accountRestoreNeedsPasswordBody": "Enter your password again to decrypt the cloud key."
 }

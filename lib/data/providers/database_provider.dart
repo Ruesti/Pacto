@@ -4,6 +4,7 @@ import '../database/daos/contracts_dao.dart';
 import '../database/daos/heirs_dao.dart';
 import '../sync/cloud_sync_service.dart';
 import '../sync/crypto_service.dart';
+import 'account_provider.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -33,5 +34,6 @@ final cloudSyncServiceProvider = Provider<CloudSyncService>((ref) {
   return CloudSyncService(
     ref.watch(databaseProvider),
     ref.watch(cryptoServiceProvider),
+    ref.watch(accountVaultServiceProvider),
   );
 });

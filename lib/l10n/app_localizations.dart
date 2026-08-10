@@ -1658,6 +1658,138 @@ abstract class AppLocalizations {
   /// **'z. B. \"siehe 1Password\" / \"Notizbuch im Schreibtisch\"'**
   String get fieldLoginHintHint;
 
+  /// No description provided for @registerTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Konto erstellen'**
+  String get registerTitle;
+
+  /// No description provided for @registerPasswordLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort'**
+  String get registerPasswordLabel;
+
+  /// No description provided for @registerPasswordConfirmLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort bestätigen'**
+  String get registerPasswordConfirmLabel;
+
+  /// No description provided for @registerSubmitButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Registrieren'**
+  String get registerSubmitButton;
+
+  /// No description provided for @registerPasswordMismatch.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwörter stimmen nicht überein'**
+  String get registerPasswordMismatch;
+
+  /// No description provided for @registerPasswordTooShort.
+  ///
+  /// In de, this message translates to:
+  /// **'Mindestens 8 Zeichen'**
+  String get registerPasswordTooShort;
+
+  /// No description provided for @registerSuccessMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestätige deine E-Mail über den Link, den wir dir geschickt haben — danach kannst du dich einloggen.'**
+  String get registerSuccessMessage;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Einloggen'**
+  String get loginTitle;
+
+  /// No description provided for @loginSubmitButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Einloggen'**
+  String get loginSubmitButton;
+
+  /// No description provided for @loginForgotPasswordLink.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort vergessen?'**
+  String get loginForgotPasswordLink;
+
+  /// No description provided for @loginNoAccountLink.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch kein Konto? Registrieren'**
+  String get loginNoAccountLink;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort vergessen'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordEmailStepBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Gib deine E-Mail ein, wir schicken dir einen Code.'**
+  String get forgotPasswordEmailStepBody;
+
+  /// No description provided for @forgotPasswordSendCodeButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Code senden'**
+  String get forgotPasswordSendCodeButton;
+
+  /// No description provided for @forgotPasswordCodeSentMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Code verschickt — bitte E-Mail prüfen.'**
+  String get forgotPasswordCodeSentMessage;
+
+  /// No description provided for @forgotPasswordOtpLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Code aus der E-Mail'**
+  String get forgotPasswordOtpLabel;
+
+  /// No description provided for @forgotPasswordNewPasswordLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Neues Passwort'**
+  String get forgotPasswordNewPasswordLabel;
+
+  /// No description provided for @forgotPasswordSubmitButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort setzen'**
+  String get forgotPasswordSubmitButton;
+
+  /// No description provided for @forgotPasswordSuccessMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort geändert.'**
+  String get forgotPasswordSuccessMessage;
+
+  /// No description provided for @loginRestoringMessage.
+  ///
+  /// In de, this message translates to:
+  /// **'Daten werden wiederhergestellt …'**
+  String get loginRestoringMessage;
+
+  /// No description provided for @loginRestoreSuccess.
+  ///
+  /// In de, this message translates to:
+  /// **'Daten wiederhergestellt.'**
+  String get loginRestoreSuccess;
+
+  /// No description provided for @loginNoBackupFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch kein Backup für dieses Konto vorhanden.'**
+  String get loginNoBackupFound;
+
   /// No description provided for @loginLastVerifiedNever.
   ///
   /// In de, this message translates to:
@@ -2144,6 +2276,12 @@ abstract class AppLocalizations {
   /// **'Lieber anonym bleiben'**
   String get onboardingNameSkip;
 
+  /// No description provided for @onboardingHaveAccountLink.
+  ///
+  /// In de, this message translates to:
+  /// **'Schon ein Pacto-Konto? Daten wiederherstellen'**
+  String get onboardingHaveAccountLink;
+
   /// No description provided for @onboarding1Title.
   ///
   /// In de, this message translates to:
@@ -2185,6 +2323,72 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Die Web-Suche ist nur auf Mobilgeräten (Android, iOS) und macOS verfügbar.\n\nAuf dem Desktop kannst du Verträge manuell einpflegen.'**
   String get webSearchUnsupportedPlatform;
+
+  /// No description provided for @accountSectionTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Konto'**
+  String get accountSectionTitle;
+
+  /// No description provided for @accountNotLoggedInText.
+  ///
+  /// In de, this message translates to:
+  /// **'Sichere deine Daten mit einem Konto, um sie nach einem Geräteverlust wiederherzustellen.'**
+  String get accountNotLoggedInText;
+
+  /// No description provided for @accountRegisterButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Registrieren'**
+  String get accountRegisterButton;
+
+  /// No description provided for @accountLoginButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Einloggen'**
+  String get accountLoginButton;
+
+  /// No description provided for @accountLoggedInAs.
+  ///
+  /// In de, this message translates to:
+  /// **'Eingeloggt als {email}'**
+  String accountLoggedInAs(String email);
+
+  /// No description provided for @accountLogoutButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Abmelden'**
+  String get accountLogoutButton;
+
+  /// No description provided for @accountRestoreButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Cloud-Backup wiederherstellen'**
+  String get accountRestoreButton;
+
+  /// No description provided for @accountRestoreConfirmTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Backup wiederherstellen?'**
+  String get accountRestoreConfirmTitle;
+
+  /// No description provided for @accountRestoreConfirmBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Ersetzt deine aktuellen lokalen Daten durch das Cloud-Backup. Das kann nicht rückgängig gemacht werden.'**
+  String get accountRestoreConfirmBody;
+
+  /// No description provided for @accountRestoreNeedsPasswordTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Passwort bestätigen'**
+  String get accountRestoreNeedsPasswordTitle;
+
+  /// No description provided for @accountRestoreNeedsPasswordBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln.'**
+  String get accountRestoreNeedsPasswordBody;
 }
 
 class _AppLocalizationsDelegate

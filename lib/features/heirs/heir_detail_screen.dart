@@ -293,12 +293,17 @@ class _HeirDetailScreenState extends ConsumerState<HeirDetailScreen> {
             const SizedBox(height: 12),
             DropdownButtonFormField<HeirAccess>(
               initialValue: _access,
+              isExpanded: true,
               decoration: InputDecoration(
                   labelText: l.fieldAccessLevel,
                   prefixIcon: const Icon(Icons.visibility_outlined)),
               items: HeirAccess.values
                   .map((a) => DropdownMenuItem(
-                      value: a, child: Text(a.localizedLabel(l))))
+                      value: a,
+                      child: Text(
+                        a.localizedLabel(l),
+                        overflow: TextOverflow.ellipsis,
+                      )))
                   .toList(),
               onChanged: (v) => setState(() => _access = v!),
             ),

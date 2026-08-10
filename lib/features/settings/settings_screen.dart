@@ -74,19 +74,15 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.replay_outlined),
             title: Text(l.settingsReplay),
-            onTap: () async {
-              await markOnboardingDone(false);
-              if (context.mounted) {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (ctx) => OnboardingScreen(
-                      onDone: () =>
-                          Navigator.of(ctx).popUntil((r) => r.isFirst),
-                    ),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (ctx) => OnboardingScreen(
+                    isReplay: true,
+                    onDone: () => Navigator.of(ctx).pop(),
                   ),
-                  (r) => false,
-                );
-              }
+                ),
+              );
             },
           ),
           ListTile(

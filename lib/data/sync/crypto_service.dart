@@ -110,10 +110,10 @@ class CryptoService {
 
   static const _pbkdf2Iterations = 100000;
 
-  Uint8List _derivePinKey(String pin, Uint8List salt) {
+  Uint8List _deriveKeyFromSecret(String secret, Uint8List salt) {
     final params = Pbkdf2Parameters(salt, _pbkdf2Iterations, 32);
     final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), 64))..init(params);
-    return pbkdf2.process(Uint8List.fromList(utf8.encode(pin)));
+    return pbkdf2.process(Uint8List.fromList(utf8.encode(secret)));
   }
 
   /// Verschluesselt `plaintext` mit einem aus `pin` abgeleiteten Schluessel.
@@ -121,7 +121,7 @@ class CryptoService {
   /// braucht — kein zusaetzliches Geheimnis.
   Future<String> encryptWithPin(String plaintext, String pin) async {
     final salt = _randomBytes(16);
-    final key = _derivePinKey(pin, salt);
+    final key = _deriveKeyFromSecret(pin, salt);
     final cipherEnvelope = _encryptStringWithKey(plaintext, key);
     final inner = jsonDecode(cipherEnvelope) as Map<String, dynamic>;
     return jsonEncode({
@@ -138,13 +138,45 @@ class CryptoService {
   Future<String> decryptWithPin(String blob, String pin) async {
     final envelope = jsonDecode(blob) as Map<String, dynamic>;
     final salt = base64Decode(envelope['salt'] as String);
-    final key = _derivePinKey(pin, salt);
+    final key = _deriveKeyFromSecret(pin, salt);
     final inner = jsonEncode({
       'v': envelope['v'],
       'iv': envelope['iv'],
       'ct': envelope['ct'],
     });
     return _decryptStringWithKey(inner, key);
+  }
+
+  // ────────── Passwort-Escrow (Account-Recovery) ──────────
+  // Verpackt den echten AES-Sync-Key zusaetzlich mit einem aus dem
+  // Account-Passwort abgeleiteten Schluessel, damit er nach Kontowechsel auf
+  // einem neuen Geraet mit dem Passwort zurueckgewonnen werden kann. Nutzt
+  // dieselbe PBKDF2-Ableitung wie der PIN-Modus, nur mit dem Passwort als
+  // Geheimnis statt dem Erben-PIN.
+
+  Future<EscrowEnvelope> encryptKeyForEscrow(
+      String aesKeyBase64, String secret) async {
+    final salt = _randomBytes(16);
+    final key = _deriveKeyFromSecret(secret, salt);
+    final encryptedKeyJson = _encryptStringWithKey(aesKeyBase64, key);
+    return EscrowEnvelope(
+      saltBase64: base64Encode(salt),
+      encryptedKeyJson: encryptedKeyJson,
+    );
+  }
+
+  Future<String> decryptEscrowKey({
+    required String saltBase64,
+    required String encryptedKeyJson,
+    required String secret,
+  }) async {
+    final salt = base64Decode(saltBase64);
+    final key = _deriveKeyFromSecret(secret, salt);
+    try {
+      return _decryptStringWithKey(encryptedKeyJson, key);
+    } catch (_) {
+      throw const WrongPasswordException();
+    }
   }
 
   // ────────── intern ──────────
@@ -173,4 +205,17 @@ class CryptoService {
     final plain = cipher.process(ct);
     return utf8.decode(plain);
   }
+}
+
+class EscrowEnvelope {
+  final String saltBase64;
+  final String encryptedKeyJson;
+  const EscrowEnvelope(
+      {required this.saltBase64, required this.encryptedKeyJson});
+}
+
+class WrongPasswordException implements Exception {
+  const WrongPasswordException();
+  @override
+  String toString() => 'Falsches Passwort.';
 }

@@ -867,6 +867,76 @@ class AppLocalizationsDe extends AppLocalizations {
       'z. B. \"siehe 1Password\" / \"Notizbuch im Schreibtisch\"';
 
   @override
+  String get registerTitle => 'Konto erstellen';
+
+  @override
+  String get registerPasswordLabel => 'Passwort';
+
+  @override
+  String get registerPasswordConfirmLabel => 'Passwort bestätigen';
+
+  @override
+  String get registerSubmitButton => 'Registrieren';
+
+  @override
+  String get registerPasswordMismatch => 'Passwörter stimmen nicht überein';
+
+  @override
+  String get registerPasswordTooShort => 'Mindestens 8 Zeichen';
+
+  @override
+  String get registerSuccessMessage =>
+      'Bestätige deine E-Mail über den Link, den wir dir geschickt haben — danach kannst du dich einloggen.';
+
+  @override
+  String get loginTitle => 'Einloggen';
+
+  @override
+  String get loginSubmitButton => 'Einloggen';
+
+  @override
+  String get loginForgotPasswordLink => 'Passwort vergessen?';
+
+  @override
+  String get loginNoAccountLink => 'Noch kein Konto? Registrieren';
+
+  @override
+  String get forgotPasswordTitle => 'Passwort vergessen';
+
+  @override
+  String get forgotPasswordEmailStepBody =>
+      'Gib deine E-Mail ein, wir schicken dir einen Code.';
+
+  @override
+  String get forgotPasswordSendCodeButton => 'Code senden';
+
+  @override
+  String get forgotPasswordCodeSentMessage =>
+      'Code verschickt — bitte E-Mail prüfen.';
+
+  @override
+  String get forgotPasswordOtpLabel => 'Code aus der E-Mail';
+
+  @override
+  String get forgotPasswordNewPasswordLabel => 'Neues Passwort';
+
+  @override
+  String get forgotPasswordSubmitButton => 'Passwort setzen';
+
+  @override
+  String get forgotPasswordSuccessMessage => 'Passwort geändert.';
+
+  @override
+  String get loginRestoringMessage => 'Daten werden wiederhergestellt …';
+
+  @override
+  String get loginRestoreSuccess => 'Daten wiederhergestellt.';
+
+  @override
+  String get loginNoBackupFound =>
+      'Noch kein Backup für dieses Konto vorhanden.';
+
+  @override
   String get loginLastVerifiedNever => 'Noch nicht bestätigt';
 
   @override
@@ -1135,6 +1205,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get onboardingNameSkip => 'Lieber anonym bleiben';
 
   @override
+  String get onboardingHaveAccountLink =>
+      'Schon ein Pacto-Konto? Daten wiederherstellen';
+
+  @override
   String get onboarding1Title => 'Weißt du wirklich was du jeden Monat zahlst?';
 
   @override
@@ -1158,4 +1232,42 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get webSearchUnsupportedPlatform =>
       'Die Web-Suche ist nur auf Mobilgeräten (Android, iOS) und macOS verfügbar.\n\nAuf dem Desktop kannst du Verträge manuell einpflegen.';
+
+  @override
+  String get accountSectionTitle => 'Konto';
+
+  @override
+  String get accountNotLoggedInText =>
+      'Sichere deine Daten mit einem Konto, um sie nach einem Geräteverlust wiederherzustellen.';
+
+  @override
+  String get accountRegisterButton => 'Registrieren';
+
+  @override
+  String get accountLoginButton => 'Einloggen';
+
+  @override
+  String accountLoggedInAs(String email) {
+    return 'Eingeloggt als $email';
+  }
+
+  @override
+  String get accountLogoutButton => 'Abmelden';
+
+  @override
+  String get accountRestoreButton => 'Cloud-Backup wiederherstellen';
+
+  @override
+  String get accountRestoreConfirmTitle => 'Backup wiederherstellen?';
+
+  @override
+  String get accountRestoreConfirmBody =>
+      'Ersetzt deine aktuellen lokalen Daten durch das Cloud-Backup. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get accountRestoreNeedsPasswordTitle => 'Passwort bestätigen';
+
+  @override
+  String get accountRestoreNeedsPasswordBody =>
+      'Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln.';
 }
