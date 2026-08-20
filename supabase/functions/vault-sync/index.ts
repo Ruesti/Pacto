@@ -1,4 +1,4 @@
-// vault-sync — App lieferst fertig gerenderte Erben-Briefe (eine Zeile pro
+// vault-sync — App liefert fertig gerenderte Erben-Briefe (eine Zeile pro
 // Erbe). Der Server haelt sie auf Vorrat, bis der Trigger feuert.
 //
 // Body:
@@ -11,8 +11,13 @@
 //
 // Wir ueberschreiben jeweils die ganze Liste fuer device_id, damit
 // geloeschte Erben bzw. geloeschte Vertraege nicht haengen bleiben.
+//
+// Auth: erfordert eine gueltige Supabase-Session. Delete und Insert laufen mit
+// dem Caller-Token; Row Level Security stellt sicher, dass nur die eigenen
+// Payloads betroffen sind. Kein Service-Role-Key.
 
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
+import { getUser } from '../_shared/auth.ts';
 
 interface IncomingPayload {
   heirId: string;
@@ -32,8 +37,19 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    const user = await getUser(req);
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: jsonHeaders,
+      });
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const authHeaders = {
+      apikey: anonKey,
+      Authorization: `Bearer ${user.token}`,
+    };
     const { deviceId, payloads } = await req.json();
     if (!deviceId || !Array.isArray(payloads)) {
       return new Response(
@@ -42,15 +58,12 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // 1. Alte Payloads fuer das Geraet wegputzen.
+    // 1. Alte Payloads fuer das Geraet wegputzen (RLS begrenzt auf eigene Zeilen).
     const delRes = await fetch(
       `${supabaseUrl}/rest/v1/vault_payloads?device_id=eq.${deviceId}`,
       {
         method: 'DELETE',
-        headers: {
-          apikey: serviceKey,
-          Authorization: `Bearer ${serviceKey}`,
-        },
+        headers: authHeaders,
       },
     );
     if (!delRes.ok) {
@@ -66,9 +79,11 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // 2. Neu einspielen.
+    // 2. Neu einspielen. user_id explizit setzen — muss der Caller-uid und damit
+    //    dem RLS-with-check entsprechen.
     const rows = (payloads as IncomingPayload[]).map((p) => ({
       device_id: deviceId,
+      user_id: user.id,
       heir_id: p.heirId,
       heir_name: p.heirName,
       heir_email: p.heirEmail,
@@ -80,8 +95,7 @@ Deno.serve(async (req: Request) => {
     const insRes = await fetch(`${supabaseUrl}/rest/v1/vault_payloads`, {
       method: 'POST',
       headers: {
-        apikey: serviceKey,
-        Authorization: `Bearer ${serviceKey}`,
+        ...authHeaders,
         'Content-Type': 'application/json',
         Prefer: 'return=minimal',
       },

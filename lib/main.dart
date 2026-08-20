@@ -6,10 +6,24 @@ import 'package:workmanager/workmanager.dart';
 import 'app.dart';
 import 'config/supabase_config.dart';
 import 'data/sync/cloud_sync_service.dart';
+import 'data/sync/secure_local_storage.dart';
 import 'features/premium/premium_service.dart';
 import 'features/scan/extraction_service.dart';
 
 const _heartbeatTask = 'pacto-heartbeat';
+
+/// Stellt sicher, dass eine Supabase-Session existiert. Ohne bestehende Session
+/// wird eine anonyme angelegt. Fehlschlag (z. B. offline) ist nicht fatal — die
+/// App startet trotzdem, und der naechste Start versucht es erneut.
+Future<void> _ensureSession() async {
+  final auth = Supabase.instance.client.auth;
+  if (auth.currentSession != null) return;
+  try {
+    await auth.signInAnonymously();
+  } catch (_) {
+    // Kein Netz / anonyme Anmeldung serverseitig deaktiviert — spaeter erneut.
+  }
+}
 
 /// Hintergrund-Einstiegspunkt fuer workmanager — laeuft in einem eigenen Isolate.
 @pragma('vm:entry-point')
@@ -30,7 +44,17 @@ void main() async {
   await Supabase.initialize(
     url: SupabaseConfig.projectUrl,
     anonKey: SupabaseConfig.anonKey,
+    // Session (inkl. Refresh-Token) verschluesselt ablegen, nicht im
+    // Klartext-SharedPreferences (BRIEF_PACTO_FIX.md §0.1).
+    authOptions: FlutterAuthClientOptions(
+      localStorage: SecureLocalStorage(),
+    ),
   );
+
+  // Jede Installation braucht eine Identitaet (auth.uid), damit RLS die
+  // Serverzeilen dem Geraet zuordnen kann. Ohne Account laeuft das anonym;
+  // ein spaeterer Account-Login hebt dieselbe Session auf E-Mail an.
+  await _ensureSession();
 
   // KI-Scan + Cloud-Sync nutzen das fest eingebaute Pacto-Supabase-Projekt —
   // keine Einrichtung durch den Nutzer noetig.

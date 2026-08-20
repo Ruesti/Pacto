@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:drift/drift.dart' show Value;
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-import '../../config/supabase_config.dart';
 import '../../data/providers/heir_password_policy_provider.dart';
 import '../../features/heirs/share_export_service.dart';
 import '../database/database.dart';
@@ -76,21 +75,23 @@ class VaultService {
     if (!settings.enabled) return;
     if (settings.ownerEmail.isEmpty) return;
     final id = await deviceId();
-    await http.post(
-      Uri.parse('${SupabaseConfig.projectUrl}/functions/v1/vault-heartbeat'),
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SupabaseConfig.anonKey,
-        'Authorization': 'Bearer ${SupabaseConfig.anonKey}',
-      },
-      body: jsonEncode({
-        'deviceId': id,
-        'ownerName': ownerName ?? '',
-        'ownerEmail': settings.ownerEmail,
-        'intervalDays': settings.intervalDays,
-        'enabled': true,
-      }),
-    );
+    try {
+      // functions.invoke haengt automatisch das Session-JWT an; die Funktion
+      // schreibt damit RLS-geschuetzt. Best-effort beim Resume — belastbare
+      // Fehlerbehandlung (Statuscode-Pruefung, UI-Anzeige) folgt in Phase 2.
+      await Supabase.instance.client.functions.invoke(
+        'vault-heartbeat',
+        body: {
+          'deviceId': id,
+          'ownerName': ownerName ?? '',
+          'ownerEmail': settings.ownerEmail,
+          'intervalDays': settings.intervalDays,
+          'enabled': settings.enabled,
+        },
+      );
+    } catch (_) {
+      // ignorieren — naechster Resume versucht es erneut.
+    }
   }
 
   /// Rendert pro Erbe einen Brief (Text-Body) gem. seiner Access-Stufe und
@@ -170,17 +171,14 @@ class VaultService {
     }
 
     final id = await deviceId();
-    final resp = await http.post(
-      Uri.parse('${SupabaseConfig.projectUrl}/functions/v1/vault-sync'),
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SupabaseConfig.anonKey,
-        'Authorization': 'Bearer ${SupabaseConfig.anonKey}',
-      },
-      body: jsonEncode({'deviceId': id, 'payloads': payloads}),
+    // functions.invoke haengt das Session-JWT an und wirft FunctionException
+    // bei Nicht-2xx (z. B. 401 ohne Session) — der Aufrufer erfaehrt den Fehler.
+    final resp = await Supabase.instance.client.functions.invoke(
+      'vault-sync',
+      body: {'deviceId': id, 'payloads': payloads},
     );
-    if (resp.statusCode < 200 || resp.statusCode >= 300) {
-      throw Exception('vault-sync HTTP ${resp.statusCode}: ${resp.body}');
+    if (resp.status < 200 || resp.status >= 300) {
+      throw Exception('vault-sync fehlgeschlagen (HTTP ${resp.status})');
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_kVaultLastSync, DateTime.now().millisecondsSinceEpoch);

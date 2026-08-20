@@ -7,8 +7,12 @@
 -- ===========================================================================
 -- sync_data — verschluesseltes Voll-Backup pro Geraet
 -- Der Payload wird in der App mit AES-256-GCM verschluesselt (crypto_service.dart).
--- Der Schluessel verlaesst das Geraet nie. Zugriff erfolgt mit dem anon key;
--- die zufaellige device_id (UUIDv4) wirkt faktisch als Zugriffstoken.
+-- Der Schluessel verlaesst das Geraet nie.
+-- HINWEIS: Die urspruengliche Annahme "die device_id wirkt faktisch als
+-- Zugriffstoken" trug NICHT — keine Policy prueft sie. Ab Migration
+-- 20260820120000_vault_rls_userid.sql schuetzt eine user_id + RLS
+-- ((select auth.uid()) = user_id) die Zeilen; der blosse anon-Key ohne Session
+-- gewaehrt keinen Zugriff mehr.
 -- ===========================================================================
 create table if not exists public.sync_data (
   device_id         uuid        primary key,

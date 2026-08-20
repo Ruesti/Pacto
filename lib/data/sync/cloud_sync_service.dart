@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -8,17 +6,10 @@ import '../database/database.dart';
 import 'account_vault_service.dart';
 import 'backup_payload_mapper.dart';
 import 'crypto_service.dart';
+import 'secure_local_storage.dart';
 
 const _keyDeviceId = 'pacto.sync.device_id';
 const _keyLastSync = 'pacto.sync.last_sync';
-
-class SyncConfig {
-  final String supabaseUrl;
-  final String anonKey;
-  const SyncConfig({required this.supabaseUrl, required this.anonKey});
-
-  bool get isComplete => supabaseUrl.isNotEmpty && anonKey.isNotEmpty;
-}
 
 class CloudSyncService {
   final AppDatabase _db;
@@ -37,13 +28,6 @@ class CloudSyncService {
     return id;
   }
 
-  // Fest eingebaute Projekt-Konfiguration — KI-Scan und Cloud-Sync laufen
-  // ohne jede Einrichtung durch den Nutzer ueber das Pacto-Supabase-Projekt.
-  static Future<SyncConfig> loadConfig() async => const SyncConfig(
-        supabaseUrl: SupabaseConfig.projectUrl,
-        anonKey: SupabaseConfig.anonKey,
-      );
-
   static Future<DateTime?> lastSyncAt() async {
     final prefs = await SharedPreferences.getInstance();
     final millis = prefs.getInt(_keyLastSync);
@@ -51,45 +35,41 @@ class CloudSyncService {
   }
 
   Future<void> pushAll() async {
-    if (Supabase.instance.client.auth.currentSession != null) {
-      // Eingeloggt: Backup laeuft ueber das Account-Vault (siehe
-      // AccountVaultService), nicht ueber den anonymen device_id-Pfad.
+    final session = Supabase.instance.client.auth.currentSession;
+
+    // Eingeloggter Account (nicht anonym): Backup laeuft ueber das Account-Vault
+    // (siehe AccountVaultService), nicht ueber den anonymen device_id-Pfad.
+    if (session != null && !session.user.isAnonymous) {
       await _accountVault.pushPayloadOnly();
       return;
     }
 
-    final cfg = await loadConfig();
-    if (!cfg.isComplete) {
-      throw Exception('Sync nicht konfiguriert — bitte Supabase-URL und Anon Key hinterlegen.');
+    // Sonst: anonymer, device_id-basierter Pfad. Braucht eine (anonyme) Session,
+    // damit RLS den sync_data-Upsert dem Geraet zuordnet.
+    if (session == null) {
+      throw Exception(
+        'Kein Cloud-Zugriff — keine aktive Sitzung. Bitte die App neu starten.',
+      );
     }
 
     final contracts = await _db.contractsDao.getAll();
     final heirs = await _db.heirsDao.getAll();
 
     final payload = buildBackupPayload(contracts: contracts, heirs: heirs);
-
     final encrypted = await _crypto.encryptJson(payload);
     final deviceId = await _deviceId();
 
-    final url = '${cfg.supabaseUrl}/rest/v1/sync_data?on_conflict=device_id';
-    final resp = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': cfg.anonKey,
-        'Authorization': 'Bearer ${cfg.anonKey}',
-        'Prefer': 'resolution=merge-duplicates,return=minimal',
-      },
-      body: jsonEncode({
+    // Upsert ueber den Supabase-Client: haengt das Session-JWT an, RLS
+    // ((select auth.uid()) = user_id) schuetzt die Zeile.
+    await Supabase.instance.client.from('sync_data').upsert(
+      {
         'device_id': deviceId,
+        'user_id': session.user.id,
         'encrypted_payload': encrypted,
         'updated_at': DateTime.now().toIso8601String(),
-      }),
+      },
+      onConflict: 'device_id',
     );
-
-    if (resp.statusCode < 200 || resp.statusCode >= 300) {
-      throw Exception('Sync-Fehler: HTTP ${resp.statusCode} — ${resp.body}');
-    }
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_keyLastSync, DateTime.now().millisecondsSinceEpoch);
@@ -97,23 +77,34 @@ class CloudSyncService {
 
   /// Sendet ein Lebenszeichen fuer den Inaktivitaets-Tresor.
   /// Statisch, damit der Hintergrund-Heartbeat (workmanager) die Methode aus
-  /// einem eigenen Isolate ohne Datenbank-/CryptoService-Instanz aufrufen kann.
+  /// einem eigenen Isolate aufrufen kann. Dort ist Supabase noch nicht
+  /// initialisiert — wir ziehen es mit derselben Secure-Storage-LocalStorage
+  /// nach, damit die persistierte (anonyme) Session wiederhergestellt und
+  /// aufgefrischt wird und der Schreibzugriff RLS-konform laeuft.
   static Future<void> sendHeartbeat() async {
-    final cfg = await loadConfig();
-    if (!cfg.isComplete) return;
+    SupabaseClient client;
+    try {
+      client = Supabase.instance.client;
+    } catch (_) {
+      await Supabase.initialize(
+        url: SupabaseConfig.projectUrl,
+        anonKey: SupabaseConfig.anonKey,
+        authOptions: FlutterAuthClientOptions(localStorage: SecureLocalStorage()),
+      );
+      client = Supabase.instance.client;
+    }
+
+    final session = client.auth.currentSession;
+    if (session == null) return; // keine Identitaet -> nichts zu bestaetigen
+
     final deviceId = await _deviceId();
-    await http.post(
-      Uri.parse('${cfg.supabaseUrl}/rest/v1/heartbeats?on_conflict=device_id'),
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': cfg.anonKey,
-        'Authorization': 'Bearer ${cfg.anonKey}',
-        'Prefer': 'resolution=merge-duplicates,return=minimal',
-      },
-      body: jsonEncode({
+    await client.from('heartbeats').upsert(
+      {
         'device_id': deviceId,
+        'user_id': session.user.id,
         'confirmed_at': DateTime.now().toIso8601String(),
-      }),
+      },
+      onConflict: 'device_id',
     );
   }
 }
