@@ -22,9 +22,15 @@
 -- ===========================================================================
 -- sync_data — verschluesseltes Voll-Backup pro Geraet
 -- ===========================================================================
+-- Spalte erst nullable hinzufuegen, verwaiste Bestandszeilen (ohne Eigentuemer)
+-- entfernen, dann NOT NULL + Default. So scheitert die Migration nicht an
+-- vorhandenen anon-Zeilen (die ohne user_id ohnehin nicht mehr zuordenbar sind).
 alter table public.sync_data
-  add column if not exists user_id uuid not null default auth.uid()
-    references auth.users(id) on delete cascade;
+  add column if not exists user_id uuid references auth.users(id) on delete cascade;
+delete from public.sync_data where user_id is null;
+alter table public.sync_data
+  alter column user_id set not null,
+  alter column user_id set default auth.uid();
 
 drop policy if exists "sync_data anon select" on public.sync_data;
 drop policy if exists "sync_data anon insert" on public.sync_data;
@@ -46,8 +52,11 @@ create policy "sync_data owner delete" on public.sync_data
 -- heartbeats — Lebenszeichen pro Geraet
 -- ===========================================================================
 alter table public.heartbeats
-  add column if not exists user_id uuid not null default auth.uid()
-    references auth.users(id) on delete cascade;
+  add column if not exists user_id uuid references auth.users(id) on delete cascade;
+delete from public.heartbeats where user_id is null;
+alter table public.heartbeats
+  alter column user_id set not null,
+  alter column user_id set default auth.uid();
 
 drop policy if exists "heartbeats anon select" on public.heartbeats;
 drop policy if exists "heartbeats anon insert" on public.heartbeats;
@@ -69,8 +78,11 @@ create policy "heartbeats owner delete" on public.heartbeats
 -- vault_settings — Tresor-Einstellungen pro Geraet (owner_email, Intervall, ...)
 -- ===========================================================================
 alter table public.vault_settings
-  add column if not exists user_id uuid not null default auth.uid()
-    references auth.users(id) on delete cascade;
+  add column if not exists user_id uuid references auth.users(id) on delete cascade;
+delete from public.vault_settings where user_id is null;
+alter table public.vault_settings
+  alter column user_id set not null,
+  alter column user_id set default auth.uid();
 
 drop policy if exists "vault_settings anon all" on public.vault_settings;
 
@@ -90,8 +102,11 @@ create policy "vault_settings owner delete" on public.vault_settings
 -- vault_payloads — fertig gerenderte, verschluesselte Erben-Briefe
 -- ===========================================================================
 alter table public.vault_payloads
-  add column if not exists user_id uuid not null default auth.uid()
-    references auth.users(id) on delete cascade;
+  add column if not exists user_id uuid references auth.users(id) on delete cascade;
+delete from public.vault_payloads where user_id is null;
+alter table public.vault_payloads
+  alter column user_id set not null,
+  alter column user_id set default auth.uid();
 
 drop policy if exists "vault_payloads anon all" on public.vault_payloads;
 
