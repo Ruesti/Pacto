@@ -111,6 +111,8 @@ Deno.serve(async (req: Request) => {
         confirmed_at: now,
         warning_sent_at: null,
         warning_count: 0,
+        notify_attempts: 0,
+        owner_alerted_at: null,
         updated_at: now,
       }),
     },

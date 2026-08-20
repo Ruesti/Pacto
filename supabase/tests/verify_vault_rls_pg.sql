@@ -72,6 +72,7 @@ grant select, insert, update, delete
 -- === Die zu pruefenden Migrationen ========================================
 \i supabase/migrations/20260820120000_vault_rls_userid.sql
 \i supabase/migrations/20260820130000_vault_reset_tokens.sql
+\i supabase/migrations/20260820140000_vault_delivery_tracking.sql
 
 -- --- Zwei Nutzer -----------------------------------------------------------
 \set uidA '00000000-0000-0000-0000-00000000000a'

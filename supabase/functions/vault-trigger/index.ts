@@ -25,16 +25,24 @@ interface VaultSetting {
   warning_sent_at: string | null;
   warning_count: number | null;
   heir_notified_at: string | null;
+  notify_attempts: number | null;
+  owner_alerted_at: string | null;
 }
 
 interface Payload {
+  id: string;
   heir_id: string;
   heir_name: string;
   heir_email: string;
   policy: string;
   body: string;
   pdf_b64: string | null;
+  sent_at: string | null;
 }
+
+// Nach so vielen fehlgeschlagenen Zustell-Durchlaeufen wird der Owner einmalig
+// per E-Mail informiert (der taegliche Cron liefert die Wiederhol-Kadenz).
+const MAX_NOTIFY_ATTEMPTS = 5;
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
 const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
@@ -57,7 +65,7 @@ async function fetchSettings(): Promise<VaultSetting[]> {
 
 async function fetchPayloads(deviceId: string): Promise<Payload[]> {
   const res = await fetch(
-    `${supabaseUrl}/rest/v1/vault_payloads?device_id=eq.${deviceId}&select=heir_id,heir_name,heir_email,policy,body,pdf_b64`,
+    `${supabaseUrl}/rest/v1/vault_payloads?device_id=eq.${deviceId}&select=id,heir_id,heir_name,heir_email,policy,body,pdf_b64,sent_at`,
     {
       headers: {
         apikey: serviceKey,
@@ -67,6 +75,20 @@ async function fetchPayloads(deviceId: string): Promise<Payload[]> {
   );
   if (!res.ok) throw new Error(`Could not fetch vault_payloads: ${await res.text()}`);
   return (await res.json()) as Payload[];
+}
+
+// Markiert einen Erben-Brief als erfolgreich zugestellt.
+async function markPayloadSent(id: string) {
+  await fetch(`${supabaseUrl}/rest/v1/vault_payloads?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: {
+      apikey: serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify({ sent_at: new Date().toISOString() }),
+  });
 }
 
 async function mark(deviceId: string, fields: Record<string, unknown>) {
@@ -208,9 +230,12 @@ async function processOne(s: VaultSetting, force = false): Promise<string> {
       await log(s.device_id, 'heir_sent', 'No payloads stored, skipped');
       return 'no_payloads';
     }
+    // Nur noch nicht zugestellte Briefe senden (im Test: alle). So werden bei
+    // einem Wiederholungslauf bereits erreichte Erben nicht doppelt angemailt.
+    const pending = force ? payloads : payloads.filter((p) => !p.sent_at);
     let sent = 0;
-    const errors: string[] = [];
-    for (const p of payloads) {
+    let failed = 0;
+    for (const p of pending) {
       const result = await sendEmail({
         to: p.heir_email,
         subject: `${force ? '[TEST] ' : ''}Pacto-Uebersicht von ${s.owner_name ?? 'einem Pacto-Nutzer'}`,
@@ -219,19 +244,60 @@ async function processOne(s: VaultSetting, force = false): Promise<string> {
           ? [{ filename: 'pacto.pdf', content: p.pdf_b64 }]
           : undefined,
       });
-      if (result.sent) sent++;
-      else errors.push(`${p.heir_email}: ${result.error}`);
+      if (result.sent) {
+        sent++;
+        if (!force) await markPayloadSent(p.id); // pro Erbe erst bei Erfolg
+      } else {
+        failed++;
+      }
     }
-    // Im Testmodus den Zustand nicht verbrennen.
-    if (!force) {
-      await mark(s.device_id, { heir_notified_at: new Date().toISOString() });
+
+    // Im Testmodus keinen Zustand veraendern (beliebig wiederholbar).
+    if (force) {
+      await log(s.device_id, 'heir_test', `TEST sent=${sent} failed=${failed}`);
+      return `test_heirs_notified (${sent}/${pending.length})`;
     }
+
+    const attempts = (s.notify_attempts ?? 0) + 1;
+    if (failed === 0) {
+      // Alle offenen Briefe zugestellt -> erledigt. Erst JETZT heir_notified_at.
+      await mark(s.device_id, {
+        heir_notified_at: new Date().toISOString(),
+        notify_attempts: attempts,
+      });
+      await log(s.device_id, 'heir_sent', `all delivered (sent=${sent})`);
+      return `heirs_notified (${sent}/${pending.length})`;
+    }
+
+    // Teil-/Fehlschlag: heir_notified_at bleibt null -> naechster Cron-Tag
+    // versucht die offenen erneut. Nach mehreren Versuchen den Owner einmalig
+    // informieren.
+    const patch: Record<string, unknown> = { notify_attempts: attempts };
+    let alerted = false;
+    if (attempts >= MAX_NOTIFY_ATTEMPTS && !s.owner_alerted_at) {
+      const r = await sendEmail({
+        to: s.owner_email,
+        subject: 'Pacto — Zustellung an deine Erben schlaegt fehl',
+        text:
+          `Hallo${s.owner_name ? ' ' + s.owner_name : ''},\n\n` +
+          `Pacto versucht seit einigen Tagen, deine hinterlegte Uebersicht an ` +
+          `deine Erben zu senden, aber die Zustellung schlaegt fehl. Bitte ` +
+          `pruefe die hinterlegten E-Mail-Adressen der Erben in der App.\n\n` +
+          `Wir versuchen es weiter.\n\nDein Pacto`,
+      });
+      if (r.sent) {
+        patch.owner_alerted_at = new Date().toISOString();
+        alerted = true;
+      }
+    }
+    await mark(s.device_id, patch);
     await log(
       s.device_id,
-      force ? 'heir_test' : 'heir_sent',
-      `${force ? 'TEST ' : ''}sent=${sent} errors=${errors.join(' | ')}`,
+      'heir_sent',
+      `partial: sent=${sent} failed=${failed} attempt=${attempts}` +
+        (alerted ? ' owner_alerted' : ''),
     );
-    return `${force ? 'test_' : ''}heirs_notified (${sent}/${payloads.length})`;
+    return `heirs_partial (${sent} ok, ${failed} offen, Versuch ${attempts})`;
   }
 
   // 3. Erste Vorwarnung bei 80 %.
