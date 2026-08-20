@@ -1,15 +1,18 @@
 -- Inaktivitaets-Tresor — Schema fuer die automatische Erbenbenachrichtigung.
 --
--- Vertrauensmodell:
---   * device_id (UUID) wirkt als faktisches Zugriffstoken — analog zu
---     sync_data und heartbeats.
---   * Der Payload pro Erbe ist bereits in der App fertig gerendert und
---     verschluesselt; der Server haelt nur die Bytes und kennt das
---     Endgeraet nicht mehr, wenn er ihn versendet.
---   * Im Komfort-Modus liefert die App einen mit dem Pacto-Service-Key
---     wieder entschluesselbaren Envelope; im Maximum-Modus ist der
---     Envelope unter dem Erben-PIN verschluesselt — der Server liest
---     ihn nie.
+-- Vertrauensmodell (korrigiert in Migration 20260820120000_vault_rls_userid.sql):
+--   * Der Zugriff ist ab dieser spaeteren Migration ueber user_id + RLS
+--     ((select auth.uid()) = user_id) geschuetzt — NICHT, wie hier
+--     urspruenglich behauptet, ueber die device_id als "Zugriffstoken".
+--   * Der Payload pro Erbe ist bereits in der App fertig gerendert; der
+--     Server haelt nur die Bytes und kennt das Endgeraet nicht mehr, wenn er
+--     ihn versendet.
+--   * Klarstellung zum Inhalt: Im Komfort-/none-Modus liegt der `body` als
+--     KLARTEXT auf dem Server (der Trigger versendet ihn unveraendert per
+--     Mail) — es gibt keinen "mit einem Pacto-Service-Key entschluesselbaren
+--     Envelope". Nur im Maximum-Modus ist der Inhalt unter dem Erben-PIN
+--     verschluesselt; diesen PIN kennt der Server nie, kann den Brief dann
+--     also nicht lesen (siehe Befund 2-B, Phase 7).
 
 -- ===========================================================================
 -- vault_settings — Einstellungen pro Geraet

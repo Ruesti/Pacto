@@ -1,14 +1,17 @@
 // vault-heartbeat — App POSTet beim Start / Resume und nach jedem
-// "ich-bin-noch-da" Magic-Link-Klick. Setzt confirmed_at = now() und loescht
+// "ich-bin-noch-da"-Signal. Setzt confirmed_at = now() und loescht
 // warning_sent_at, damit die naechste Vorwarnung wieder feuern kann.
 //
 // Body: { deviceId: string, ownerName?: string, ownerEmail?: string,
 //         intervalDays?: number, enabled?: boolean }
 //
-// Wenn die Zeile noch nicht existiert, wird sie angelegt — daher koennen
-// alle Felder beim ersten Heartbeat mitkommen.
+// Auth: erfordert eine gueltige Supabase-Session (anonym oder Account). Der
+// Schreibzugriff laeuft mit dem Caller-Token, sodass Row Level Security die
+// Zeile auf den Eigentuemer einschraenkt. Ein blosser anon-Key wird mit 401
+// abgewiesen. Wenn die Zeile noch nicht existiert, wird sie angelegt.
 
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
+import { getUser } from '../_shared/auth.ts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -19,8 +22,15 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    const user = await getUser(req);
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: jsonHeaders,
+      });
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
     const body = await req.json();
     const deviceId = body.deviceId as string | undefined;
     if (!deviceId) {
@@ -31,8 +41,10 @@ Deno.serve(async (req: Request) => {
 
     const row: Record<string, unknown> = {
       device_id: deviceId,
+      user_id: user.id,
       confirmed_at: new Date().toISOString(),
       warning_sent_at: null,
+      warning_count: 0,
       heir_notified_at: null,
       updated_at: new Date().toISOString(),
     };
@@ -46,8 +58,8 @@ Deno.serve(async (req: Request) => {
       {
         method: 'POST',
         headers: {
-          apikey: serviceKey,
-          Authorization: `Bearer ${serviceKey}`,
+          apikey: anonKey,
+          Authorization: `Bearer ${user.token}`,
           'Content-Type': 'application/json',
           Prefer: 'resolution=merge-duplicates,return=minimal',
         },

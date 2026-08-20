@@ -13,6 +13,7 @@
 // erwartete Token ist.
 
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
+import { randomToken, sha256Hex } from '../_shared/token.ts';
 
 interface VaultSetting {
   device_id: string;
@@ -22,6 +23,7 @@ interface VaultSetting {
   enabled: boolean;
   confirmed_at: string;
   warning_sent_at: string | null;
+  warning_count: number | null;
   heir_notified_at: string | null;
 }
 
@@ -125,6 +127,61 @@ async function sendEmail(opts: {
   return { sent: true };
 }
 
+// Erzeugt ein Reset-Token, legt seinen Hash + Ablauf ab und gibt das Klartext-
+// Token zurueck (fuer den Link in der Mail). Gueltig bis kurz nach dem
+// Ausloesezeitpunkt.
+async function issueResetToken(
+  deviceId: string,
+  confirmedAt: string,
+  intervalDays: number,
+): Promise<string> {
+  const raw = randomToken(32);
+  const hash = await sha256Hex(raw);
+  const expires = new Date(
+    new Date(confirmedAt).getTime() + (intervalDays + 16) * 86400000,
+  ).toISOString();
+  await fetch(`${supabaseUrl}/rest/v1/vault_reset_tokens`, {
+    method: 'POST',
+    headers: {
+      apikey: serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal,resolution=merge-duplicates',
+    },
+    body: JSON.stringify({
+      token_hash: hash,
+      device_id: deviceId,
+      expires_at: expires,
+    }),
+  });
+  return raw;
+}
+
+// Vorwarnung mit Widerrufs-Link in einfacher Sprache.
+async function sendWarning(
+  s: VaultSetting,
+  elapsed: number,
+  interval: number,
+): Promise<{ sent: boolean; error?: string }> {
+  const raw = await issueResetToken(s.device_id, s.confirmed_at, interval);
+  const link = `${supabaseUrl}/functions/v1/vault-postpone?token=${raw}`;
+  const remaining = Math.max(0, Math.round(interval + 14 - elapsed));
+  return sendEmail({
+    to: s.owner_email,
+    subject: 'Pacto — bist du noch da?',
+    text:
+      `Hallo${s.owner_name ? ' ' + s.owner_name : ''},\n\n` +
+      `wir haben dich seit ${Math.round(elapsed)} Tagen nicht in Pacto ` +
+      `gesehen.\n\n` +
+      `Wenn du nichts tust, benachrichtigt Pacto in etwa ${remaining} Tagen ` +
+      `die von dir hinterlegten Erben und schickt ihnen deine ` +
+      `Vertragsuebersicht.\n\n` +
+      `Wenn alles in Ordnung ist, klicke einfach auf diesen Link — das reicht ` +
+      `als Lebenszeichen, und es passiert nichts weiter:\n\n${link}\n\n` +
+      `Du musst die App dafuer nicht oeffnen.\n\nDein Pacto`,
+  });
+}
+
 function daysSince(iso: string): number {
   const then = new Date(iso).getTime();
   return (Date.now() - then) / (1000 * 60 * 60 * 24);
@@ -135,14 +192,17 @@ function daysSince(iso: string): number {
 async function processOne(s: VaultSetting, force = false): Promise<string> {
   const elapsed = daysSince(s.confirmed_at);
   const interval = s.interval_days;
-  const warningPoint = interval * 0.8;
+  const warn1Point = interval * 0.8; // erste Vorwarnung
+  const warn2Point = interval; // zweite Vorwarnung (100 %)
   const triggerPoint = interval + 14;
+  const wcount = s.warning_count ?? 0;
 
   // 1. Erben wurden schon benachrichtigt — nichts mehr tun (im Test ignoriert).
   if (!force && s.heir_notified_at) return 'already_notified';
 
-  // 2. Trigger erreicht (oder Test erzwungen) — Erben informieren.
-  if (force || elapsed >= triggerPoint) {
+  // 2. Trigger erreicht — aber erst nach MINDESTENS ZWEI Vorwarnungen ausloesen
+  //    (Test erzwungen umgeht das). So kann niemand ohne Vorwarnung "feuern".
+  if (force || (elapsed >= triggerPoint && wcount >= 2)) {
     const payloads = await fetchPayloads(s.device_id);
     if (payloads.length === 0) {
       await log(s.device_id, 'heir_sent', 'No payloads stored, skipped');
@@ -174,26 +234,28 @@ async function processOne(s: VaultSetting, force = false): Promise<string> {
     return `${force ? 'test_' : ''}heirs_notified (${sent}/${payloads.length})`;
   }
 
-  // 3. Vorwarnung bei 80 % — nur einmal pro Intervall.
-  if (elapsed >= warningPoint && !s.warning_sent_at) {
-    const result = await sendEmail({
-      to: s.owner_email,
-      subject: 'Pacto — bist du noch da?',
-      text:
-        `Hallo${s.owner_name ? ' ' + s.owner_name : ''},\n\n` +
-        `wir haben dich seit ${Math.round(elapsed)} Tagen nicht in Pacto ` +
-        `gesehen. In ${Math.max(0, Math.round(interval - elapsed))} Tagen ` +
-        `wuerden wir deine hinterlegten Erben benachrichtigen.\n\n` +
-        `Wenn alles in Ordnung ist, oeffne kurz die App — das reicht als ` +
-        `Lebenszeichen.\n\nDein Pacto`,
+  // 3. Erste Vorwarnung bei 80 %.
+  if (elapsed >= warn1Point && wcount < 1) {
+    const result = await sendWarning(s, elapsed, interval);
+    await mark(s.device_id, {
+      warning_count: 1,
+      warning_sent_at: new Date().toISOString(),
     });
-    await mark(s.device_id, { warning_sent_at: new Date().toISOString() });
-    await log(
-      s.device_id,
-      'warning',
-      result.sent ? 'sent' : `failed: ${result.error}`,
-    );
-    return 'warning_sent';
+    // Kein roher Fehlertext ins Log — koennte die Empfaengeradresse spiegeln.
+    await log(s.device_id, 'warning', result.sent ? 'sent (1/2)' : 'failed (1/2)');
+    return 'warning1_sent';
+  }
+
+  // 4. Zweite Vorwarnung bei 100 % — laeuft am naechsten Cron-Tag nach der
+  //    ersten, sodass immer zwei Warnungen vor der Ausloesung stehen.
+  if (elapsed >= warn2Point && wcount < 2) {
+    const result = await sendWarning(s, elapsed, interval);
+    await mark(s.device_id, {
+      warning_count: 2,
+      warning_sent_at: new Date().toISOString(),
+    });
+    await log(s.device_id, 'warning', result.sent ? 'sent (2/2)' : 'failed (2/2)');
+    return 'warning2_sent';
   }
 
   return 'ok';

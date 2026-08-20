@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:drift/drift.dart' show Value;
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-import '../../config/supabase_config.dart';
 import '../../data/providers/heir_password_policy_provider.dart';
 import '../../features/heirs/share_export_service.dart';
 import '../database/database.dart';
@@ -14,6 +13,8 @@ const _kVaultEnabled = 'pacto.vault.enabled';
 const _kVaultIntervalDays = 'pacto.vault.interval_days';
 const _kVaultOwnerEmail = 'pacto.vault.owner_email';
 const _kVaultLastSync = 'pacto.vault.last_sync_at';
+const _kVaultHeartbeatFailed = 'pacto.vault.heartbeat_failed';
+const _kVaultHeartbeatLastOk = 'pacto.vault.heartbeat_last_ok';
 
 class VaultSettings {
   final bool enabled;
@@ -68,6 +69,41 @@ class VaultService {
     return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
   }
 
+  /// True, wenn das letzte Lebenszeichen NICHT uebertragen werden konnte. Die
+  /// Tresor-UI zeigt das als Warnzustand an (Phase 2).
+  static Future<bool> heartbeatFailed() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_kVaultHeartbeatFailed) ?? false;
+  }
+
+  static Future<void> _setHeartbeatHealthy(bool ok) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kVaultHeartbeatFailed, !ok);
+    if (ok) {
+      await prefs.setInt(
+          _kVaultHeartbeatLastOk, DateTime.now().millisecondsSinceEpoch);
+    }
+  }
+
+  /// Loescht saemtliche Serverdaten dieses Geraets: vault_payloads,
+  /// vault_settings, sync_data, heartbeats. Row Level Security begrenzt jede
+  /// Loeschung zusaetzlich auf die eigenen Zeilen. Wirft bei einem Fehler —
+  /// der Aufrufer MUSS das behandeln (kein stilles Scheitern). Ist zugleich der
+  /// DSGVO-Art.-17-Loeschpfad (BRIEF_PACTO_FIX.md §0.3).
+  static Future<void> deleteAllServerData() async {
+    final client = Supabase.instance.client;
+    final id = await deviceId();
+    await client.from('vault_payloads').delete().eq('device_id', id);
+    await client.from('vault_settings').delete().eq('device_id', id);
+    await client.from('sync_data').delete().eq('device_id', id);
+    await client.from('heartbeats').delete().eq('device_id', id);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kVaultHeartbeatFailed);
+    await prefs.remove(_kVaultHeartbeatLastOk);
+    await prefs.remove(_kVaultLastSync);
+  }
+
   /// "Ich-bin-noch-da"-Signal. Setzt confirmed_at = now() im Tresor und
   /// uebertraegt zugleich die aktuellen Owner-Settings (Email, Intervall,
   /// enabled). Kann gefahrlos bei jedem App-Resume gerufen werden.
@@ -76,21 +112,26 @@ class VaultService {
     if (!settings.enabled) return;
     if (settings.ownerEmail.isEmpty) return;
     final id = await deviceId();
-    await http.post(
-      Uri.parse('${SupabaseConfig.projectUrl}/functions/v1/vault-heartbeat'),
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SupabaseConfig.anonKey,
-        'Authorization': 'Bearer ${SupabaseConfig.anonKey}',
-      },
-      body: jsonEncode({
-        'deviceId': id,
-        'ownerName': ownerName ?? '',
-        'ownerEmail': settings.ownerEmail,
-        'intervalDays': settings.intervalDays,
-        'enabled': true,
-      }),
-    );
+    try {
+      // functions.invoke haengt automatisch das Session-JWT an und wirft bei
+      // Nicht-2xx eine FunctionException — das ist die Statuscode-Pruefung.
+      final res = await Supabase.instance.client.functions.invoke(
+        'vault-heartbeat',
+        body: {
+          'deviceId': id,
+          'ownerName': ownerName ?? '',
+          'ownerEmail': settings.ownerEmail,
+          'intervalDays': settings.intervalDays,
+          'enabled': settings.enabled,
+        },
+      );
+      await _setHeartbeatHealthy(res.status >= 200 && res.status < 300);
+    } catch (_) {
+      // Kein Absturz beim Resume, aber den Fehlzustand merken — die Tresor-UI
+      // zeigt ihn an, damit ein dauerhaft scheiternder Heartbeat nicht
+      // unbemerkt bleibt.
+      await _setHeartbeatHealthy(false);
+    }
   }
 
   /// Rendert pro Erbe einen Brief (Text-Body) gem. seiner Access-Stufe und
@@ -170,17 +211,14 @@ class VaultService {
     }
 
     final id = await deviceId();
-    final resp = await http.post(
-      Uri.parse('${SupabaseConfig.projectUrl}/functions/v1/vault-sync'),
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SupabaseConfig.anonKey,
-        'Authorization': 'Bearer ${SupabaseConfig.anonKey}',
-      },
-      body: jsonEncode({'deviceId': id, 'payloads': payloads}),
+    // functions.invoke haengt das Session-JWT an und wirft FunctionException
+    // bei Nicht-2xx (z. B. 401 ohne Session) — der Aufrufer erfaehrt den Fehler.
+    final resp = await Supabase.instance.client.functions.invoke(
+      'vault-sync',
+      body: {'deviceId': id, 'payloads': payloads},
     );
-    if (resp.statusCode < 200 || resp.statusCode >= 300) {
-      throw Exception('vault-sync HTTP ${resp.statusCode}: ${resp.body}');
+    if (resp.status < 200 || resp.status >= 300) {
+      throw Exception('vault-sync fehlgeschlagen (HTTP ${resp.status})');
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_kVaultLastSync, DateTime.now().millisecondsSinceEpoch);

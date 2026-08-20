@@ -486,5 +486,19 @@
   "accountRestoreConfirmTitle": "Backup wiederherstellen?",
   "accountRestoreConfirmBody": "Ersetzt deine aktuellen lokalen Daten durch das Cloud-Backup. Das kann nicht rückgängig gemacht werden.",
   "accountRestoreNeedsPasswordTitle": "Passwort bestätigen",
-  "accountRestoreNeedsPasswordBody": "Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln."
+  "accountRestoreNeedsPasswordBody": "Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln.",
+  "vaultDisableConfirmTitle": "Tresor deaktivieren?",
+  "vaultDisableConfirmBody": "Damit werden alle auf dem Server hinterlegten Daten dieses Geräts gelöscht: die Erben-Briefe, die Tresor-Einstellungen, das Cloud-Backup und die Lebenszeichen. Deine lokalen Daten in der App bleiben erhalten.",
+  "vaultDisableConfirmAction": "Deaktivieren & löschen",
+  "vaultDisabledDeleted": "Tresor deaktiviert. Alle Serverdaten dieses Geräts wurden gelöscht.",
+  "vaultDisableFailed": "Konnte den Tresor nicht deaktivieren: {error}",
+  "@vaultDisableFailed": { "placeholders": { "error": {"type": "String"} } },
+  "vaultDeleteServerButton": "Alle Serverdaten löschen",
+  "vaultDeleteServerConfirmTitle": "Serverdaten löschen?",
+  "vaultDeleteServerConfirmBody": "Löscht alle auf dem Server hinterlegten Daten dieses Geräts (Erben-Briefe, Tresor-Einstellungen, Cloud-Backup, Lebenszeichen). Deine lokalen Daten bleiben erhalten. Der Tresor wird dabei ausgeschaltet.",
+  "vaultDeleteServerDone": "Alle Serverdaten dieses Geräts wurden gelöscht.",
+  "vaultDeleteServerFailed": "Löschen fehlgeschlagen: {error}",
+  "@vaultDeleteServerFailed": { "placeholders": { "error": {"type": "String"} } },
+  "vaultHeartbeatFailedWarning": "Das letzte Lebenszeichen konnte nicht übertragen werden. Prüfe deine Internetverbindung — sonst warnt der Tresor womöglich zu früh.",
+  "vaultOwnerEmailMissingWarning": "Ohne E-Mail-Adresse kann der Tresor dich nicht warnen. Bitte oben eine Adresse eintragen."
 }

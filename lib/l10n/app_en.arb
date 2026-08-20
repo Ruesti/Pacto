@@ -442,5 +442,19 @@
   "accountRestoreConfirmTitle": "Restore backup?",
   "accountRestoreConfirmBody": "Replaces your current local data with the cloud backup. This cannot be undone.",
   "accountRestoreNeedsPasswordTitle": "Confirm password",
-  "accountRestoreNeedsPasswordBody": "Enter your password again to decrypt the cloud key."
+  "accountRestoreNeedsPasswordBody": "Enter your password again to decrypt the cloud key.",
+  "vaultDisableConfirmTitle": "Turn off the vault?",
+  "vaultDisableConfirmBody": "This deletes all of this device's data stored on the server: the heir letters, the vault settings, the cloud backup and the heartbeats. Your local data in the app stays intact.",
+  "vaultDisableConfirmAction": "Turn off & delete",
+  "vaultDisabledDeleted": "Vault turned off. All of this device's server data was deleted.",
+  "vaultDisableFailed": "Could not turn off the vault: {error}",
+  "@vaultDisableFailed": { "placeholders": { "error": {"type": "String"} } },
+  "vaultDeleteServerButton": "Delete all server data",
+  "vaultDeleteServerConfirmTitle": "Delete server data?",
+  "vaultDeleteServerConfirmBody": "Deletes all of this device's data stored on the server (heir letters, vault settings, cloud backup, heartbeats). Your local data stays intact. The vault will be turned off.",
+  "vaultDeleteServerDone": "All of this device's server data was deleted.",
+  "vaultDeleteServerFailed": "Deletion failed: {error}",
+  "@vaultDeleteServerFailed": { "placeholders": { "error": {"type": "String"} } },
+  "vaultHeartbeatFailedWarning": "The last heartbeat could not be sent. Check your internet connection — otherwise the vault might warn too early.",
+  "vaultOwnerEmailMissingWarning": "Without an email address the vault cannot warn you. Please add an address above."
 }

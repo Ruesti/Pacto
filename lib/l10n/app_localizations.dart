@@ -2389,6 +2389,78 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln.'**
   String get accountRestoreNeedsPasswordBody;
+
+  /// No description provided for @vaultDisableConfirmTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Tresor deaktivieren?'**
+  String get vaultDisableConfirmTitle;
+
+  /// No description provided for @vaultDisableConfirmBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Damit werden alle auf dem Server hinterlegten Daten dieses Geräts gelöscht: die Erben-Briefe, die Tresor-Einstellungen, das Cloud-Backup und die Lebenszeichen. Deine lokalen Daten in der App bleiben erhalten.'**
+  String get vaultDisableConfirmBody;
+
+  /// No description provided for @vaultDisableConfirmAction.
+  ///
+  /// In de, this message translates to:
+  /// **'Deaktivieren & löschen'**
+  String get vaultDisableConfirmAction;
+
+  /// No description provided for @vaultDisabledDeleted.
+  ///
+  /// In de, this message translates to:
+  /// **'Tresor deaktiviert. Alle Serverdaten dieses Geräts wurden gelöscht.'**
+  String get vaultDisabledDeleted;
+
+  /// No description provided for @vaultDisableFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Konnte den Tresor nicht deaktivieren: {error}'**
+  String vaultDisableFailed(String error);
+
+  /// No description provided for @vaultDeleteServerButton.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Serverdaten löschen'**
+  String get vaultDeleteServerButton;
+
+  /// No description provided for @vaultDeleteServerConfirmTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Serverdaten löschen?'**
+  String get vaultDeleteServerConfirmTitle;
+
+  /// No description provided for @vaultDeleteServerConfirmBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Löscht alle auf dem Server hinterlegten Daten dieses Geräts (Erben-Briefe, Tresor-Einstellungen, Cloud-Backup, Lebenszeichen). Deine lokalen Daten bleiben erhalten. Der Tresor wird dabei ausgeschaltet.'**
+  String get vaultDeleteServerConfirmBody;
+
+  /// No description provided for @vaultDeleteServerDone.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Serverdaten dieses Geräts wurden gelöscht.'**
+  String get vaultDeleteServerDone;
+
+  /// No description provided for @vaultDeleteServerFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Löschen fehlgeschlagen: {error}'**
+  String vaultDeleteServerFailed(String error);
+
+  /// No description provided for @vaultHeartbeatFailedWarning.
+  ///
+  /// In de, this message translates to:
+  /// **'Das letzte Lebenszeichen konnte nicht übertragen werden. Prüfe deine Internetverbindung — sonst warnt der Tresor womöglich zu früh.'**
+  String get vaultHeartbeatFailedWarning;
+
+  /// No description provided for @vaultOwnerEmailMissingWarning.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne E-Mail-Adresse kann der Tresor dich nicht warnen. Bitte oben eine Adresse eintragen.'**
+  String get vaultOwnerEmailMissingWarning;
 }
 
 class _AppLocalizationsDelegate

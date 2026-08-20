@@ -4,7 +4,14 @@
     <application
         android:label="pacto"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules">
+        <!-- allowBackup=false: die (SQLCipher-verschluesselte) pacto.sqlite und
+             die App-Daten landen NICHT im Google-Cloud-Backup (Befund 1-E).
+             dataExtractionRules schliesst zusaetzlich die Android-12+-Geraete-
+             uebertragung (D2D) aus. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
