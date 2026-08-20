@@ -1265,4 +1265,50 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get accountRestoreNeedsPasswordBody =>
       'Enter your password again to decrypt the cloud key.';
+
+  @override
+  String get vaultDisableConfirmTitle => 'Turn off the vault?';
+
+  @override
+  String get vaultDisableConfirmBody =>
+      'This deletes all of this device\'s data stored on the server: the heir letters, the vault settings, the cloud backup and the heartbeats. Your local data in the app stays intact.';
+
+  @override
+  String get vaultDisableConfirmAction => 'Turn off & delete';
+
+  @override
+  String get vaultDisabledDeleted =>
+      'Vault turned off. All of this device\'s server data was deleted.';
+
+  @override
+  String vaultDisableFailed(String error) {
+    return 'Could not turn off the vault: $error';
+  }
+
+  @override
+  String get vaultDeleteServerButton => 'Delete all server data';
+
+  @override
+  String get vaultDeleteServerConfirmTitle => 'Delete server data?';
+
+  @override
+  String get vaultDeleteServerConfirmBody =>
+      'Deletes all of this device\'s data stored on the server (heir letters, vault settings, cloud backup, heartbeats). Your local data stays intact. The vault will be turned off.';
+
+  @override
+  String get vaultDeleteServerDone =>
+      'All of this device\'s server data was deleted.';
+
+  @override
+  String vaultDeleteServerFailed(String error) {
+    return 'Deletion failed: $error';
+  }
+
+  @override
+  String get vaultHeartbeatFailedWarning =>
+      'The last heartbeat could not be sent. Check your internet connection — otherwise the vault might warn too early.';
+
+  @override
+  String get vaultOwnerEmailMissingWarning =>
+      'Without an email address the vault cannot warn you. Please add an address above.';
 }

@@ -13,6 +13,8 @@ const _kVaultEnabled = 'pacto.vault.enabled';
 const _kVaultIntervalDays = 'pacto.vault.interval_days';
 const _kVaultOwnerEmail = 'pacto.vault.owner_email';
 const _kVaultLastSync = 'pacto.vault.last_sync_at';
+const _kVaultHeartbeatFailed = 'pacto.vault.heartbeat_failed';
+const _kVaultHeartbeatLastOk = 'pacto.vault.heartbeat_last_ok';
 
 class VaultSettings {
   final bool enabled;
@@ -67,6 +69,41 @@ class VaultService {
     return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
   }
 
+  /// True, wenn das letzte Lebenszeichen NICHT uebertragen werden konnte. Die
+  /// Tresor-UI zeigt das als Warnzustand an (Phase 2).
+  static Future<bool> heartbeatFailed() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_kVaultHeartbeatFailed) ?? false;
+  }
+
+  static Future<void> _setHeartbeatHealthy(bool ok) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kVaultHeartbeatFailed, !ok);
+    if (ok) {
+      await prefs.setInt(
+          _kVaultHeartbeatLastOk, DateTime.now().millisecondsSinceEpoch);
+    }
+  }
+
+  /// Loescht saemtliche Serverdaten dieses Geraets: vault_payloads,
+  /// vault_settings, sync_data, heartbeats. Row Level Security begrenzt jede
+  /// Loeschung zusaetzlich auf die eigenen Zeilen. Wirft bei einem Fehler —
+  /// der Aufrufer MUSS das behandeln (kein stilles Scheitern). Ist zugleich der
+  /// DSGVO-Art.-17-Loeschpfad (BRIEF_PACTO_FIX.md §0.3).
+  static Future<void> deleteAllServerData() async {
+    final client = Supabase.instance.client;
+    final id = await deviceId();
+    await client.from('vault_payloads').delete().eq('device_id', id);
+    await client.from('vault_settings').delete().eq('device_id', id);
+    await client.from('sync_data').delete().eq('device_id', id);
+    await client.from('heartbeats').delete().eq('device_id', id);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kVaultHeartbeatFailed);
+    await prefs.remove(_kVaultHeartbeatLastOk);
+    await prefs.remove(_kVaultLastSync);
+  }
+
   /// "Ich-bin-noch-da"-Signal. Setzt confirmed_at = now() im Tresor und
   /// uebertraegt zugleich die aktuellen Owner-Settings (Email, Intervall,
   /// enabled). Kann gefahrlos bei jedem App-Resume gerufen werden.
@@ -76,10 +113,9 @@ class VaultService {
     if (settings.ownerEmail.isEmpty) return;
     final id = await deviceId();
     try {
-      // functions.invoke haengt automatisch das Session-JWT an; die Funktion
-      // schreibt damit RLS-geschuetzt. Best-effort beim Resume — belastbare
-      // Fehlerbehandlung (Statuscode-Pruefung, UI-Anzeige) folgt in Phase 2.
-      await Supabase.instance.client.functions.invoke(
+      // functions.invoke haengt automatisch das Session-JWT an und wirft bei
+      // Nicht-2xx eine FunctionException — das ist die Statuscode-Pruefung.
+      final res = await Supabase.instance.client.functions.invoke(
         'vault-heartbeat',
         body: {
           'deviceId': id,
@@ -89,8 +125,12 @@ class VaultService {
           'enabled': settings.enabled,
         },
       );
+      await _setHeartbeatHealthy(res.status >= 200 && res.status < 300);
     } catch (_) {
-      // ignorieren — naechster Resume versucht es erneut.
+      // Kein Absturz beim Resume, aber den Fehlzustand merken — die Tresor-UI
+      // zeigt ihn an, damit ein dauerhaft scheiternder Heartbeat nicht
+      // unbemerkt bleibt.
+      await _setHeartbeatHealthy(false);
     }
   }
 

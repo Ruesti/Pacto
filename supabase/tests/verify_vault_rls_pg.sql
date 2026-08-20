@@ -143,6 +143,24 @@ do $$ declare c int; begin
   raise notice 'OK  TC4      — B aendert 0 vault_settings';
 end $$;
 
+-- === TC5: Loeschpfad (Phase 2, deleteAllServerData) ========================
+-- B darf A's Zeile nicht loeschen ...
+select set_config('request.jwt.claims', json_build_object('sub', :'uidB')::text, true);
+do $$ declare c int; begin
+  delete from public.vault_payloads where heir_email = 'a-heir@example.com';
+  get diagnostics c = row_count;
+  if c <> 0 then raise exception 'TC5 ROT: B hat % Fremdzeilen geloescht', c; end if;
+  raise notice 'OK  TC5 (1/2) — B loescht 0 Fremdzeilen';
+end $$;
+-- ... A darf die eigene Zeile loeschen (RLS begrenzt auf eigene).
+select set_config('request.jwt.claims', json_build_object('sub', :'uidA')::text, true);
+do $$ declare c int; begin
+  delete from public.vault_payloads;
+  get diagnostics c = row_count;
+  if c <> 1 then raise exception 'TC5 ROT: A konnte eigene Zeile nicht loeschen (rows=%)', c; end if;
+  raise notice 'OK  TC5 (2/2) — A loescht die eigene Zeile';
+end $$;
+
 reset role;
-select 'Alle Assertions gruen — Phase 1 RLS bestanden.' as ergebnis;
+select 'Alle Assertions gruen — Phase 1 RLS + Phase 2 Loeschpfad bestanden.' as ergebnis;
 rollback;

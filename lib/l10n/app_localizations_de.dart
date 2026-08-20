@@ -1270,4 +1270,50 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get accountRestoreNeedsPasswordBody =>
       'Gib dein Passwort erneut ein, um den Cloud-Schlüssel zu entschlüsseln.';
+
+  @override
+  String get vaultDisableConfirmTitle => 'Tresor deaktivieren?';
+
+  @override
+  String get vaultDisableConfirmBody =>
+      'Damit werden alle auf dem Server hinterlegten Daten dieses Geräts gelöscht: die Erben-Briefe, die Tresor-Einstellungen, das Cloud-Backup und die Lebenszeichen. Deine lokalen Daten in der App bleiben erhalten.';
+
+  @override
+  String get vaultDisableConfirmAction => 'Deaktivieren & löschen';
+
+  @override
+  String get vaultDisabledDeleted =>
+      'Tresor deaktiviert. Alle Serverdaten dieses Geräts wurden gelöscht.';
+
+  @override
+  String vaultDisableFailed(String error) {
+    return 'Konnte den Tresor nicht deaktivieren: $error';
+  }
+
+  @override
+  String get vaultDeleteServerButton => 'Alle Serverdaten löschen';
+
+  @override
+  String get vaultDeleteServerConfirmTitle => 'Serverdaten löschen?';
+
+  @override
+  String get vaultDeleteServerConfirmBody =>
+      'Löscht alle auf dem Server hinterlegten Daten dieses Geräts (Erben-Briefe, Tresor-Einstellungen, Cloud-Backup, Lebenszeichen). Deine lokalen Daten bleiben erhalten. Der Tresor wird dabei ausgeschaltet.';
+
+  @override
+  String get vaultDeleteServerDone =>
+      'Alle Serverdaten dieses Geräts wurden gelöscht.';
+
+  @override
+  String vaultDeleteServerFailed(String error) {
+    return 'Löschen fehlgeschlagen: $error';
+  }
+
+  @override
+  String get vaultHeartbeatFailedWarning =>
+      'Das letzte Lebenszeichen konnte nicht übertragen werden. Prüfe deine Internetverbindung — sonst warnt der Tresor womöglich zu früh.';
+
+  @override
+  String get vaultOwnerEmailMissingWarning =>
+      'Ohne E-Mail-Adresse kann der Tresor dich nicht warnen. Bitte oben eine Adresse eintragen.';
 }
