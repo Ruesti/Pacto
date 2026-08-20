@@ -16,7 +16,14 @@ class SecureLocalStorage extends LocalStorage {
   final FlutterSecureStorage _storage;
 
   SecureLocalStorage([FlutterSecureStorage? storage])
-      : _storage = storage ?? const FlutterSecureStorage();
+      : _storage = storage ??
+            const FlutterSecureStorage(
+              // iOS: Session (inkl. Refresh-Token) an dieses Geraet binden — kein
+              // Transfer in ein Backup auf ein anderes Geraet (Phase 4).
+              iOptions: IOSOptions(
+                accessibility: KeychainAccessibility.first_unlock_this_device,
+              ),
+            );
 
   @override
   Future<void> initialize() async {

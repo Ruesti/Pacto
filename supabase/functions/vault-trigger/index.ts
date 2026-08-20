@@ -241,11 +241,8 @@ async function processOne(s: VaultSetting, force = false): Promise<string> {
       warning_count: 1,
       warning_sent_at: new Date().toISOString(),
     });
-    await log(
-      s.device_id,
-      'warning',
-      result.sent ? 'sent (1/2)' : `failed (1/2): ${result.error}`,
-    );
+    // Kein roher Fehlertext ins Log — koennte die Empfaengeradresse spiegeln.
+    await log(s.device_id, 'warning', result.sent ? 'sent (1/2)' : 'failed (1/2)');
     return 'warning1_sent';
   }
 
@@ -257,11 +254,7 @@ async function processOne(s: VaultSetting, force = false): Promise<string> {
       warning_count: 2,
       warning_sent_at: new Date().toISOString(),
     });
-    await log(
-      s.device_id,
-      'warning',
-      result.sent ? 'sent (2/2)' : `failed (2/2): ${result.error}`,
-    );
+    await log(s.device_id, 'warning', result.sent ? 'sent (2/2)' : 'failed (2/2)');
     return 'warning2_sent';
   }
 

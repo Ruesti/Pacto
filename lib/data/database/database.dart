@@ -81,7 +81,15 @@ class AppDatabase extends _$AppDatabase {
 // Der 32-Byte-DB-Key liegt als Hex in flutter_secure_storage (iOS Keychain /
 // Android Keystore), NICHT in der DB oder in SharedPreferences.
 const _dbKeyName = 'pacto.db.key';
-const _dbSecure = FlutterSecureStorage();
+// iOS: der DB-Schluessel ist an DIESES Geraet gebunden (first_unlock_this_device)
+// — er wandert nicht in ein iCloud-/iTunes-Backup und kann daher nicht auf einem
+// anderen Geraet die (SQLCipher-verschluesselte) pacto.sqlite entsperren
+// (Phase 4). Android nutzt ohnehin den geraetegebundenen Keystore.
+const _dbSecure = FlutterSecureStorage(
+  iOptions: IOSOptions(
+    accessibility: KeychainAccessibility.first_unlock_this_device,
+  ),
+);
 final _dbRng = Random.secure();
 
 String _randomHex(int bytes) {
