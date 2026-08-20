@@ -3,7 +3,6 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pointycastle/export.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 const _keyEncryptionKey = 'pacto.sync.aes_key_b64';
 
@@ -20,10 +19,8 @@ class CryptoService {
   static Uint8List _randomBytes(int len) =>
       Uint8List.fromList(List.generate(len, (_) => _rng.nextInt(256)));
 
-  /// Laedt den AES-Sync-Key. Liegt er noch in den (unsicheren)
-  /// SharedPreferences einer aelteren Version, wird sein **Wert unveraendert**
-  /// in flutter_secure_storage uebernommen — sonst liessen sich bereits
-  /// gespeicherte `loginPasswordCt` nicht mehr entschluesseln.
+  /// Laedt den AES-Sync-Key aus flutter_secure_storage (oder erzeugt einen
+  /// frischen). Danach im Speicher gecacht.
   Future<Uint8List> _loadOrCreateKey() async {
     if (_cachedKey != null) return _cachedKey!;
 
@@ -32,20 +29,16 @@ class CryptoService {
       return _cachedKey = base64Decode(fromSecure);
     }
 
-    // Migration: alten Wert aus SharedPreferences uebernehmen (Wert erhalten!).
-    final prefs = await SharedPreferences.getInstance();
-    final legacy = prefs.getString(_keyEncryptionKey);
-    if (legacy != null && legacy.isNotEmpty) {
-      await _secure.write(key: _keyEncryptionKey, value: legacy);
-      await prefs.remove(_keyEncryptionKey);
-      return _cachedKey = base64Decode(legacy);
-    }
-
     // Frischer Key.
     final key = _randomBytes(32);
     await _secure.write(key: _keyEncryptionKey, value: base64Encode(key));
     return _cachedKey = key;
   }
+
+  /// Loescht den im Speicher gehaltenen Key. Wird beim Sperren/Verlassen der App
+  /// aufgerufen (Defense-in-Depth) — der Key liegt weiterhin geraetegebunden in
+  /// secure storage und wird beim naechsten Bedarf neu geladen.
+  void clearCachedKey() => _cachedKey = null;
 
   Future<String> encryptJson(Map<String, dynamic> payload) async {
     final key = await _loadOrCreateKey();
@@ -110,11 +103,21 @@ class CryptoService {
 
   static const _pbkdf2Iterations = 100000;
 
-  Uint8List _deriveKeyFromSecret(String secret, Uint8List salt) {
-    final params = Pbkdf2Parameters(salt, _pbkdf2Iterations, 32);
+  /// PBKDF2-HMAC-SHA256. Zentrale Ableitung, damit PIN-Modus, Passwort-Escrow
+  /// und der Erben-PIN-Hash (share_export_service) dieselbe Routine nutzen.
+  static Uint8List deriveKey(
+    String secret,
+    Uint8List salt, {
+    int iterations = _pbkdf2Iterations,
+    int length = 32,
+  }) {
+    final params = Pbkdf2Parameters(salt, iterations, length);
     final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), 64))..init(params);
     return pbkdf2.process(Uint8List.fromList(utf8.encode(secret)));
   }
+
+  Uint8List _deriveKeyFromSecret(String secret, Uint8List salt) =>
+      deriveKey(secret, salt);
 
   /// Verschluesselt `plaintext` mit einem aus `pin` abgeleiteten Schluessel.
   /// Der Envelope enthaelt das Salt mit, sodass der Erbe nur PIN + Envelope

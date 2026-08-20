@@ -81,6 +81,12 @@ class CloudSyncService {
   /// initialisiert — wir ziehen es mit derselben Secure-Storage-LocalStorage
   /// nach, damit die persistierte (anonyme) Session wiederhergestellt und
   /// aufgefrischt wird und der Schreibzugriff RLS-konform laeuft.
+  ///
+  /// Schreibt in `vault_settings.confirmed_at` — DAS liest der Trigger. (Frueher
+  /// in die Tabelle `heartbeats`, die der Trigger nie las: Befund 2-A.) Der
+  /// Vorwarn-/Zustell-Zyklus wird zurueckgesetzt, `heir_notified_at` bleibt
+  /// unangetastet. Aktualisiert nur eine bestehende Zeile (Tresor aktiv);
+  /// existiert keine, passiert nichts.
   static Future<void> sendHeartbeat() async {
     SupabaseClient client;
     try {
@@ -98,13 +104,14 @@ class CloudSyncService {
     if (session == null) return; // keine Identitaet -> nichts zu bestaetigen
 
     final deviceId = await _deviceId();
-    await client.from('heartbeats').upsert(
-      {
-        'device_id': deviceId,
-        'user_id': session.user.id,
-        'confirmed_at': DateTime.now().toIso8601String(),
-      },
-      onConflict: 'device_id',
-    );
+    final now = DateTime.now().toIso8601String();
+    await client.from('vault_settings').update({
+      'confirmed_at': now,
+      'warning_sent_at': null,
+      'warning_count': 0,
+      'notify_attempts': 0,
+      'owner_alerted_at': null,
+      'updated_at': now,
+    }).eq('device_id', deviceId);
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:crypto/crypto.dart';
+import 'dart:math';
+import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -11,13 +12,41 @@ import '../../shared/utils/currency_formatter.dart';
 import '../../shared/utils/date_formatter.dart';
 
 class ShareExportService {
+  static final Random _rng = Random.secure();
+  static const _pinIterations = 100000;
+
+  /// Hasht den Erben-PIN gesalzen mit PBKDF2-HMAC-SHA256 (konsistent zu
+  /// [CryptoService.deriveKey]). Ergebnis ist selbstbeschreibend:
+  /// `pbkdf2_sha256$<iters>$<saltB64>$<hashB64>` — Salt reist im Hash mit.
   static String hashPin(String pin) {
-    final bytes = utf8.encode(pin);
-    return sha256.convert(bytes).toString();
+    final salt =
+        Uint8List.fromList(List.generate(16, (_) => _rng.nextInt(256)));
+    final hash = CryptoService.deriveKey(pin, salt, iterations: _pinIterations);
+    return 'pbkdf2_sha256\$$_pinIterations\$${base64Encode(salt)}\$${base64Encode(hash)}';
   }
 
-  static bool verifyPin(String pin, String hash) {
-    return hashPin(pin) == hash;
+  static bool verifyPin(String pin, String stored) {
+    final parts = stored.split('\$');
+    if (parts.length != 4 || parts[0] != 'pbkdf2_sha256') return false;
+    final iterations = int.tryParse(parts[1]);
+    if (iterations == null) return false;
+    final Uint8List salt;
+    final Uint8List expected;
+    try {
+      salt = base64Decode(parts[2]);
+      expected = base64Decode(parts[3]);
+    } catch (_) {
+      return false;
+    }
+    final actual = CryptoService.deriveKey(pin, salt,
+        iterations: iterations, length: expected.length);
+    // Konstantzeit-Vergleich.
+    if (actual.length != expected.length) return false;
+    var diff = 0;
+    for (var i = 0; i < actual.length; i++) {
+      diff |= actual[i] ^ expected[i];
+    }
+    return diff == 0;
   }
 
   /// Erzeugt eine PDF-Datei mit der kompletten Vertragsuebersicht und gibt
