@@ -408,6 +408,14 @@ verify_jwt = true
 enabled = true
 verify_jwt = true
 
+# vault-postpone: oeffentlicher Widerrufs-Link aus den Vorwarnungs-Mails.
+# verify_jwt = false => bewusst ohne JWT erreichbar; das hochentropige Token im
+# Link IST der Berechtigungsnachweis (serverseitig nur als Hash). Die Funktion
+# darf ausschliesslich confirmed_at aufschieben.
+[functions.vault-postpone]
+enabled = true
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

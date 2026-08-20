@@ -44,6 +44,7 @@ Deno.serve(async (req: Request) => {
       user_id: user.id,
       confirmed_at: new Date().toISOString(),
       warning_sent_at: null,
+      warning_count: 0,
       heir_notified_at: null,
       updated_at: new Date().toISOString(),
     };

@@ -69,8 +69,9 @@ grant select, insert, update, delete
   on public.sync_data, public.heartbeats, public.vault_settings, public.vault_payloads
   to anon, authenticated;
 
--- === Die zu pruefende Migration ===========================================
+-- === Die zu pruefenden Migrationen ========================================
 \i supabase/migrations/20260820120000_vault_rls_userid.sql
+\i supabase/migrations/20260820130000_vault_reset_tokens.sql
 
 -- --- Zwei Nutzer -----------------------------------------------------------
 \set uidA '00000000-0000-0000-0000-00000000000a'
@@ -161,6 +162,23 @@ do $$ declare c int; begin
   raise notice 'OK  TC5 (2/2) — A loescht die eigene Zeile';
 end $$;
 
+-- === TC6: vault_reset_tokens ist Service-Role-only (Phase 3) ===============
+reset role; -- Superuser (umgeht RLS) legt ein Token an.
+insert into public.vault_reset_tokens(token_hash, device_id, expires_at)
+  values ('deadbeef', :'devA', now() + interval '1 day');
+set role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub', :'uidA')::text, true);
+do $$ declare n int; begin
+  begin
+    select count(*) into n from public.vault_reset_tokens;
+  exception when insufficient_privilege then
+    raise notice 'OK  TC6      — authenticated: kein Zugriff auf vault_reset_tokens';
+    return;
+  end;
+  if n <> 0 then raise exception 'TC6 ROT: authenticated sieht % Token', n; end if;
+  raise notice 'OK  TC6      — authenticated sieht 0 Token';
+end $$;
+
 reset role;
-select 'Alle Assertions gruen — Phase 1 RLS + Phase 2 Loeschpfad bestanden.' as ergebnis;
+select 'Alle Assertions gruen — Phase 1 RLS + Phase 2 Loeschpfad + Phase 3 Token bestanden.' as ergebnis;
 rollback;
