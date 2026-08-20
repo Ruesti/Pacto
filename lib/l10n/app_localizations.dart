@@ -1580,6 +1580,12 @@ abstract class AppLocalizations {
   /// **'Stelle sicher, dass deine Erben ihren PIN kennen — sonst können sie deine Passwörter nicht entschlüsseln.'**
   String get heirPolicyWarnPinShared;
 
+  /// No description provided for @heirPolicyMaximumVaultNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Gilt nur für den manuellen Export (PDF/QR). Über den automatischen Tresor werden die Passwörter NICHT mitgesendet — dort kennt niemand den PIN. Die Erben erhalten dann nur die Vertragsliste (mit Hinweisen, ohne Passwörter).'**
+  String get heirPolicyMaximumVaultNote;
+
   /// No description provided for @heirPolicyPurgeTitle.
   ///
   /// In de, this message translates to:

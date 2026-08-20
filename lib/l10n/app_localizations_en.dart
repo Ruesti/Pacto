@@ -805,6 +805,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Make sure your heirs know their PIN — otherwise they cannot decrypt your passwords.';
 
   @override
+  String get heirPolicyMaximumVaultNote =>
+      'Applies to manual export (PDF/QR) only. Over the automatic vault the passwords are NOT sent — no one there knows the PIN. Heirs then receive only the contract list (with hints, without passwords).';
+
+  @override
   String get heirPolicyPurgeTitle => 'Remove stored passwords?';
 
   @override

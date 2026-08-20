@@ -330,6 +330,7 @@
   "heirPolicyMaximumBody": "Passwörter werden mit einem Schlüssel verschlüsselt, der aus dem Erben-PIN abgeleitet wird. Der Pacto-Server kann nichts entschlüsseln. Wichtig: du musst jedem Erben den PIN vorab mitteilen (Brief, SMS, Notar). Sonst kommt er an die Daten nicht.",
   "heirPolicySaved": "Einstellung gespeichert.",
   "heirPolicyWarnPinShared": "Stelle sicher, dass deine Erben ihren PIN kennen — sonst können sie deine Passwörter nicht entschlüsseln.",
+  "heirPolicyMaximumVaultNote": "Gilt nur für den manuellen Export (PDF/QR). Über den automatischen Tresor werden die Passwörter NICHT mitgesendet — dort kennt niemand den PIN. Die Erben erhalten dann nur die Vertragsliste (mit Hinweisen, ohne Passwörter).",
   "heirPolicyPurgeTitle": "Gespeicherte Passwörter entfernen?",
   "heirPolicyPurgeBody": "{count, plural, =1{Ein Vertrag hat ein gespeichertes Passwort.} other{{count} Verträge haben gespeicherte Passwörter.}} Da du \"Keine Passwörter speichern\" gewählt hast, kannst du sie jetzt aus Pacto entfernen. Benutzernamen und Hinweise bleiben erhalten.",
   "@heirPolicyPurgeBody": { "placeholders": { "count": {"type": "int"} } },
