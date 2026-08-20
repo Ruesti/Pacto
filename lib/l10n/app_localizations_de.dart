@@ -1088,26 +1088,30 @@ class AppLocalizationsDe extends AppLocalizations {
       'Deine Daten werden vor dem Upload mit AES-256-GCM verschlüsselt. Der Schlüssel bleibt lokal auf deinem Gerät — in der Pacto-Cloud liegen nur unlesbare Daten.';
 
   @override
-  String get syncToggle => 'Sync aktivieren';
+  String get syncToggle => 'Cloud-Kopie aktivieren';
 
   @override
-  String get syncToggleSubtitle => 'Verschlüsseltes Backup in der Pacto-Cloud';
+  String get syncToggleSubtitle => 'Verschlüsselte Kopie in der Pacto-Cloud';
 
   @override
-  String get syncLastSync => 'Letzter Sync';
+  String get syncLastSync => 'Letzte Kopie';
 
   @override
   String get syncNever => 'noch nie';
 
   @override
-  String get syncNowButton => 'Jetzt synchronisieren';
+  String get syncNowButton => 'Jetzt hochladen';
 
   @override
-  String get syncSuccess => 'Sync erfolgreich';
+  String get syncSuccess => 'Hochgeladen';
 
   @override
   String get syncReadyNote =>
-      'Cloud-Backup ist startklar konfiguriert — keine Einrichtung nötig. Du musst Sync nur aktivieren.';
+      'Ohne Einrichtung startklar — du musst die Cloud-Kopie nur aktivieren.';
+
+  @override
+  String get syncNotBackupNote =>
+      'Das ist KEIN Wiederherstellungs-Backup: Der Schlüssel liegt nur auf diesem Gerät. Geht es verloren, lässt sich die Kopie nicht zurückholen — auch nicht durch uns. Für eine echte Wiederherstellung nach Geräteverlust lege oben ein Konto an.';
 
   @override
   String get vaultTitle => 'Lebenszeichen-Tresor';

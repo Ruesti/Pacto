@@ -2075,19 +2075,19 @@ abstract class AppLocalizations {
   /// No description provided for @syncToggle.
   ///
   /// In de, this message translates to:
-  /// **'Sync aktivieren'**
+  /// **'Cloud-Kopie aktivieren'**
   String get syncToggle;
 
   /// No description provided for @syncToggleSubtitle.
   ///
   /// In de, this message translates to:
-  /// **'Verschlüsseltes Backup in der Pacto-Cloud'**
+  /// **'Verschlüsselte Kopie in der Pacto-Cloud'**
   String get syncToggleSubtitle;
 
   /// No description provided for @syncLastSync.
   ///
   /// In de, this message translates to:
-  /// **'Letzter Sync'**
+  /// **'Letzte Kopie'**
   String get syncLastSync;
 
   /// No description provided for @syncNever.
@@ -2099,20 +2099,26 @@ abstract class AppLocalizations {
   /// No description provided for @syncNowButton.
   ///
   /// In de, this message translates to:
-  /// **'Jetzt synchronisieren'**
+  /// **'Jetzt hochladen'**
   String get syncNowButton;
 
   /// No description provided for @syncSuccess.
   ///
   /// In de, this message translates to:
-  /// **'Sync erfolgreich'**
+  /// **'Hochgeladen'**
   String get syncSuccess;
 
   /// No description provided for @syncReadyNote.
   ///
   /// In de, this message translates to:
-  /// **'Cloud-Backup ist startklar konfiguriert — keine Einrichtung nötig. Du musst Sync nur aktivieren.'**
+  /// **'Ohne Einrichtung startklar — du musst die Cloud-Kopie nur aktivieren.'**
   String get syncReadyNote;
+
+  /// No description provided for @syncNotBackupNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Das ist KEIN Wiederherstellungs-Backup: Der Schlüssel liegt nur auf diesem Gerät. Geht es verloren, lässt sich die Kopie nicht zurückholen — auch nicht durch uns. Für eine echte Wiederherstellung nach Geräteverlust lege oben ein Konto an.'**
+  String get syncNotBackupNote;
 
   /// No description provided for @vaultTitle.
   ///

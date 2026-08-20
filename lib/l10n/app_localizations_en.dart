@@ -1084,26 +1084,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your data is encrypted with AES-256-GCM before upload. The key stays local on your device — the Pacto cloud only stores unreadable data.';
 
   @override
-  String get syncToggle => 'Enable sync';
+  String get syncToggle => 'Enable cloud copy';
 
   @override
-  String get syncToggleSubtitle => 'Encrypted backup in the Pacto cloud';
+  String get syncToggleSubtitle => 'Encrypted copy in the Pacto cloud';
 
   @override
-  String get syncLastSync => 'Last sync';
+  String get syncLastSync => 'Last copy';
 
   @override
   String get syncNever => 'never';
 
   @override
-  String get syncNowButton => 'Sync now';
+  String get syncNowButton => 'Upload now';
 
   @override
-  String get syncSuccess => 'Sync successful';
+  String get syncSuccess => 'Uploaded';
 
   @override
   String get syncReadyNote =>
-      'Cloud backup is ready to go — no setup needed. You just need to enable sync.';
+      'Ready to go, no setup needed — you just need to enable the cloud copy.';
+
+  @override
+  String get syncNotBackupNote =>
+      'This is NOT a recovery backup: the key stays on this device only. If you lose the device, the copy cannot be restored — not even by us. For real recovery after device loss, create an account above.';
 
   @override
   String get vaultTitle => 'Vitality Vault';
