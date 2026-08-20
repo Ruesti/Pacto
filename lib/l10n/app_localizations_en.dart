@@ -1311,4 +1311,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get vaultOwnerEmailMissingWarning =>
       'Without an email address the vault cannot warn you. Please add an address above.';
+
+  @override
+  String get vaultLettersLabel => 'Prepared letters';
+
+  @override
+  String vaultLettersValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count letters',
+      one: '1 letter',
+      zero: 'None',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultNoLettersWarning =>
+      'No heirs set up yet — nothing would be sent in an emergency. Add at least one heir under \"Heirs & Sharing\".';
+
+  @override
+  String get vaultAutoSyncHint =>
+      'Changes to contracts and heirs are automatically kept in sync for the vault.';
 }

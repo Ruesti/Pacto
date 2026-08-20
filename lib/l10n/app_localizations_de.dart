@@ -1316,4 +1316,27 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get vaultOwnerEmailMissingWarning =>
       'Ohne E-Mail-Adresse kann der Tresor dich nicht warnen. Bitte oben eine Adresse eintragen.';
+
+  @override
+  String get vaultLettersLabel => 'Hinterlegte Briefe';
+
+  @override
+  String vaultLettersValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Briefe',
+      one: '1 Brief',
+      zero: 'Keine',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultNoLettersWarning =>
+      'Noch keine Erben hinterlegt — im Ernstfall würde nichts übermittelt. Lege unter „Erben & Teilen“ mindestens einen Erben an.';
+
+  @override
+  String get vaultAutoSyncHint =>
+      'Änderungen an Verträgen und Erben werden automatisch für den Tresor aktualisiert.';
 }

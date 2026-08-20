@@ -82,6 +82,11 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
         );
       });
       await _persist();
+      // Sofort einmal synchronisieren, damit der Tresor gleich Daten hat
+      // (nicht erst bei der naechsten Aenderung).
+      await ref.read(vaultAutoSyncServiceProvider).syncNow();
+      final last = await VaultService.lastSyncAt();
+      if (mounted) setState(() => _lastSyncAt = last);
       return;
     }
 
@@ -278,6 +283,13 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final expiry = _expiryLabel();
+    // Live-Anzahl der hinterlegten Briefe = aktive Erben (einer pro Erbe).
+    final letterCount = ref
+            .watch(heirsStreamProvider)
+            .valueOrNull
+            ?.where((h) => h.isActive)
+            .length ??
+        0;
     return Scaffold(
       appBar: AppBar(title: Text(l.vaultTitle)),
       body: _loading
@@ -345,6 +357,8 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
                     _warningBanner(l.vaultOwnerEmailMissingWarning),
                   if (_heartbeatFailed)
                     _warningBanner(l.vaultHeartbeatFailedWarning),
+                  if (letterCount == 0)
+                    _warningBanner(l.vaultNoLettersWarning),
                   _intervalPicker(l),
                   const SizedBox(height: 16),
                   ListTile(
@@ -362,6 +376,11 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
                     leading: const Icon(Icons.cloud_upload_outlined),
                     title: Text(l.vaultLastSyncLabel),
                     subtitle: Text(_lastSyncLabel(l)),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.mail_outline),
+                    title: Text(l.vaultLettersLabel),
+                    subtitle: Text(l.vaultLettersValue(letterCount)),
                   ),
                   const SizedBox(height: 8),
                   FilledButton.icon(
@@ -386,6 +405,15 @@ class _VaultScreenState extends ConsumerState<VaultScreen> {
                                 CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.upload_outlined),
                     label: Text(l.vaultSyncNowButton),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      l.vaultAutoSyncHint,
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
                   ),
                 ],
                 const SizedBox(height: 24),

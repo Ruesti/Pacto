@@ -21,6 +21,9 @@ class PactoApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
+    // Automatischer Tresor-Sync bei Vertrags-/Erben-Aenderungen (Befund 2-E) —
+    // hier beobachtet, damit der Listener die gesamte App-Laufzeit lebt.
+    ref.watch(vaultAutoSyncServiceProvider);
     return MaterialApp(
       title: 'Pacto',
       theme: AppTheme.darkTheme,

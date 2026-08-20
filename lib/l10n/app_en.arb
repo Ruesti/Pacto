@@ -456,5 +456,10 @@
   "vaultDeleteServerFailed": "Deletion failed: {error}",
   "@vaultDeleteServerFailed": { "placeholders": { "error": {"type": "String"} } },
   "vaultHeartbeatFailedWarning": "The last heartbeat could not be sent. Check your internet connection — otherwise the vault might warn too early.",
-  "vaultOwnerEmailMissingWarning": "Without an email address the vault cannot warn you. Please add an address above."
+  "vaultOwnerEmailMissingWarning": "Without an email address the vault cannot warn you. Please add an address above.",
+  "vaultLettersLabel": "Prepared letters",
+  "vaultLettersValue": "{count, plural, =0{None} =1{1 letter} other{{count} letters}}",
+  "@vaultLettersValue": { "placeholders": { "count": {"type": "int"} } },
+  "vaultNoLettersWarning": "No heirs set up yet — nothing would be sent in an emergency. Add at least one heir under \"Heirs & Sharing\".",
+  "vaultAutoSyncHint": "Changes to contracts and heirs are automatically kept in sync for the vault."
 }

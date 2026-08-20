@@ -2461,6 +2461,30 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Ohne E-Mail-Adresse kann der Tresor dich nicht warnen. Bitte oben eine Adresse eintragen.'**
   String get vaultOwnerEmailMissingWarning;
+
+  /// No description provided for @vaultLettersLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinterlegte Briefe'**
+  String get vaultLettersLabel;
+
+  /// No description provided for @vaultLettersValue.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =0{Keine} =1{1 Brief} other{{count} Briefe}}'**
+  String vaultLettersValue(int count);
+
+  /// No description provided for @vaultNoLettersWarning.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keine Erben hinterlegt — im Ernstfall würde nichts übermittelt. Lege unter „Erben & Teilen“ mindestens einen Erben an.'**
+  String get vaultNoLettersWarning;
+
+  /// No description provided for @vaultAutoSyncHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Änderungen an Verträgen und Erben werden automatisch für den Tresor aktualisiert.'**
+  String get vaultAutoSyncHint;
 }
 
 class _AppLocalizationsDelegate
