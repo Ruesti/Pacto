@@ -163,3 +163,34 @@ setzte `heir_notified_at` bedingungslos zurück.
 - Stufe 2: `fix/launch-stufe2 → fix/launch-stufe1` (gestapelt) — dieser Bericht.
 
 Beide sind erst nach dem Deploy + On-Device-Test „fertig" im Produktsinn.
+
+---
+
+## Deploy (Live) — durchgeführt am 2026-08-20
+
+Auf ausdrückliche Freigabe des Nutzers ins Live-Projekt `dxsjgajavgvjlksjawer`
+deployt (via Supabase-Management-API, da kein DB-Passwort in der Session):
+
+- **3 Migrationen angewendet** und in `schema_migrations` eingetragen:
+  `20260820120000` (RLS + user_id, **selbstheilend** — die 2 verwaisten
+  Bestandszeilen in `sync_data`/`heartbeats` wurden entfernt), `…130000`
+  (reset_tokens), `…140000` (delivery_tracking).
+- **4 Edge Functions deployt:** `vault-postpone` (neu), `vault-heartbeat`,
+  `vault-sync`, `vault-trigger` (`extract-contract` unverändert).
+- Anonyme Anmeldung war live bereits aktiv.
+
+**Live-Sicherheitsnachweis (gegen Produktion):**
+- Reiner anon-Key ohne Session auf `vault_payloads` / `vault_settings` /
+  `sync_data` / `heartbeats` → **HTTP 401** (`42501 permission denied`).
+  Vorher (`using(true)`) lieferten sie Daten — das Leck ist geschlossen.
+- `vault_reset_tokens` (service-only) via anon → 401.
+- `vault-heartbeat` ohne Session → **401 Unauthorized** (neue Function-Auth live).
+
+**Android-Build-Fix verifiziert:** Kotlin projektweit auf jvmTarget 17
+(Commit `97b6b08`) → `flutter build apk --debug` auf dem Laptop: `✓ Built
+app-debug.apk` (der `receive_sharing_intent`-JVM-Konflikt ist behoben).
+
+**Noch offen:** der interaktive On-Device-GUI-Test (Handy war zum Zeitpunkt des
+Deploys von einem parallelen Job belegt) — jetzt voll entsperrt (Build ok,
+Backend aktuell): `flutter run -d RFCW220PB7W` im Checkout, dann Tresor
+aktivieren → ändern → „Ich bin noch da" → deaktivieren.
