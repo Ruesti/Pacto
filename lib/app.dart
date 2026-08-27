@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'data/providers/database_provider.dart';
 import 'data/sync/vault_service.dart';
 import 'features/home/home_shell.dart';
 import 'features/onboarding/onboarding_screen.dart';
@@ -20,6 +21,9 @@ class PactoApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
+    // Automatischer Tresor-Sync bei Vertrags-/Erben-Aenderungen (Befund 2-E) —
+    // hier beobachtet, damit der Listener die gesamte App-Laufzeit lebt.
+    ref.watch(vaultAutoSyncServiceProvider);
     return MaterialApp(
       title: 'Pacto',
       theme: AppTheme.darkTheme,
@@ -88,6 +92,11 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         state == AppLifecycleState.hidden) {
       // Beim Verlassen wieder sperren.
       if (_unlocked) setState(() => _unlocked = false);
+      // Defense-in-Depth: den im Speicher gehaltenen AES-Key leeren. Er liegt
+      // geraetegebunden in secure storage und wird bei Bedarf neu geladen.
+      ProviderScope.containerOf(context, listen: false)
+          .read(cryptoServiceProvider)
+          .clearCachedKey();
     }
   }
 

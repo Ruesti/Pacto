@@ -34,6 +34,19 @@ subprojects {
     }
 }
 
+// Kotlin fuer ALLE Module (inkl. Plugins wie receive_sharing_intent) auf
+// JVM-Target 17 pinnen — konsistent zu den Java-compileOptions oben. Ohne das
+// kompiliert Kotlin unter JDK 21 gegen Target 21, waehrend Java 17 nutzt, was
+// zu "Inconsistent JVM-target compatibility" fuehrt. Das App-Modul setzt es
+// bereits selbst (kotlinOptions); dieser Block deckt die Plugin-Module ab.
+subprojects {
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
+}
+
 subprojects {
     project.evaluationDependsOn(":app")
 }

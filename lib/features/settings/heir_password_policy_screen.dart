@@ -52,6 +52,7 @@ class HeirPasswordPolicyScreen extends ConsumerWidget {
             title: l.heirPolicyMaximumTitle,
             body: l.heirPolicyMaximumBody,
             selected: current == HeirPasswordPolicy.maximum,
+            note: l.heirPolicyMaximumVaultNote,
             warning: current == HeirPasswordPolicy.maximum
                 ? l.heirPolicyWarnPinShared
                 : null,
@@ -118,6 +119,7 @@ class _PolicyCard extends StatelessWidget {
   final Color iconColor;
   final String title;
   final String body;
+  final String? note;
   final String? warning;
   final bool selected;
   final VoidCallback onTap;
@@ -129,6 +131,7 @@ class _PolicyCard extends StatelessWidget {
     required this.body,
     required this.selected,
     required this.onTap,
+    this.note,
     this.warning,
   });
 
@@ -186,6 +189,31 @@ class _PolicyCard extends StatelessWidget {
                 style: const TextStyle(
                     color: AppColors.textSecondary, height: 1.35),
               ),
+              if (note != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.statusBlueBg,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.info_outline,
+                          size: 18, color: AppColors.statusBlue),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          note!,
+                          style: const TextStyle(
+                              color: AppColors.statusBlue, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               if (warning != null) ...[
                 const SizedBox(height: 12),
                 Container(

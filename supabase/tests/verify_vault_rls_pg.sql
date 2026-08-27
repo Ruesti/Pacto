@@ -69,9 +69,27 @@ grant select, insert, update, delete
   on public.sync_data, public.heartbeats, public.vault_settings, public.vault_payloads
   to anon, authenticated;
 
+-- Simuliere Live-Bestandszeilen: verwaiste anon-Daten OHNE user_id (die Spalte
+-- existiert vor der Migration noch nicht). Die selbstheilende Migration muss sie
+-- entfernen und trotzdem durchlaufen (sonst NOT-NULL-Verletzung).
+insert into public.sync_data(device_id, encrypted_payload)
+  values (gen_random_uuid(), 'orphan1'), (gen_random_uuid(), 'orphan2');
+insert into public.heartbeats(device_id)
+  values (gen_random_uuid()), (gen_random_uuid());
+
 -- === Die zu pruefenden Migrationen ========================================
 \i supabase/migrations/20260820120000_vault_rls_userid.sql
+
+-- Selbstheilung geprueft: die verwaisten Bestandszeilen sind weg, Spalte NOT NULL.
+do $$ declare n int; begin
+  select count(*) into n from public.sync_data;
+  if n <> 0 then raise exception 'ORPHAN ROT: sync_data hat noch % verwaiste Zeilen', n; end if;
+  select count(*) into n from public.heartbeats;
+  if n <> 0 then raise exception 'ORPHAN ROT: heartbeats hat noch % verwaiste Zeilen', n; end if;
+  raise notice 'OK  orphan   — verwaiste Bestandszeilen entfernt, Migration durchgelaufen';
+end $$;
 \i supabase/migrations/20260820130000_vault_reset_tokens.sql
+\i supabase/migrations/20260820140000_vault_delivery_tracking.sql
 
 -- --- Zwei Nutzer -----------------------------------------------------------
 \set uidA '00000000-0000-0000-0000-00000000000a'

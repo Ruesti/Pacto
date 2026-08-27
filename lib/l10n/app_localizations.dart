@@ -1580,6 +1580,12 @@ abstract class AppLocalizations {
   /// **'Stelle sicher, dass deine Erben ihren PIN kennen — sonst können sie deine Passwörter nicht entschlüsseln.'**
   String get heirPolicyWarnPinShared;
 
+  /// No description provided for @heirPolicyMaximumVaultNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Gilt nur für den manuellen Export (PDF/QR). Über den automatischen Tresor werden die Passwörter NICHT mitgesendet — dort kennt niemand den PIN. Die Erben erhalten dann nur die Vertragsliste (mit Hinweisen, ohne Passwörter).'**
+  String get heirPolicyMaximumVaultNote;
+
   /// No description provided for @heirPolicyPurgeTitle.
   ///
   /// In de, this message translates to:
@@ -2069,19 +2075,19 @@ abstract class AppLocalizations {
   /// No description provided for @syncToggle.
   ///
   /// In de, this message translates to:
-  /// **'Sync aktivieren'**
+  /// **'Cloud-Kopie aktivieren'**
   String get syncToggle;
 
   /// No description provided for @syncToggleSubtitle.
   ///
   /// In de, this message translates to:
-  /// **'Verschlüsseltes Backup in der Pacto-Cloud'**
+  /// **'Verschlüsselte Kopie in der Pacto-Cloud'**
   String get syncToggleSubtitle;
 
   /// No description provided for @syncLastSync.
   ///
   /// In de, this message translates to:
-  /// **'Letzter Sync'**
+  /// **'Letzte Kopie'**
   String get syncLastSync;
 
   /// No description provided for @syncNever.
@@ -2093,20 +2099,26 @@ abstract class AppLocalizations {
   /// No description provided for @syncNowButton.
   ///
   /// In de, this message translates to:
-  /// **'Jetzt synchronisieren'**
+  /// **'Jetzt hochladen'**
   String get syncNowButton;
 
   /// No description provided for @syncSuccess.
   ///
   /// In de, this message translates to:
-  /// **'Sync erfolgreich'**
+  /// **'Hochgeladen'**
   String get syncSuccess;
 
   /// No description provided for @syncReadyNote.
   ///
   /// In de, this message translates to:
-  /// **'Cloud-Backup ist startklar konfiguriert — keine Einrichtung nötig. Du musst Sync nur aktivieren.'**
+  /// **'Ohne Einrichtung startklar — du musst die Cloud-Kopie nur aktivieren.'**
   String get syncReadyNote;
+
+  /// No description provided for @syncNotBackupNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Das ist KEIN Wiederherstellungs-Backup: Der Schlüssel liegt nur auf diesem Gerät. Geht es verloren, lässt sich die Kopie nicht zurückholen — auch nicht durch uns. Für eine echte Wiederherstellung nach Geräteverlust lege oben ein Konto an.'**
+  String get syncNotBackupNote;
 
   /// No description provided for @vaultTitle.
   ///
@@ -2461,6 +2473,30 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Ohne E-Mail-Adresse kann der Tresor dich nicht warnen. Bitte oben eine Adresse eintragen.'**
   String get vaultOwnerEmailMissingWarning;
+
+  /// No description provided for @vaultLettersLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinterlegte Briefe'**
+  String get vaultLettersLabel;
+
+  /// No description provided for @vaultLettersValue.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =0{Keine} =1{1 Brief} other{{count} Briefe}}'**
+  String vaultLettersValue(int count);
+
+  /// No description provided for @vaultNoLettersWarning.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keine Erben hinterlegt — im Ernstfall würde nichts übermittelt. Lege unter „Erben & Teilen“ mindestens einen Erben an.'**
+  String get vaultNoLettersWarning;
+
+  /// No description provided for @vaultAutoSyncHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Änderungen an Verträgen und Erben werden automatisch für den Tresor aktualisiert.'**
+  String get vaultAutoSyncHint;
 }
 
 class _AppLocalizationsDelegate

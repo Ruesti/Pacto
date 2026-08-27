@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/providers/database_provider.dart';
 import '../../data/sync/cloud_sync_service.dart';
 import '../../l10n/app_localizations.dart';
@@ -125,6 +126,44 @@ class _SupabaseSyncScreenState extends ConsumerState<SupabaseSyncScreen> {
                   subtitle: Text(l.syncToggleSubtitle),
                   secondary: const Icon(Icons.cloud_outlined),
                 ),
+                // Ehrlichkeit (Befund 1-D): Ohne Konto ist diese Kopie NICHT
+                // wiederherstellbar (geraetegebundener Schluessel). Nur dann den
+                // Hinweis zeigen — mit Konto laeuft der Push ueber das
+                // wiederherstellbare Account-Vault.
+                if (Supabase.instance.client.auth.currentSession?.user
+                        .isAnonymous !=
+                    false) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.info_outline,
+                            size: 20,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onErrorContainer),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            l.syncNotBackupNote,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onErrorContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 ListTile(
                   leading: const Icon(Icons.history),
                   title: Text(l.syncLastSync),

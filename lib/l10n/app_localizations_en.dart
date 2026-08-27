@@ -805,6 +805,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Make sure your heirs know their PIN — otherwise they cannot decrypt your passwords.';
 
   @override
+  String get heirPolicyMaximumVaultNote =>
+      'Applies to manual export (PDF/QR) only. Over the automatic vault the passwords are NOT sent — no one there knows the PIN. Heirs then receive only the contract list (with hints, without passwords).';
+
+  @override
   String get heirPolicyPurgeTitle => 'Remove stored passwords?';
 
   @override
@@ -1080,26 +1084,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your data is encrypted with AES-256-GCM before upload. The key stays local on your device — the Pacto cloud only stores unreadable data.';
 
   @override
-  String get syncToggle => 'Enable sync';
+  String get syncToggle => 'Enable cloud copy';
 
   @override
-  String get syncToggleSubtitle => 'Encrypted backup in the Pacto cloud';
+  String get syncToggleSubtitle => 'Encrypted copy in the Pacto cloud';
 
   @override
-  String get syncLastSync => 'Last sync';
+  String get syncLastSync => 'Last copy';
 
   @override
   String get syncNever => 'never';
 
   @override
-  String get syncNowButton => 'Sync now';
+  String get syncNowButton => 'Upload now';
 
   @override
-  String get syncSuccess => 'Sync successful';
+  String get syncSuccess => 'Uploaded';
 
   @override
   String get syncReadyNote =>
-      'Cloud backup is ready to go — no setup needed. You just need to enable sync.';
+      'Ready to go, no setup needed — you just need to enable the cloud copy.';
+
+  @override
+  String get syncNotBackupNote =>
+      'This is NOT a recovery backup: the key stays on this device only. If you lose the device, the copy cannot be restored — not even by us. For real recovery after device loss, create an account above.';
 
   @override
   String get vaultTitle => 'Vitality Vault';
@@ -1311,4 +1319,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get vaultOwnerEmailMissingWarning =>
       'Without an email address the vault cannot warn you. Please add an address above.';
+
+  @override
+  String get vaultLettersLabel => 'Prepared letters';
+
+  @override
+  String vaultLettersValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count letters',
+      one: '1 letter',
+      zero: 'None',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vaultNoLettersWarning =>
+      'No heirs set up yet — nothing would be sent in an emergency. Add at least one heir under \"Heirs & Sharing\".';
+
+  @override
+  String get vaultAutoSyncHint =>
+      'Changes to contracts and heirs are automatically kept in sync for the vault.';
 }

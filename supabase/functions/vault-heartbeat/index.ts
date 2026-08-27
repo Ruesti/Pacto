@@ -43,9 +43,13 @@ Deno.serve(async (req: Request) => {
       device_id: deviceId,
       user_id: user.id,
       confirmed_at: new Date().toISOString(),
+      // Vorwarn-/Zustell-Zyklus zuruecksetzen ...
       warning_sent_at: null,
       warning_count: 0,
-      heir_notified_at: null,
+      notify_attempts: 0,
+      owner_alerted_at: null,
+      // ... aber heir_notified_at NICHT anfassen: sind die Erben-Mails einmal
+      // raus, darf ein Lebenszeichen das nicht "zurueckdrehen" (Befund 2-D).
       updated_at: new Date().toISOString(),
     };
     if (typeof body.ownerName === 'string') row.owner_name = body.ownerName;

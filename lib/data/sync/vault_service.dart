@@ -145,6 +145,16 @@ class VaultService {
     final contracts = await _db.contractsDao.getAll();
     final policy = await getHeirPasswordPolicy();
 
+    // Der automatische Tresor kennt den Erben-PIN nicht (nur dessen Hash) und
+    // kann den Maximum-Modus daher NICHT liefern. Statt still auf 'none' zu
+    // fallen, wird das bewusst gemacht: fuer den automatischen Versand gilt
+    // eine passwortlose Variante (nur Vertragsliste + Hinweise, keine
+    // Login-Passwoerter). Der Maximum-Modus bleibt fuer den MANUELLEN Export
+    // erhalten, wo der PIN verfuegbar ist. In der UI ist das ausgewiesen
+    // (heir_password_policy_screen).
+    final vaultPolicy =
+        policy == HeirPasswordPolicy.maximum ? HeirPasswordPolicy.none : policy;
+
     final payloads = <Map<String, dynamic>>[];
     for (final h in heirs) {
       if (!h.isActive) continue;
@@ -152,20 +162,17 @@ class VaultService {
           ? contracts.map(_redactSensitive).toList()
           : contracts;
 
-      // Pro Erbe rendern wir den Text-Body (Mail-Inhalt) und das PDF
-      // (Mail-Anhang). Im Maximum-Modus weiss der Server den PIN nicht — der
-      // Aufruf mit heirPin: null wirft dann, und wir fallen auf den
-      // passwortlosen Hinweis-Modus zurueck. Body und PDF nutzen dieselbe
-      // effektive Policy, damit Mail und Anhang konsistent sind.
-      var effectivePolicy = policy;
-      String body;
-      List<int> pdfBytes;
+      // Body (Mail-Inhalt) und PDF (Anhang) nutzen dieselbe vaultPolicy, damit
+      // beide konsistent sind. heirPin: null — im automatischen Versand nie
+      // verfuegbar.
+      final String body;
+      final List<int> pdfBytes;
       try {
         body = await ShareExportService.buildHeirExportText(
           contracts: visibleContracts,
           ownerName: ownerName,
           heir: h,
-          policy: policy,
+          policy: vaultPolicy,
           crypto: _crypto,
           heirPin: null,
         );
@@ -173,38 +180,20 @@ class VaultService {
           contracts: visibleContracts,
           ownerName: ownerName,
           heir: h,
-          policy: policy,
+          policy: vaultPolicy,
           crypto: _crypto,
           heirPin: null,
         );
       } catch (_) {
-        effectivePolicy = HeirPasswordPolicy.none;
-        try {
-          body = await ShareExportService.buildHeirExportText(
-            contracts: visibleContracts,
-            ownerName: ownerName,
-            heir: h,
-            policy: HeirPasswordPolicy.none,
-            crypto: _crypto,
-          );
-          pdfBytes = await ShareExportService.buildHeirExportPdfBytes(
-            contracts: visibleContracts,
-            ownerName: ownerName,
-            heir: h,
-            policy: HeirPasswordPolicy.none,
-            crypto: _crypto,
-          );
-        } catch (_) {
-          // Einzelnes Rendering darf das ganze Sync nicht killen.
-          continue;
-        }
+        // Einzelnes Rendering darf das ganze Sync nicht killen.
+        continue;
       }
 
       payloads.add({
         'heirId': h.id,
         'heirName': h.name,
         'heirEmail': h.email,
-        'policy': effectivePolicy.name,
+        'policy': vaultPolicy.name,
         'body': body,
         'pdfB64': base64Encode(pdfBytes),
       });
